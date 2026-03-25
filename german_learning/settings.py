@@ -33,6 +33,13 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://' + host for host in ALLOWED_HOSTS if host != '*'
+]
+if '*' in ALLOWED_HOSTS:
+    # If ALLOWED_HOSTS is '*', we add common Railway patterns as a fallback
+    CSRF_TRUSTED_ORIGINS += ['https://*.up.railway.app']
+
 
 # Application definition
 
