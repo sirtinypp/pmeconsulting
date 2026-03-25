@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}Course Catalog | PME Consulting EU{% endblock %}
+{% block page_title %}Course Catalog{% endblock %}
+{% block page_subtitle %}Browse German language courses available at your school{% endblock %}
+{% block brand_context %}Learning{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:1.5rem;">
+    {% for course in courses %}
+    <div class="card" style="display:flex; flex-direction:column; justify-content:space-between;">
+        <div>
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0.75rem;">
+                <span class="badge badge-yellow" style="font-size:0.8rem;">{{ course.get_level_display }}</span>
+                {% if course.pk in enrolled_ids %}
+                <span class="badge badge-green">Enrolled</span>
+                {% endif %}
+            </div>
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem;">{{ course.title }}</h3>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">{{
+                course.description|truncatechars:120 }}</p>
+            {% if course.duration %}
+            <div style="font-size:0.8rem; color:var(--text-muted);">⏱️ {{ course.duration }}</div>
+            {% endif %}
+        </div>
+        <div style="margin-top:1.25rem;">
+            {% if course.pk in enrolled_ids %}
+            <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary"
+                style="width:100%; justify-content:center;">Continue →</a>
+            {% else %}
+            <a href="{% url 'course_detail' course.pk %}" class="btn" style="width:100%; justify-content:center;">View
+                Course</a>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div style="grid-column:1/-1; text-align:center; padding:4rem; color:var(--text-muted);">
+        <div style="font-size:3rem; margin-bottom:1rem;">📚</div>
+        <p>No courses available yet. Check back soon!</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,62 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Login | PME Consulting EU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-box">
+            <div class="login-logo">
+                <div class="flag-bar">
+                    <span
+                        style="display:inline-block; width:40px; height:5px; background:#0F172A; border-radius:2px;"></span>
+                    <span
+                        style="display:inline-block; width:40px; height:5px; background:#1E4D8C; border-radius:2px; margin:0 3px;"></span>
+                    <span
+                        style="display:inline-block; width:40px; height:5px; background:#0EA5E9; border-radius:2px;"></span>
+                </div>
+                <div style="font-size:2rem;">🇩🇪</div>
+            </div>
+            <h2>Student Portal</h2>
+            <p class="subtitle">Sign in to continue your German learning journey</p>
+
+            {% if form.errors %}
+            <div
+                style="background:#EFF6FF; border:1px solid #FECACA; border-radius:8px; padding:12px; margin-bottom:16px; color:#1E4D8C; font-size:0.875rem;">
+                Invalid username or password. Please try again.
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    <input type="text" id="id_username" name="username" placeholder="Enter your username" required
+                        autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="id_password">Password</label>
+                    <input type="password" id="id_password" name="password" placeholder="Enter your password" required>
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="login-btn">Sign In →</button>
+            </form>
+
+            <div class="login-footer">
+                <a href="{% url 'admin_login' %}">Admin Portal?</a> &nbsp;·&nbsp;
+                <a href="{% url 'public_index' %}">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

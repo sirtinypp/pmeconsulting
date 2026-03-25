@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PME Learning | PME Consulting EU</title>
+    <meta name="description"
+        content="The premier platform for learning German — structured courses, live sessions, and gamified progress tracking.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+</head>
+
+<body>
+    <nav class="public-nav">
+        <div class="container nav-flex">
+            <div class="brand">
+                <span class="logo-text">🇩🇪 PME</span>
+                <span class="sub-logo" style="font-weight:700; color: #0EA5E9; margin-left: 4px;">Learning</span>
+            </div>
+            <div class="nav-links">
+                <a href="#about">About</a>
+                <a href="#features">Features</a>
+                <a href="#courses">Courses</a>
+                <a href="#calendar">Events</a>
+                <a href="{% url 'login' %}" class="btn btn-sm">Student Login</a>
+                <a href="{% url 'admin_login' %}" class="btn btn-primary btn-sm">Admin Portal</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="public-hero">
+            <div class="container hero-content">
+                <div class="hero-flag-bar">
+                    <span class="flag-black"></span>
+                    <span class="flag-red"></span>
+                    <span class="flag-gold"></span>
+                </div>
+                <h1 class="hero-title">Meistere Deutsch.<br>Master German.</h1>
+                <p class="hero-subtitle">The official German language learning platform of the<br>
+                    <strong>PME Consulting EU</strong> —
+                    structured courses, live sessions, and professional development.
+                </p>
+                <div class="hero-actions">
+                    <a href="{% url 'login' %}" class="btn btn-primary lg">Start Learning Today</a>
+                    <a href="{% url 'admin_login' %}" class="btn lg">Admin Portal</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Impact Section -->
+        <section class="impact-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M3 21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <path d="M3 7L12 3L21 7V21H3V7Z" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M9 21V11H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span class="stat-number">6</span>
+                        <span class="stat-label">CEFR Levels</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M22 10L12 5L2 10L12 15L22 10Z" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M6 12V17C6 17 8 19 12 19C16 19 18 17 18 17V12" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span class="stat-number">20+</span>
+                        <span class="stat-label">Active Courses</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                                <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span class="stat-number">500+</span>
+                        <span class="stat-label">Active Students</span>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <span class="stat-number">92%</span>
+                        <span class="stat-label">Completion Rate</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Vision Section -->
+        <section id="about" class="vision-section container">
+            <div class="content-split">
+                <div class="text-block">
+                    <span class="accent-label">OUR VISION</span>
+                    <h2>A World Connected Through Language</h2>
+                    <p>We believe German is more than a language — it's a gateway to culture, career, and community.
+                        Our platform combines structured CEFR-aligned content with live sessions and gamified
+                        progress to keep you motivated and on track.</p>
+                </div>
+                <div class="featured-visual">
+                    <span class="visual-icon">🇩🇪🇵🇭</span>
+                    <p class="visual-tagline">Bridging Filipino Healthcare Professionals<br>Across Europe Through
+                        Language.<br>
+                        <small style="opacity:0.7; font-weight:400;">PME Consulting EU</small>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Features Section -->
+        <section id="features" class="programs-section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Platform Excellence</h2>
+                    <p>Purpose-built for PME members pursuing careers and integration across Europe.</p>
+                </div>
+                <div class="programs-grid">
+                    <div class="program-card">
+                        <span class="program-icon">🎯</span>
+                        <h3>CEFR-Aligned Courses</h3>
+                        <p>Six structured levels from A1 beginner to C2 mastery — each with lessons, exercises, and
+                            quizzes.</p>
+                    </div>
+                    <div class="program-card">
+                        <span class="program-icon">🎙️</span>
+                        <h3>Live Speaking Sessions</h3>
+                        <p>Weekly live events, speaking practice, and Q&amp;A sessions with certified German
+                            instructors.</p>
+                    </div>
+                    <div class="program-card">
+                        <span class="program-icon">🏆</span>
+                        <h3>Gamified Progress</h3>
+                        <p>Earn points, badges, and certificates as you complete lessons — recognized within the PME
+                            community.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Courses -->
+        <section id="courses" class="programs-section" style="background: white;">
+            <div class="container">
+                <div class="section-header">
+                    <h2>PME Course Tracks</h2>
+                    <p>Start your German journey at the right level for professional integration.</p>
+                </div>
+                <div class="programs-grid">
+                    <div class="program-card">
+                        <span class="program-icon">🌱</span>
+                        <h3>A1–A2 Foundation</h3>
+                        <p>Master greetings, basic grammar, everyday vocabulary, and simple conversations.</p>
+                    </div>
+                    <div class="program-card">
+                        <span class="program-icon">📈</span>
+                        <h3>B1–B2 Intermediate</h3>
+                        <p>Build fluency, discuss complex topics, and prepare for the Goethe-Zertifikat.</p>
+                    </div>
+                    <div class="program-card">
+                        <span class="program-icon">🔬</span>
+                        <h3>C1–C2 Advanced</h3>
+                        <p>Achieve near-native proficiency for academic, business, or cultural immersion.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Training Calendar -->
+        <section id="calendar" class="calendar-section">
+            <div class="container">
+                <div class="card calendar-mini">
+                    <div class="mini-header">
+                        <div class="nav-controls">
+                            <h3>{{ month_name }} {{ year }}</h3>
+                            <div style="display: flex; gap: 8px;">
+                                <button class="btn btn-sm"
+                                    hx-get="{% url 'public_index' %}?month={{ prev_month }}&year={{ prev_year }}"
+                                    hx-target="#calendar-grid-wrapper" hx-swap="outerHTML">←</button>
+                                <button class="btn btn-sm"
+                                    hx-get="{% url 'public_index' %}?month={{ next_month }}&year={{ next_year }}"
+                                    hx-target="#calendar-grid-wrapper" hx-swap="outerHTML">→</button>
+                            </div>
+                        </div>
+                        <a href="{% url 'public_index' %}" class="link-btn">Reset to Current Month</a>
+                    </div>
+                    <div id="calendar-grid-wrapper">
+                        {% include 'public/partials/calendar_partial.html' %}
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="public-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <h3>🇩🇪 PME Learning Platform</h3>
+                <p style="color: #94A3B8; margin-top: 8px;">© 2026 PME Consulting EU. All rights
+                    reserved.</p>
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Contact Support</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

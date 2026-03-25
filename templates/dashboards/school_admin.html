@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard | PME Consulting EU{% endblock %}
+{% block page_title %}School Admin Dashboard{% endblock %}
+{% block page_subtitle %}Manage students and courses for {{ school_name }}{% endblock %}
+{% block brand_context %}Management{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Total Students</span>
+            <span class="value">{{ students|length }}</span>
+        </div>
+        <span class="stat-icon-lg">👥</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Active Courses</span>
+            <span class="value">{{ active_courses }}</span>
+        </div>
+        <span class="stat-icon-lg">📚</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Total Enrollments</span>
+            <span class="value">{{ total_enrollments }}</span>
+        </div>
+        <span class="stat-icon-lg">📋</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">School</span>
+            <span class="value" style="font-size:1rem;">{{ school_name }}</span>
+        </div>
+        <span class="stat-icon-lg">🏫</span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+            <h3 style="font-size:1.1rem; font-weight:700;">Student Roster</h3>
+            <a href="{% url 'student_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Add Student</a>
+        </div>
+        {% if students %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Student</th>
+                    <th>Enrollments</th>
+                    <th>Completion</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>
+                        <div style="font-weight:600;">{{ student.username }}</div>
+                        <div style="font-size:0.8rem; color:var(--text-muted);">{{ student.email }}</div>
+                    </td>
+                    <td>{{ student.total_enrollments }}</td>
+                    <td>
+                        <div class="progress-bar-wrap">
+                            <div class="progress-bar-fill" style="width:{{ student.completion_rate }}%"></div>
+                        </div>
+                        <span style="font-size:0.75rem; color:var(--text-muted);">{{ student.completion_rate }}%</span>
+                    </td>
+                    <td>
+                        <a href="{% url 'student_edit' student.pk %}" class="btn"
+                            style="font-size:0.75rem; padding:0.3rem 0.6rem;">Edit</a>
+                        <form method="post" action="{% url 'student_delete' student.pk %}" style="display:inline;"
+                            onsubmit="return confirm('Deactivate this student?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger"
+                                style="font-size:0.75rem; padding:0.3rem 0.6rem;">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No students enrolled yet. <a
+                href="{% url 'student_add' %}" style="color:var(--primary);">Add the first student →</a></p>
+        {% endif %}
+    </div>
+
+    <div>
+        <div class="card">
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">⚡ Quick Actions</h3>
+            <div class="quick-actions-list">
+                <a href="{% url 'student_add' %}" class="btn action-btn">➕ Add New Student</a>
+                <a href="{% url 'course_list' %}" class="btn action-btn">📚 Course Catalog</a>
+                <a href="/admin/" class="btn action-btn">⚙️ Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

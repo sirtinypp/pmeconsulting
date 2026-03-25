@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Superuser Dashboard | PME Consulting EU{% endblock %}
+{% block page_title %}Platform Overview{% endblock %}
+{% block page_subtitle %}System-wide statistics across all schools{% endblock %}
+{% block brand_context %}Super Management{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Total Students</span>
+            <span class="value">{{ total_students }}</span>
+        </div>
+        <span class="stat-icon-lg">👨‍🎓</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">School Admins</span>
+            <span class="value">{{ total_admins }}</span>
+        </div>
+        <span class="stat-icon-lg">👤</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Schools</span>
+            <span class="value">{{ total_schools }}</span>
+        </div>
+        <span class="stat-icon-lg">🏫</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Total Enrollments</span>
+            <span class="value">{{ total_enrollments }}</span>
+        </div>
+        <span class="stat-icon-lg">📋</span>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">🏫 School Statistics</h3>
+    {% if school_stats %}
+    <table>
+        <thead>
+            <tr>
+                <th>School</th>
+                <th>Students</th>
+                <th>Total Enrollments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stat in school_stats %}
+            <tr>
+                <td style="font-weight:600;">{{ stat.name }}</td>
+                <td>{{ stat.student_count }}</td>
+                <td>{{ stat.enrollment_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No schools set up yet. <a
+            href="/admin/core/school/add/" style="color:var(--primary);">Add a school →</a></p>
+    {% endif %}
+</div>
+{% endblock %}

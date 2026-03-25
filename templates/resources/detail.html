@@ -1,0 +1,310 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ post.title }} | PME Consulting EU</title>
+    <meta name="description" content="{{ post.excerpt|truncatechars:160 }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+    <style>
+        .post-hero {
+            padding: 80px 0 60px;
+            background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+            color: white;
+        }
+
+        .post-hero h1 {
+            font-size: 2.75rem;
+            font-weight: 800;
+            color: white;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            max-width: 800px;
+        }
+
+        .post-hero .meta-row {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .post-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 4px 14px;
+            border-radius: 999px;
+        }
+
+        .tag-diy {
+            background: #DBEAFE;
+            color: #1E4D8C;
+        }
+
+        .tag-art {
+            background: #EFF6FF;
+            color: #1E4D8C;
+        }
+
+        .tag-news {
+            background: #F1F5F9;
+            color: #374151;
+        }
+
+        .cover-banner {
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        /* Article body */
+        .article-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 48px;
+            padding: 60px 0;
+            align-items: start;
+        }
+
+        .article-body {
+            background: white;
+            border-radius: 20px;
+            padding: 48px;
+            border: 1px solid #eee;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .article-body .excerpt {
+            font-size: 1.2rem;
+            color: #4B5563;
+            line-height: 1.8;
+            border-left: 4px solid #0EA5E9;
+            padding-left: 20px;
+            margin-bottom: 36px;
+            font-style: italic;
+        }
+
+        .article-body .content {
+            font-size: 1rem;
+            line-height: 1.9;
+            color: #374151;
+            white-space: pre-line;
+        }
+
+        .article-body .content h2,
+        .article-body .content h3 {
+            font-weight: 800;
+            color: #1F2937;
+            margin: 28px 0 12px;
+        }
+
+        /* Sidebar */
+        .article-sidebar {
+            position: sticky;
+            top: 24px;
+        }
+
+        .sidebar-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-card h4 {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #9CA3AF;
+            margin-bottom: 16px;
+        }
+
+        .related-post {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 0;
+            border-bottom: 1px solid #F3F4F6;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.2s;
+        }
+
+        .related-post:last-child {
+            border-bottom: none;
+        }
+
+        .related-post:hover .related-title {
+            color: #1E4D8C;
+        }
+
+        .related-emoji {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: #F9FAFB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .related-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            line-height: 1.4;
+            transition: color 0.2s;
+        }
+
+        .related-cat {
+            font-size: 0.7rem;
+            color: #9CA3AF;
+            margin-top: 2px;
+        }
+
+        @media (max-width: 900px) {
+            .article-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .article-sidebar {
+                position: static;
+            }
+
+            .post-hero h1 {
+                font-size: 2rem;
+            }
+
+            .article-body {
+                padding: 28px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Nav -->
+    <nav class="public-nav">
+        <div class="container nav-flex">
+            <div class="brand">
+                <span class="logo-text">🇩🇪 PME</span>
+                <span class="sub-logo" style="font-weight:700; color:#0EA5E9; margin-left:4px;">Consulting EU</span>
+            </div>
+            <div class="nav-links">
+                <a href="{% url 'public_index' %}">Home</a>
+                <a href="{% url 'resource_list' %}" style="color:#1E4D8C; font-weight:700;">Resources</a>
+                <a href="{% url 'login' %}" class="btn btn-sm">Student Login</a>
+                <a href="{% url 'admin_login' %}" class="btn btn-primary btn-sm">Admin Portal</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Post Hero -->
+    <section class="post-hero">
+        <div class="container">
+            <div style="margin-bottom:16px;">
+                <a href="{% url 'resource_list' %}"
+                    style="color:rgba(255,255,255,0.5); text-decoration:none; font-size:0.875rem;">← Back to
+                    Resources</a>
+            </div>
+            <div class="meta-row" style="margin-bottom:16px;">
+                <span
+                    class="post-tag {% if post.category == 'DIY' %}tag-diy{% elif post.category == 'ART' %}tag-art{% else %}tag-news{% endif %}">
+                    {{ post.get_category_display }}
+                </span>
+                {% if post.published_at %}
+                <span style="color:rgba(255,255,255,0.5); font-size:0.875rem;">{{ post.published_at|date:"d F Y"
+                    }}</span>
+                {% endif %}
+                <span style="color:rgba(255,255,255,0.5); font-size:0.875rem;">by {{ post.author }}</span>
+            </div>
+            <div style="font-size:4rem; margin-bottom:16px;">{{ post.cover_emoji }}</div>
+            <h1>{{ post.title }}</h1>
+        </div>
+    </section>
+
+    <!-- Article Content -->
+    <div style="background:#F9FAFB;">
+        <div class="container">
+            <div class="article-layout">
+                <!-- Main content -->
+                <div class="article-body">
+                    <div class="excerpt">{{ post.excerpt }}</div>
+                    <div class="content">{{ post.content }}</div>
+                </div>
+
+                <!-- Sidebar -->
+                <aside class="article-sidebar">
+                    <!-- About section -->
+                    <div class="sidebar-card">
+                        <h4>About This Post</h4>
+                        <div style="display:flex; flex-direction:column; gap:10px; font-size:0.875rem; color:#374151;">
+                            <div>📂 <strong>Category:</strong> {{ post.get_category_display }}</div>
+                            {% if post.published_at %}
+                            <div>📅 <strong>Published:</strong> {{ post.published_at|date:"d M Y" }}</div>
+                            {% endif %}
+                            <div>✍️ <strong>Author:</strong> {{ post.author }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Related posts -->
+                    {% if related %}
+                    <div class="sidebar-card">
+                        <h4>Related Resources</h4>
+                        {% for r in related %}
+                        <a href="{% url 'resource_detail' r.slug %}" class="related-post">
+                            <div class="related-emoji">{{ r.cover_emoji }}</div>
+                            <div>
+                                <div class="related-title">{{ r.title|truncatechars:55 }}</div>
+                                <div class="related-cat">{{ r.get_category_display }}</div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- CTA card -->
+                    <div class="sidebar-card"
+                        style="background: linear-gradient(135deg, #0F172A, #1E293B); border:none; color:white;">
+                        <div style="font-size:2rem; margin-bottom:12px;">🎓</div>
+                        <h4 style="color:rgba(255,255,255,0.6);">Ready to Learn German?</h4>
+                        <p style="font-size:0.875rem; color:rgba(255,255,255,0.7); margin-bottom:16px;">Start your
+                            structured German language journey with PME Consulting EU.</p>
+                        <a href="{% url 'login' %}"
+                            style="display:block; text-align:center; padding:10px; background:#0EA5E9; color:#0F172A; border-radius:8px; font-weight:700; font-size:0.875rem; text-decoration:none;">Start
+                            Learning →</a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <footer class="public-footer">
+        <div class="container footer-grid">
+            <div class="footer-brand">
+                <h3>🇩🇪 PME Consulting EU</h3>
+                <p style="color:#94A3B8; margin-top:8px;">© 2026 PME Consulting EU. All rights reserved.</p>
+            </div>
+            <div class="footer-links">
+                <a href="{% url 'public_index' %}">Home</a>
+                <a href="{% url 'resource_list' %}">Resources</a>
+                <a href="{% url 'login' %}">Student Login</a>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

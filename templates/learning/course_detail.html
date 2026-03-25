@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% block title %}{{ course.title }} | PME Consulting EU{% endblock %}
+{% block page_title %}{{ course.title }}{% endblock %}
+{% block page_subtitle %}{{ course.get_level_display }}{% if course.duration %} · ⏱️ {{ course.duration }}{% endif %}{%
+endblock %}
+{% block brand_context %}Learning{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid">
+    <div>
+        <!-- Enrollment banner -->
+        {% if not enrollment %}
+        <div class="card"
+            style="background: linear-gradient(135deg, #0F172A, #1E293B); color:white; margin-bottom:1.5rem; border:none;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <h3 style="color:white; margin-bottom:0.25rem;">Ready to start?</h3>
+                    <p style="color:#aaa; font-size:0.875rem;">Enroll to track your progress and earn achievements.</p>
+                </div>
+                <form method="post" action="{% url 'enroll_course' course.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">✅ Enroll Now</button>
+                </form>
+            </div>
+        </div>
+        {% else %}
+        <div class="card" style="margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                <span style="font-weight:700;">Your Progress</span>
+                <span
+                    class="badge {% if enrollment.status == 'COMPLETED' %}badge-green{% elif enrollment.status == 'IN_PROGRESS' %}badge-yellow{% else %}badge-gray{% endif %}">
+                    {{ enrollment.get_status_display }}
+                </span>
+            </div>
+            <div class="progress-bar-wrap" style="height:12px;">
+                <div class="progress-bar-fill" style="width:{{ enrollment.progress_percent }}%"></div>
+            </div>
+            <span style="font-size:0.8rem; color:var(--text-muted);">{{ enrollment.progress_percent }}% complete</span>
+        </div>
+        {% endif %}
+
+        <!-- Lessons List -->
+        <div class="card">
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem;">📋 Lessons</h3>
+            {% for lesson in lessons %}
+            <div
+                style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 0; border-bottom:1px solid var(--border);">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <span style="font-size:1.25rem;">
+                        {% if lesson.pk in completed_lesson_ids %}✅{% elif lesson.lesson_type == 'VID' %}🎬{% elif
+                        lesson.lesson_type == 'QIZ' %}❓{% elif lesson.lesson_type == 'SPK' %}🎙️{% else %}📄{% endif %}
+                    </span>
+                    <div>
+                        <div style="font-weight:600; font-size:0.9375rem;">{{ lesson.title }}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ lesson.get_lesson_type_display }}{%
+                            if lesson.is_required %} · Required{% endif %}</div>
+                    </div>
+                </div>
+                {% if enrollment %}
+                {% if lesson.pk in completed_lesson_ids %}
+                <span class="badge badge-green">Done</span>
+                {% else %}
+                <form method="post" action="{% url 'complete_lesson' lesson.pk %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn" style="font-size:0.75rem; padding:0.3rem 0.7rem;">Mark
+                        Complete</button>
+                </form>
+                {% endif %}
+                {% endif %}
+            </div>
+            {% empty %}
+            <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No lessons added yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <div class="card" style="margin-bottom:1.5rem;">
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">ℹ️ Course Info</h3>
+            <div style="font-size:0.875rem; color:var(--text-muted);">
+                <div style="margin-bottom:0.5rem;">📊 <strong>Level:</strong> {{ course.get_level_display }}</div>
+                {% if course.duration %}<div style="margin-bottom:0.5rem;">⏱️ <strong>Duration:</strong> {{
+                    course.duration }}</div>{% endif %}
+                {% if course.start_date %}<div style="margin-bottom:0.5rem;">📅 <strong>Start:</strong> {{
+                    course.start_date }}</div>{% endif %}
+                <div>📝 <strong>Lessons:</strong> {{ lessons|length }}</div>
+            </div>
+        </div>
+        <div class="card">
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">📖 About This Course</h3>
+            <p style="font-size:0.875rem; color:var(--text-muted);">{{ course.description }}</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

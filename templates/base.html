@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PME Consulting EU Platform{% endblock %}</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+    <!-- HTMX -->
+    <script src="https://unpkg.com/htmx.org@2.0.0"></script>
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <div class="app-layout">
+        <!-- Top Navigation Bar -->
+        <nav class="top-nav">
+            <div class="nav-container">
+                <div class="brand-section">
+                    <div class="logo-circle">
+                        <span>🇩🇪</span>
+                    </div>
+                    <span class="brand-name">
+                        <span style="color: #1E4D8C;">{{ user.school.code|default:"DEUTSCH" }}</span>
+                        <span style="color: var(--accent);">{% block brand_context %}Learning{% endblock %}</span>
+                    </span>
+                </div>
+
+                <ul class="nav-menu">
+                    <li class="nav-item {% if '/dashboard/' in request.path %}active{% endif %}">
+                        <a href="{% url 'dashboard' %}">
+                            <span class="nav-icon">📊</span>
+                            Dashboard
+                        </a>
+                    </li>
+
+                    {% if user.role == 'STUDENT' %}
+                    <li class="nav-item {% if '/learning/' in request.path %}active{% endif %}">
+                        <a href="{% url 'course_list' %}">
+                            <span class="nav-icon">📖</span>
+                            My Courses
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'public_index' %}">
+                            <span class="nav-icon">📅</span>
+                            Live Events
+                        </a>
+                    </li>
+                    <li class="nav-item {% if '/resources/' in request.path %}active{% endif %}">
+                        <a href="{% url 'resource_list' %}">
+                            <span class="nav-icon">🗺️</span>
+                            Resources
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'dashboard' %}">
+                            <span class="nav-icon">🏆</span>
+                            Achievements
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if user.role == 'SCHOOL_ADMIN' %}
+                    <li class="nav-item {% if '/dashboard/' in request.path %}active{% endif %}">
+                        <a href="{% url 'dashboard' %}">
+                            <span class="nav-icon">👥</span>
+                            Student Management
+                        </a>
+                    </li>
+                    <li class="nav-item {% if '/learning/' in request.path %}active{% endif %}">
+                        <a href="{% url 'course_list' %}">
+                            <span class="nav-icon">📚</span>
+                            Course Catalog
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'student_add' %}">
+                            <span class="nav-icon">➕</span>
+                            Add Student
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    {% if user.is_superuser %}
+                    <li class="nav-item">
+                        <a href="/admin/">
+                            <span class="nav-icon">⚙️</span>
+                            System Admin
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="user-actions">
+                    <div class="user-profile">
+                        <div class="profile-text">
+                            <span class="user-name">{{ user.username }}</span>
+                            <span class="user-role">{{ user.get_role_display }}</span>
+                        </div>
+                        <div class="avatar">{{ user.username|first|upper }}</div>
+                    </div>
+                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="logout-icon"
+                            style="background: none; border: none; cursor: pointer; padding: 0; font-size: 1.25rem;">🚪</button>
+                    </form>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <div class="container">
+                    <h1 class="page-title">{% block page_title %}Dashboard{% endblock %}</h1>
+                    <p class="page-subtitle">{% block page_subtitle %}Track your German learning progress and earn
+                        achievements{% endblock %}</p>
+                </div>
+            </header>
+
+            <section class="content-body" id="main-display">
+                <div class="container">
+                    {% block content %}{% endblock %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const dropdowns = document.querySelectorAll('.nav-item-dropdown');
+
+            dropdowns.forEach(dropdown => {
+                const trigger = dropdown.querySelector('.dropdown-trigger');
+                const menu = dropdown.querySelector('.dropdown-menu');
+
+                trigger.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    dropdowns.forEach(other => {
+                        if (other !== dropdown) {
+                            other.classList.remove('show');
+                            other.querySelector('.dropdown-menu').classList.remove('show');
+                        }
+                    });
+                    const isShown = menu.classList.contains('show');
+                    if (isShown) {
+                        menu.classList.remove('show');
+                        dropdown.classList.remove('show');
+                    } else {
+                        menu.classList.add('show');
+                        dropdown.classList.add('show');
+                    }
+                });
+            });
+
+            document.addEventListener('click', function () {
+                dropdowns.forEach(dropdown => {
+                    dropdown.classList.remove('show');
+                    dropdown.querySelector('.dropdown-menu').classList.remove('show');
+                });
+            });
+      ;
+    </script>
+</body>
+
+</html>

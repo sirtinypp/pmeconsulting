@@ -1,0 +1,23 @@
+<div class="calendar-grid">
+    <div class="cal-header">Mo</div>
+    <div class="cal-header">Tu</div>
+    <div class="cal-header">We</div>
+    <div class="cal-header">Th</div>
+    <div class="cal-header">Fr</div>
+    <div class="cal-header">Sa</div>
+    <div class="cal-header">Su</div>
+
+    {% for week in cal %}
+    {% for day in week %}
+    {% if day == 0 %}
+    <div></div>
+    {% elif day == today and month == current_month %}
+    <div class="cal-day today" title="Today">{{ day }}</div>
+    {% elif day in event_days %}
+    <div class="cal-day has-event" title="{{ event_days|dictsort:day }}">{{ day }}</div>
+    {% else %}
+    <div class="cal-day">{{ day }}</div>
+    {% endif %}
+    {% endfor %}
+    {% endfor %}
+</div>

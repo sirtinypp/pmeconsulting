@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard | PME Consulting EU{% endblock %}
+{% block page_title %}Willkommen, {{ user.first_name|default:user.username }}! 👋{% endblock %}
+{% block page_subtitle %}Track your German learning progress and earn achievements{% endblock %}
+{% block brand_context %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Stats Row -->
+<div class="stats-grid">
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Enrolled Courses</span>
+            <span class="value">{{ assigned_count }}</span>
+        </div>
+        <span class="stat-icon-lg">📚</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">In Progress</span>
+            <span class="value">{{ in_progress_count }}</span>
+        </div>
+        <span class="stat-icon-lg">⚡</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Completed</span>
+            <span class="value">{{ completed_count }}</span>
+        </div>
+        <span class="stat-icon-lg">✅</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
+            <span class="label">Total Points</span>
+            <span class="value">{{ total_points }}</span>
+        </div>
+        <span class="stat-icon-lg">⭐</span>
+    </div>
+</div>
+
+<div class="dashboard-grid">
+    <div>
+        <!-- My Courses -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 style="font-size:1.1rem; font-weight:700;">My Courses</h3>
+                <a href="{% url 'course_list' %}" class="btn btn-primary"
+                    style="font-size:0.8rem; padding:0.4rem 0.9rem;">Browse All</a>
+            </div>
+            {% if courses %}
+            {% for course in courses %}
+            <div
+                style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0; border-bottom:1px solid var(--border);">
+                <div>
+                    <div style="font-weight:600; font-size:0.9375rem;">{{ course.title }}</div>
+                    <div style="font-size:0.8rem; color:var(--text-muted);">{{ course.get_level_display }}</div>
+                </div>
+                <a href="{% url 'course_detail' course.pk %}" class="btn"
+                    style="font-size:0.8rem; padding:0.35rem 0.75rem;">Open</a>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No courses yet. <a
+                    href="{% url 'course_list' %}" style="color:var(--primary);">Browse the catalog →</a></p>
+            {% endif %}
+        </div>
+
+        <!-- Upcoming Events -->
+        <div class="card">
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">📅 Upcoming Live Events</h3>
+            {% if trainings %}
+            {% for event in trainings %}
+            <div style="padding:0.75rem 0; border-bottom:1px solid var(--border);">
+                <div style="font-weight:600;">{{ event.title }}</div>
+                <div style="font-size:0.8rem; color:var(--text-muted);">{{ event.date|date:"D, d M Y — H:i" }} · {{
+                    event.location }}</div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p style="color:var(--text-muted); text-align:center; padding:1.5rem 0;">No upcoming events scheduled.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div>
+        <div class="card" style="margin-bottom:1.5rem;">
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">🏆 Recent Achievements</h3>
+            {% if achievements %}
+            {% for ach in achievements %}
+            <div
+                style="display:flex; gap:0.75rem; align-items:center; padding:0.5rem 0; border-bottom:1px solid var(--border);">
+                <span style="font-size:1.5rem;">{{ ach.icon }}</span>
+                <div>
+                    <div style="font-weight:600; font-size:0.875rem;">{{ ach.title }}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted);">+{{ ach.points }} pts</div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p style="color:var(--text-muted); font-size:0.875rem; text-align:center; padding:1rem 0;">Complete lessons
+                to earn achievements!</p>
+            {% endif %}
+        </div>
+
+        <div class="card" style="margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                <h3 style="font-size:1rem; font-weight:700;">🗺️ Resources</h3>
+                <a href="{% url 'resource_list' %}"
+                    style="font-size:0.75rem; color:var(--primary); text-decoration:none; font-weight:600;">View All
+                    →</a>
+            </div>
+            {% if recent_resources %}
+            {% for post in recent_resources %}
+            <a href="{% url 'resource_detail' post.slug %}"
+                style="display:flex; gap:0.75rem; align-items:center; padding:0.5rem 0; border-bottom:1px solid var(--border); text-decoration:none; color:inherit;">
+                <span style="font-size:1.5rem; width:36px; text-align:center;">{{ post.cover_emoji }}</span>
+                <div>
+                    <div style="font-weight:600; font-size:0.8125rem; line-height:1.3;">{{ post.title|truncatechars:45
+                        }}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted);">{{ post.get_category_display }}</div>
+                </div>
+            </a>
+            {% endfor %}
+            {% else %}
+            <p style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:0.75rem 0;">
+                Guides coming soon! <a href="{% url 'resource_list' %}" style="color:var(--primary);">Browse →</a>
+            </p>
+            {% endif %}
+        </div>
+
+        <div class="card">
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">⚡ Quick Actions</h3>
+            <div class="quick-actions-list">
+                <a href="{% url 'course_list' %}" class="btn action-btn">📖 Browse Courses</a>
+                <a href="{% url 'resource_list' %}" class="btn action-btn">🗺️ View Resources</a>
+                <a href="{% url 'public_index' %}" class="btn action-btn">📅 View Events</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
