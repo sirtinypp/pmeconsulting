@@ -1,1 +1,1 @@
-web: gunicorn german_learning.wsgi
+web: python manage.py migrate && python manage.py seed_resources && gunicorn german_learning.wsgi
