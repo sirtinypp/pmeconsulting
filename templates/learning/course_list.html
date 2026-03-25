@@ -16,8 +16,7 @@
                 {% endif %}
             </div>
             <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:0.5rem;">{{ course.title }}</h3>
-            <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">{{
-                course.description|truncatechars:120 }}</p>
+            <p style="color:var(--text-muted); font-size:0.875rem; margin-bottom:1rem;">{{ course.description|truncatechars:120 }}</p>
             {% if course.duration %}
             <div style="font-size:0.8rem; color:var(--text-muted);">⏱️ {{ course.duration }}</div>
             {% endif %}
@@ -27,8 +26,7 @@
             <a href="{% url 'course_detail' course.pk %}" class="btn btn-primary"
                 style="width:100%; justify-content:center;">Continue →</a>
             {% else %}
-            <a href="{% url 'course_detail' course.pk %}" class="btn" style="width:100%; justify-content:center;">View
-                Course</a>
+            <a href="{% url 'course_detail' course.pk %}" class="btn" style="width:100%; justify-content:center;">View Course</a>
             {% endif %}
         </div>
     </div>

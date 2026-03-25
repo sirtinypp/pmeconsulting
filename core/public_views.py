@@ -18,9 +18,10 @@ def public_index(request):
     events = TrainingEvent.objects.filter(
         date__year=year,
         date__month=month
-    ).values('date', 'title')
+    ).order_by('date')
 
-    event_days = {e['date'].day: e['title'] for e in events}
+    event_days = {e.date.day: e.title for e in events}
+    event_day_list = list(event_days.keys())
 
     prev_month = 12 if month == 1 else month - 1
     next_month = 1 if month == 12 else month + 1
@@ -37,6 +38,9 @@ def public_index(request):
         'prev_year': prev_year,
         'next_year': next_year,
         'event_days': event_days,
+        'event_day_list': event_day_list,
+        'events': events,
         'today': now.day,
+        'current_month': now.month,
     }
     return render(request, 'public/index.html', context)

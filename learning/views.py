@@ -116,3 +116,32 @@ def complete_lesson(request, pk):
             enrollment.save()
 
     return redirect('course_detail', pk=lesson.course.pk)
+
+
+@login_required
+def lesson_detail(request, pk):
+    """View a single lesson's full content."""
+    lesson = get_object_or_404(Lesson, pk=pk)
+    
+    # Check if user is enrolled in the course or is admin
+    enrollment = CourseEnrollment.objects.filter(
+        user=request.user, course=lesson.course
+    ).first()
+    
+    # Allow enrolled students OR admins/superusers
+    if not enrollment and request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    # Check if approved if student
+    if enrollment and enrollment.status == CourseEnrollment.Status.PENDING and request.user.role == 'STUDENT':
+        return redirect('course_detail', pk=lesson.course.pk)
+
+    completed = LessonCompletion.objects.filter(user=request.user, lesson=lesson).exists()
+
+    return render(request, 'learning/lesson_detail.html', {
+        'lesson': lesson,
+        'course': lesson.course,
+        'completed': completed,
+        'page_title': lesson.title,
+        'brand_context': 'Learning',
+    })

@@ -192,13 +192,17 @@
             </div>
         </section>
 
-        <!-- Training Calendar -->
-        <section id="calendar" class="calendar-section">
+<section id="calendar" class="calendar-section">
             <div class="container">
-                <div class="card calendar-mini">
-                    <div class="mini-header">
-                        <div class="nav-controls">
-                            <h3>{{ month_name }} {{ year }}</h3>
+                <div class="section-header">
+                    <h2>Training Schedule</h2>
+                    <p>Join our live clinical workshops and PME community sessions.</p>
+                </div>
+                
+                <div class="card calendar-mini" style="max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(30, 77, 140, 0.08);">
+                    <div class="mini-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <div class="nav-controls" style="display: flex; align-items: center; gap: 20px;">
+                            <h3 style="font-size: 1.25rem; color: var(--primary);">{{ month_name }} {{ year }}</h3>
                             <div style="display: flex; gap: 8px;">
                                 <button class="btn btn-sm"
                                     hx-get="{% url 'public_index' %}?month={{ prev_month }}&year={{ prev_year }}"
@@ -208,8 +212,9 @@
                                     hx-target="#calendar-grid-wrapper" hx-swap="outerHTML">→</button>
                             </div>
                         </div>
-                        <a href="{% url 'public_index' %}" class="link-btn">Reset to Current Month</a>
+                        <a href="{% url 'public_index' %}" class="link-btn">Reset to Today</a>
                     </div>
+                    
                     <div id="calendar-grid-wrapper">
                         {% include 'public/partials/calendar_partial.html' %}
                     </div>

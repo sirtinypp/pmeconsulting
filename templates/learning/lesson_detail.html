@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}{{ lesson.title }} | {{ course.title }}{% endblock %}
+{% block page_title %}{{ lesson.title }}{% endblock %}
+{% block page_subtitle %}{{ course.title }}{% endblock %}
+{% block brand_context %}Learning{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns: 1fr 320px; gap:2rem;">
+    <!-- Main Content Area -->
+    <div>
+        <div class="card" style="margin-bottom:1.5rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <span class="badge badge-yellow">{{ lesson.get_lesson_type_display }}</span>
+                <a href="{% url 'course_detail' course.pk %}" style="font-size:0.875rem; color:var(--primary); text-decoration:none; font-weight:600;">← Back to Course</a>
+            </div>
+            
+            <div style="font-size:1.1rem; line-height:1.7; color:#334155; margin-bottom:2rem;">
+                {{ lesson.description|linebreaks }}
+            </div>
+
+            {% if not completed %}
+            <form method="post" action="{% url 'complete_lesson' lesson.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:1rem;">✅ Complete Lesson</button>
+            </form>
+            {% else %}
+            <div style="background:#F0FDF4; border:1px solid #BBF7D0; color:#166534; padding:1rem; border-radius:12px; display:flex; align-items:center; justify-content:center; gap:0.5rem; font-weight:700;">
+                ✨ Lesson Completed
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar / Resources -->
+    <div>
+        <div class="card" style="margin-bottom:1.5rem;">
+            <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">📚 Lesson Resources</h3>
+            <ul style="list-style:none; padding:0;">
+                {% for resource in lesson.resources.all %}
+                <li style="padding:0.75rem 0; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:0.75rem;">
+                    <span style="font-size:1.25rem;">
+                        {% if resource.resource_type == 'DOC' %}📄{% elif resource.resource_type == 'VID' %}🎬{% else %}🔗{% endif %}
+                    </span>
+                    <div style="flex:1;">
+                        <a href="{{ resource.url|default:'#' }}" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ resource.get_resource_type_display }}</div>
+                    </div>
+                </li>
+                {% empty %}
+                <p style="font-size:0.875rem; color:var(--text-muted);">No extra materials for this lesson.</p>
+                {% endfor %}
+            </ul>
+        </div>
+        
+        <div class="card" style="background:var(--primary); color:white; border:none;">
+            <h4 style="color:white; font-size:0.9rem; margin-bottom:0.5rem;">Need Help?</h4>
+            <p style="font-size:0.8rem; color:#DBEAFE; margin-bottom:1rem;">If you have questions about the clinical terminology in this lesson, join the live Q&A session on the Events calendar.</p>
+            <a href="{% url 'events_list' %}" class="btn" style="background:white; color:var(--primary); font-size:0.75rem; width:100%; justify-content:center;">View Events Calendar</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

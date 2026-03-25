@@ -7,5 +7,6 @@ urlpatterns = [
     path('<int:pk>/enroll/', views.enroll_course, name='enroll_course'),
     path('approve-enrollment/<int:pk>/', views.approve_enrollment, name='approve_enrollment'),
     path('reject-enrollment/<int:pk>/', views.reject_enrollment, name='reject_enrollment'),
+    path('lesson/<int:pk>/', views.lesson_detail, name='lesson_detail'),
     path('lesson/<int:pk>/complete/', views.complete_lesson, name='complete_lesson'),
 ]

@@ -1,8 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}{{ course.title }} | PME Consulting EU{% endblock %}
 {% block page_title %}{{ course.title }}{% endblock %}
-{% block page_subtitle %}{{ course.get_level_display }}{% if course.duration %} · ⏱️ {{ course.duration }}{% endif %}{%
-endblock %}
+{% block page_subtitle %}{{ course.get_level_display }}{% if course.duration %} · ⏱️ {{ course.duration }}{% endif %}{% endblock %}
 {% block brand_context %}Learning{% endblock %}
 
 {% block content %}
@@ -41,19 +40,31 @@ endblock %}
 
         <!-- Lessons List -->
         <div class="card">
-            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.25rem;">📋 Lessons</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                <h3 style="font-size: 1.1rem; font-weight: 700; margin: 0;">📋 Lessons</h3>
+                {% if user.role == 'SCHOOL_ADMIN' or user.is_superuser %}
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'course_edit' course.pk %}" class="btn btn-sm" style="border: 1px solid var(--border);">Edit Course</a>
+                    <a href="{% url 'lesson_add' course.pk %}" class="btn btn-sm btn-primary">+ Add Lesson</a>
+                </div>
+                {% endif %}
+            </div>
             {% for lesson in lessons %}
             <div
                 style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 0; border-bottom:1px solid var(--border);">
                 <div style="display:flex; align-items:center; gap:0.75rem;">
                     <span style="font-size:1.25rem;">
-                        {% if lesson.pk in completed_lesson_ids %}✅{% elif lesson.lesson_type == 'VID' %}🎬{% elif
-                        lesson.lesson_type == 'QIZ' %}❓{% elif lesson.lesson_type == 'SPK' %}🎙️{% else %}📄{% endif %}
+                        {% if lesson.pk in completed_lesson_ids %}✅{% elif lesson.lesson_type == 'VID' %}🎬{% elif lesson.lesson_type == 'QIZ' %}❓{% elif lesson.lesson_type == 'SPK' %}🎙️{% else %}📄{% endif %}
                     </span>
                     <div>
-                        <div style="font-weight:600; font-size:0.9375rem;">{{ lesson.title }}</div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ lesson.get_lesson_type_display }}{%
-                            if lesson.is_required %} · Required{% endif %}</div>
+                        <div style="font-weight:600; font-size:0.9375rem;">
+                            {% if enrollment and enrollment.status != 'PENDING' %}
+                            <a href="{% url 'lesson_detail' lesson.pk %}" style="color:inherit; text-decoration:none; border-bottom:1px solid transparent;" onmouseover="this.style.borderBottom='1px solid var(--primary)'" onmouseout="this.style.borderBottom='1px solid transparent'">{{ lesson.title }}</a>
+                            {% else %}
+                            {{ lesson.title }}
+                            {% endif %}
+                        </div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ lesson.get_lesson_type_display }}{% if lesson.is_required %} · Required{% endif %}</div>
                     </div>
                 </div>
                 {% if enrollment %}
@@ -80,10 +91,8 @@ endblock %}
             <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">ℹ️ Course Info</h3>
             <div style="font-size:0.875rem; color:var(--text-muted);">
                 <div style="margin-bottom:0.5rem;">📊 <strong>Level:</strong> {{ course.get_level_display }}</div>
-                {% if course.duration %}<div style="margin-bottom:0.5rem;">⏱️ <strong>Duration:</strong> {{
-                    course.duration }}</div>{% endif %}
-                {% if course.start_date %}<div style="margin-bottom:0.5rem;">📅 <strong>Start:</strong> {{
-                    course.start_date }}</div>{% endif %}
+                {% if course.duration %}<div style="margin-bottom:0.5rem;">⏱️ <strong>Duration:</strong> {{ course.duration }}</div>{% endif %}
+                {% if course.start_date %}<div style="margin-bottom:0.5rem;">📅 <strong>Start:</strong> {{ course.start_date }}</div>{% endif %}
                 <div>📝 <strong>Lessons:</strong> {{ lessons|length }}</div>
             </div>
         </div>

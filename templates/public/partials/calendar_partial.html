@@ -1,23 +1,46 @@
-<div class="calendar-grid">
-    <div class="cal-header">Mo</div>
-    <div class="cal-header">Tu</div>
-    <div class="cal-header">We</div>
-    <div class="cal-header">Th</div>
-    <div class="cal-header">Fr</div>
-    <div class="cal-header">Sa</div>
-    <div class="cal-header">Su</div>
+<div id="calendar-grid-wrapper">
+    <div class="calendar-grid">
+        <div class="calendar-days-header" style="grid-column: 1 / -1; display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 8px;">
+            <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
 
-    {% for week in cal %}
-    {% for day in week %}
-    {% if day == 0 %}
-    <div></div>
-    {% elif day == today and month == current_month %}
-    <div class="cal-day today" title="Today">{{ day }}</div>
-    {% elif day in event_days %}
-    <div class="cal-day has-event" title="{{ event_days|dictsort:day }}">{{ day }}</div>
-    {% else %}
-    <div class="cal-day">{{ day }}</div>
-    {% endif %}
-    {% endfor %}
-    {% endfor %}
+        {% for week in cal %}
+        {% for day in week %}
+        {% if day == 0 %}
+        <span></span>
+        {% elif day == today and month == current_month %}
+        <span class="today" title="Today">{{ day }}</span>
+        {% elif day in event_day_list %}
+        <span class="event-day" title="Training Session">{{ day }}</span>
+        {% else %}
+        <span class="day">{{ day }}</span>
+        {% endif %}
+        {% endfor %}
+        {% endfor %}
+    </div>
+    
+    <div class="events-side-list" style="margin-top: 40px; border-top: 1px solid #F1F5F9; padding-top: 30px;">
+        <h4 style="margin-bottom: 20px; color: var(--primary); font-size: 1.1rem;">📅 Upcoming Sessions in {{ month_name }}</h4>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+            {% for event in events %}
+            <div class="event-side-item" style="background: #F8FAFC;">
+                <div class="event-side-date">
+                    <div class="day">{{ event.date|date:"d" }}</div>
+                    <div class="month">{{ event.date|date:"M" }}</div>
+                </div>
+                <div class="event-side-info">
+                    <h4>{{ event.title }}</h4>
+                    <div class="meta">
+                        <span>🕒 {{ event.date|date:"H:i" }} CET</span>
+                        <span>📍 {{ event.location }}</span>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div style="grid-column: 1 / -1; text-align: center; padding: 20px; color: #94A3B8; font-size: 0.875rem;">
+                No sessions scheduled for this month.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>

@@ -6,7 +6,7 @@ from django.db.models import Sum
 from .models import School
 from users.models import CustomUser
 from learning.models import (
-    Course, TrainingEvent, CourseEnrollment, Achievement
+    Course, TrainingEvent, CourseEnrollment, Achievement, Lesson
 )
 from gamification.models import UserProgression
 from resources.models import Post
@@ -118,6 +118,20 @@ def student_upsert(request, pk=None):
 
 
 @login_required
+def events_list(request):
+    """List all upcoming training events for the user's school."""
+    from learning.models import TrainingEvent
+    from django.utils import timezone
+    events = TrainingEvent.objects.filter(school=request.user.school).order_by('date')
+    context = {
+        'events': events,
+        'brand_context': 'Events',
+        'is_live': any(e.date.date() == timezone.now().date() for e in events)
+    }
+    return render(request, 'learning/events.html', context)
+
+
+@login_required
 def student_delete(request, pk):
     """Deactivate a student."""
     if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
@@ -130,3 +144,127 @@ def student_delete(request, pk):
     student.is_active = False
     student.save()
     return redirect('dashboard')
+
+
+@login_required
+def course_upsert(request, pk=None):
+    """Create or edit a course (admin only)."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    course = None
+    if pk:
+        course = get_object_or_404(Course, pk=pk)
+        if not request.user.is_superuser and course.school != request.user.school:
+            raise PermissionDenied
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        level = request.POST.get('level')
+        duration = request.POST.get('duration')
+        description = request.POST.get('description')
+        is_active = request.POST.get('is_active') == 'on'
+
+        if not course:
+            course = Course.objects.create(
+                title=title, school=request.user.school, level=level,
+                duration=duration, description=description, is_active=is_active
+            )
+        else:
+            course.title = title
+            course.level = level
+            course.duration = duration
+            course.description = description
+            course.is_active = is_active
+            course.save()
+
+        return redirect('dashboard')
+
+    return render(request, 'management/course_form.html', {
+        'course': course,
+        'levels': ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+        'page_title': 'Edit Course' if pk else 'Create New Course',
+        'brand_context': 'Management',
+    })
+
+
+@login_required
+def lesson_upsert(request, course_id, pk=None):
+    """Create or edit a lesson (admin only)."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    course = get_object_or_404(Course, pk=course_id)
+    if not request.user.is_superuser and course.school != request.user.school:
+        raise PermissionDenied
+
+    lesson = None
+    if pk:
+        lesson = get_object_or_404(Lesson, pk=pk)
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        lesson_type = request.POST.get('lesson_type')
+        description = request.POST.get('description')
+        order = request.POST.get('order', 0)
+
+        if not lesson:
+            Lesson.objects.create(
+                course=course, title=title, lesson_type=lesson_type,
+                description=description, order=order
+            )
+        else:
+            lesson.title = title
+            lesson.lesson_type = lesson_type
+            lesson.description = description
+            lesson.order = order
+            lesson.save()
+
+        return redirect('course_detail', pk=course.pk)
+
+    return render(request, 'management/lesson_form.html', {
+        'lesson': lesson,
+        'course': course,
+        'lesson_types': Lesson.Type.choices,
+        'page_title': 'Edit Lesson' if pk else 'Add Lesson',
+        'brand_context': 'Management',
+    })
+
+
+@login_required
+def event_upsert(request, pk=None):
+    """Create or edit a training event (admin only)."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    event = None
+    if pk:
+        event = get_object_or_404(TrainingEvent, pk=pk)
+        if not request.user.is_superuser and event.school != request.user.school:
+            raise PermissionDenied
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        date = request.POST.get('date')
+        location = request.POST.get('location')
+        description = request.POST.get('description')
+
+        if not event:
+            TrainingEvent.objects.create(
+                title=title, school=request.user.school,
+                date=date, location=location, description=description
+            )
+        else:
+            event.title = title
+            event.date = date
+            event.location = location
+            event.description = description
+            event.save()
+
+        return redirect('events_list')
+
+    return render(request, 'management/event_form.html', {
+        'event': event,
+        'page_title': 'Edit Event' if pk else 'Schedule Training Event',
+        'brand_context': 'Management',
+    })

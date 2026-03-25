@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}{{ page_title }} | {{ course.title }}{% endblock %}
+{% block page_title %}{{ page_title }}{% endblock %}
+{% block page_subtitle %}{{ course.title }}{% endblock %}
+{% block brand_context %}Management{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto;">
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Lesson Title</label>
+            <input type="text" name="title" value="{{ lesson.title|default:'' }}" class="form-control" placeholder="e.g. Introduction to Medical German" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Lesson Type</label>
+                <select name="lesson_type" class="form-control" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px;">
+                    {% for code, label in lesson_types %}
+                    <option value="{{ code }}" {% if lesson.lesson_type == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Display Order</label>
+                <input type="number" name="order" value="{{ lesson.order|default:course.lessons.count|default:0 }}" class="form-control" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px;">
+            </div>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <label style="display: block; font-weight: 600; margin-bottom: 0.5rem;">Lesson Content / Instructions</label>
+            <textarea name="description" rows="8" class="form-control" placeholder="Enter lesson text, instructions, or markdown..." required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit;">{{ lesson.description|default:'' }}</textarea>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">💡 You can use clinical terminology here. This will be shown to enrolled students.</p>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary" style="flex: 1; justify-content: center; padding: 1rem;">
+                {% if lesson %}Save Changes{% else %}Add Lesson{% endif %}
+            </button>
+            <a href="{% url 'course_detail' course.pk %}" class="btn" style="flex: 1; justify-content: center; padding: 1rem; border: 1px solid var(--border);">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -36,6 +36,17 @@
     </div>
 </div>
 
+<div class="card" style="margin-bottom: 2rem; border: none; background: #F1F5F9;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: 1rem; font-weight: 700; margin: 0;">⚡ Quick Actions</h3>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="{% url 'course_add' %}" class="btn btn-sm btn-primary">Create New Course</a>
+            <a href="{% url 'student_add' %}" class="btn btn-sm" style="background: white; border: 1px solid var(--border);">Add New Student</a>
+            <a href="{% url 'event_add' %}" class="btn btn-sm" style="background: white; border: 1px solid var(--border);">Schedule Training Event</a>
+        </div>
+    </div>
+</div>
+
 <div class="dashboard-grid">
     <div>
         <!-- Enrollment Requests (Transaction History) -->
