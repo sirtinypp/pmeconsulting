@@ -46,14 +46,47 @@ def course_detail(request, pk):
 
 @login_required
 def enroll_course(request, pk):
-    """Enroll the current student in a course."""
+    """Student requests to enroll in a course (sets status to PENDING)."""
     course = get_object_or_404(Course, pk=pk)
     if request.method == 'POST':
         CourseEnrollment.objects.get_or_create(
             user=request.user, course=course,
-            defaults={'status': CourseEnrollment.Status.ENROLLED}
+            defaults={'status': CourseEnrollment.Status.PENDING}
         )
     return redirect('course_detail', pk=pk)
+
+
+@login_required
+def approve_enrollment(request, pk):
+    """School Admin approves an enrollment request."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+    
+    enrollment = get_object_or_404(CourseEnrollment, pk=pk)
+    # Security check: Admin can only approve for their own school
+    if not request.user.is_superuser and enrollment.course.school != request.user.school:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        enrollment.status = CourseEnrollment.Status.ENROLLED
+        enrollment.save()
+    return redirect('dashboard')
+
+
+@login_required
+def reject_enrollment(request, pk):
+    """School Admin rejects an enrollment request."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+    
+    enrollment = get_object_or_404(CourseEnrollment, pk=pk)
+    if not request.user.is_superuser and enrollment.course.school != request.user.school:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        enrollment.status = CourseEnrollment.Status.REJECTED
+        enrollment.save()
+    return redirect('dashboard')
 
 
 @login_required

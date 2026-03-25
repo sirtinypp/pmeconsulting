@@ -37,7 +37,49 @@
 </div>
 
 <div class="dashboard-grid">
-    <div class="card">
+    <div>
+        <!-- Enrollment Requests (Transaction History) -->
+        <div class="card" style="margin-bottom:1.5rem;">
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">🛰️ Enrollment Requests</h3>
+            {% if pending_enrollments %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in pending_enrollments %}
+                    <tr>
+                        <td>
+                            <div style="font-weight:600;">{{ req.user.username }}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">{{ req.enrolled_at|date:"d M H:i" }}</div>
+                        </td>
+                        <td style="font-size:0.875rem;">{{ req.course.title }}</td>
+                        <td>
+                            <div style="display:flex; gap:0.5rem;">
+                                <form method="post" action="{% url 'approve_enrollment' req.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary" style="font-size:0.7rem; padding:0.25rem 0.5rem;">Approve</button>
+                                </form>
+                                <form method="post" action="{% url 'reject_enrollment' req.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger" style="font-size:0.7rem; padding:0.25rem 0.5rem;">Deny</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="color:var(--text-muted); text-align:center; padding:1.5rem 0;">No pending requests at the moment.</p>
+            {% endif %}
+        </div>
+
+        <div class="card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
             <h3 style="font-size:1.1rem; font-weight:700;">Student Roster</h3>
             <a href="{% url 'student_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Add Student</a>

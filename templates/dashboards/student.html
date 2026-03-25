@@ -48,6 +48,7 @@
             </div>
             {% if courses %}
             {% for course in courses %}
+            {% if course.status == 'ENROLLED' or course.status == 'IN_PROGRESS' or course.status == 'COMPLETED' %}
             <div
                 style="display:flex; align-items:center; justify-content:space-between; padding:0.75rem 0; border-bottom:1px solid var(--border);">
                 <div>
@@ -57,11 +58,30 @@
                 <a href="{% url 'course_detail' course.pk %}" class="btn"
                     style="font-size:0.8rem; padding:0.35rem 0.75rem;">Open</a>
             </div>
+            {% endif %}
             {% endfor %}
             {% else %}
-            <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No courses yet. <a
+            <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No active courses. <a
                     href="{% url 'course_list' %}" style="color:var(--primary);">Browse the catalog →</a></p>
             {% endif %}
+        </div>
+
+        <!-- Pending Applications -->
+        <div class="card" style="margin-bottom: 1.5rem;">
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">🛰️ Pending Applications</h3>
+            {% for enrollment in user.enrollments.all %}
+                {% if enrollment.status == 'PENDING' %}
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:0.6rem 0; border-bottom:1px solid var(--border);">
+                    <div>
+                        <div style="font-weight:600; font-size:0.875rem;">{{ enrollment.course.title }}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">Submitted on {{ enrollment.enrolled_at|date:"d M Y" }}</div>
+                    </div>
+                    <span class="badge badge-warning" style="font-size:0.7rem; background:#FFF7ED; color:#C2410C; border:1px solid #FFEDD5;">PENDING</span>
+                </div>
+                {% endif %}
+            {% empty %}
+                <p style="color:var(--text-muted); font-size:0.8rem; text-align:center; padding:1rem 0;">No pending requests.</p>
+            {% endfor %}
         </div>
 
         <!-- Upcoming Events -->

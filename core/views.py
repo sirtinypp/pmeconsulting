@@ -46,6 +46,10 @@ def dashboard(request):
         context['school_name'] = request.user.school.name if request.user.school else ''
         context['active_courses'] = Course.objects.filter(school=request.user.school, is_active=True).count()
         context['total_enrollments'] = CourseEnrollment.objects.filter(course__school=request.user.school).count()
+        context['pending_enrollments'] = CourseEnrollment.objects.filter(
+            course__school=request.user.school, 
+            status=CourseEnrollment.Status.PENDING
+        ).order_by('-enrolled_at')
         context['brand_context'] = 'Management'
         return render(request, 'dashboards/school_admin.html', context)
 

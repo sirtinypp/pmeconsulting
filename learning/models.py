@@ -79,13 +79,15 @@ class TrainingEvent(SchoolScopedModel):
 
 class CourseEnrollment(models.Model):
     class Status(models.TextChoices):
+        PENDING     = 'PENDING',     'Pending Approval'
         ENROLLED    = 'ENROLLED',    'Enrolled'
         IN_PROGRESS = 'IN_PROGRESS', 'In Progress'
         COMPLETED   = 'COMPLETED',   'Completed'
+        REJECTED    = 'REJECTED',    'Rejected'
 
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='enrollments')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
-    status = models.CharField(max_length=12, choices=Status.choices, default=Status.ENROLLED)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
     progress_percent = models.IntegerField(default=0)
     enrolled_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
