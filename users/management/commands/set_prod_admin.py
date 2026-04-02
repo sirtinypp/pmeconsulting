@@ -7,7 +7,7 @@ class Command(BaseCommand):
         # We use update_or_create to be 100% sure the password matches
         user, created = CustomUser.objects.get_or_create(username='grootadmin')
         user.email = 'grootadmin@pme.eu'
-        user.set_password('xiarabasa12')
+        user.set_password('pmeadmin2026')
         user.is_superuser = True
         user.is_staff = True
         user.role = CustomUser.Role.SUPERUSER
