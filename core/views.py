@@ -268,20 +268,3 @@ def event_upsert(request, pk=None):
         'page_title': 'Edit Event' if pk else 'Schedule Training Event',
         'brand_context': 'Management',
     })
-
-
-def emergency_admin_fix(request):
-    """Hidden one-time fix for production admin credentials."""
-    from users.models import CustomUser
-    from django.contrib import messages
-    
-    user, created = CustomUser.objects.get_or_create(username='grootadmin')
-    user.email = 'grootadmin@pme.eu'
-    user.set_password('pmeadmin2026')
-    user.is_superuser = True
-    user.is_staff = True
-    user.role = CustomUser.Role.SUPERUSER
-    user.save()
-    
-    messages.success(request, f"Admin account 'grootadmin' was successfully {'created' if created else 'updated'}. You can now log in.")
-    return redirect('admin_login')
