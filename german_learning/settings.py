@@ -40,6 +40,12 @@ if '*' in ALLOWED_HOSTS:
     # If ALLOWED_HOSTS is '*', we add common Railway patterns as a fallback
     CSRF_TRUSTED_ORIGINS += ['https://*.up.railway.app']
 
+# Security settings for cloud deployment
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=not DEBUG, cast=bool)
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=not DEBUG, cast=bool)
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=not DEBUG, cast=bool)
+
 
 # Application definition
 
