@@ -104,14 +104,19 @@ h3 {
     cursor: pointer;
     padding: 10px;
     z-index: 1001;
+    height: 40px;
+    width: 45px;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .menu-icon span {
     display: block;
     width: 25px;
     height: 2px;
-    background: var(--primary);
-    margin: 5px 0;
+    background-color: var(--primary);
+    margin: 3px 0;
     transition: 0.3s;
     border-radius: 2px;
 }
@@ -659,14 +664,16 @@ h3 {
 
     /* Mobile Menu Logic */
     .menu-icon {
-        display: block;
+        display: flex;
     }
 
     .nav-links {
+        display: flex;
         position: fixed;
         top: 72px; /* Header height */
         left: 0;
         width: 100%;
+        height: auto;
         background: white;
         flex-direction: column;
         padding: 40px 20px;
@@ -677,6 +684,7 @@ h3 {
         z-index: 999;
         border-bottom: 1px solid #E2E8F0;
         text-align: center;
+        visibility: hidden;
     }
 
     .nav-links a {
@@ -691,7 +699,7 @@ h3 {
 
     .nav-toggle:checked ~ .nav-links {
         transform: translateY(0);
-        display: flex;
+        visibility: visible;
     }
 
     /* Hamburger Animation */
