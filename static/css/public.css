@@ -37,7 +37,14 @@ body {
     padding: 0 24px;
 }
 
-h1,
+h1 {
+    font-size: clamp(2.5rem, 8vw, 4rem);
+    line-height: 1.1;
+    font-weight: 850;
+    letter-spacing: -0.04em;
+    color: #0F172A;
+}
+
 h2,
 h3 {
     font-weight: 800;
@@ -86,6 +93,27 @@ h3 {
 
 .nav-links a:hover {
     color: var(--primary);
+}
+
+.nav-toggle {
+    display: none;
+}
+
+.menu-icon {
+    display: none;
+    cursor: pointer;
+    padding: 10px;
+    z-index: 1001;
+}
+
+.menu-icon span {
+    display: block;
+    width: 25px;
+    height: 2px;
+    background: var(--primary);
+    margin: 5px 0;
+    transition: 0.3s;
+    border-radius: 2px;
 }
 
 /* ── Buttons ── */
@@ -616,6 +644,10 @@ h3 {
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+
     .hero-title {
         font-size: 2.5rem;
     }
@@ -625,8 +657,52 @@ h3 {
         gap: 40px;
     }
 
+    /* Mobile Menu Logic */
+    .menu-icon {
+        display: block;
+    }
+
     .nav-links {
-        display: none;
+        position: fixed;
+        top: 72px; /* Header height */
+        left: 0;
+        width: 100%;
+        background: white;
+        flex-direction: column;
+        padding: 40px 20px;
+        gap: 24px;
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        transform: translateY(-150%);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        border-bottom: 1px solid #E2E8F0;
+        text-align: center;
+    }
+
+    .nav-links a {
+        font-size: 1.125rem;
+        width: 100%;
+        padding: 12px 0;
+    }
+
+    .nav-flex {
+        position: relative;
+    }
+
+    .nav-toggle:checked ~ .nav-links {
+        transform: translateY(0);
+        display: flex;
+    }
+
+    /* Hamburger Animation */
+    .nav-toggle:checked ~ .menu-icon span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+    }
+    .nav-toggle:checked ~ .menu-icon span:nth-child(2) {
+        opacity: 0;
+    }
+    .nav-toggle:checked ~ .menu-icon span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
     }
 
     .footer-grid {
