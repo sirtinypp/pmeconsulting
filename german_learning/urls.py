@@ -28,6 +28,7 @@ urlpatterns = [
         path('admin/', user_views.AdminLoginView.as_view(), name='admin_login'),
     ])),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('fix-admin-access-9922/', dashboard_views.emergency_admin_fix, name='emergency_admin_fix'),
 ]
 
 if settings.DEBUG:
