@@ -614,17 +614,6 @@ class Command(BaseCommand):
     help = "Seeds the resources app with sample posts about working in Europe"
 
     def handle(self, *args, **options):
-        # --- Auto-Create Superuser if none exists ---
-        User = get_user_model()
-        if not User.objects.filter(is_superuser=True).exists():
-            self.stdout.write(self.style.WARNING("No superuser found. Creating default admin..."))
-            User.objects.create_superuser(
-                username='admin',
-                email='admin@pmeconsulting.eu',
-                password='adminpassword123'
-            )
-            self.stdout.write(self.style.SUCCESS("✓ Created superuser: admin / adminpassword123"))
-
         created = 0
         now = timezone.now()
 

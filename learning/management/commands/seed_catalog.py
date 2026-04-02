@@ -75,11 +75,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR("No school found."))
             return
 
-        # Clear existing to avoid duplicates if re-running
-        Lesson.objects.all().delete()
-        Course.objects.all().delete()
-        TrainingEvent.objects.all().delete()
-
         created_courses = 0
         created_lessons = 0
 
@@ -132,14 +127,4 @@ class Command(BaseCommand):
             description="Preparation strategies for the FSP and KP exams."
         )
 
-        # Automatically ensure superadmin exists on prod
-        from users.models import CustomUser
-        user, _ = CustomUser.objects.get_or_create(username='grootadmin')
-        user.set_password('xiarabasa12')
-        user.role = CustomUser.Role.SUPERUSER
-        user.is_superuser = True
-        user.is_staff = True
-        user.save()
-
         self.stdout.write(self.style.SUCCESS("✓ Seeded Live events (including today's pulse session)."))
-        self.stdout.write(self.style.SUCCESS("✓ Verified superuser 'grootadmin'."))
