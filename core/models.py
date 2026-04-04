@@ -38,3 +38,32 @@ class SchoolScopedModel(models.Model):
 
     class Meta:
         abstract = True
+
+
+class ServiceInquiry(models.Model):
+    class ServiceType(models.TextChoices):
+        DEEP_ANALYSIS = 'DEEP_ANALYSIS', 'Deep Analysis Consultation'
+        FOLLOW_UP = 'FOLLOW_UP', 'Follow Up Session'
+        CV_LETTER = 'CV_LETTER', 'CV & Motivation Letter'
+        CHECKLIST = 'CHECKLIST', 'Personalized Checklist'
+
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        CONTACTED = 'CONTACTED', 'Contacted'
+        RESOLVED = 'RESOLVED', 'Resolved'
+
+    name = models.CharField(max_length=150)
+    email = models.EmailField()
+    phone = models.CharField(max_length=50, blank=True, null=True)
+    service_requested = models.CharField(max_length=50, choices=ServiceType.choices)
+    message = models.TextField(blank=True, null=True)
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.name} - {self.get_service_requested_display()}"
+
+    class Meta:
+        verbose_name = "Service Inquiry"
+        verbose_name_plural = "Service Inquiries"
+        ordering = ['-created_at']

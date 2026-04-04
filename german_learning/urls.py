@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from core import views as dashboard_views
-from core.public_views import public_index
+from core.public_views import public_index, book_service, book_service_success
 from users import views as user_views
 
 from django.conf import settings
@@ -10,6 +10,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', public_index, name='public_index'),
+    path('services/book/', book_service, name='book_service'),
+    path('services/success/', book_service_success, name='book_service_success'),
     path('dashboard/', dashboard_views.dashboard, name='dashboard'),
     path('events/', dashboard_views.events_list, name='events_list'),
     path('learning/', include('learning.urls')),

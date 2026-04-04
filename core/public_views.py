@@ -1,7 +1,8 @@
 import calendar
 from datetime import datetime
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from learning.models import TrainingEvent
+from .forms import ServiceInquiryForm
 
 
 def public_index(request):
@@ -44,3 +45,30 @@ def public_index(request):
         'current_month': now.month,
     }
     return render(request, 'public/index.html', context)
+
+
+def book_service(request):
+    """View to handle consultation and service inquiries."""
+    initial_service = request.GET.get('service', '')
+    if request.method == 'POST':
+        form = ServiceInquiryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('book_service_success')
+    else:
+        # Map URL params to exact choices
+        service_map = {
+            'deep-analysis': 'DEEP_ANALYSIS',
+            'cv-letter': 'CV_LETTER',
+            'checklist': 'CHECKLIST',
+            'follow-up': 'FOLLOW_UP',
+        }
+        mapped_val = service_map.get(initial_service, '')
+        form = ServiceInquiryForm(initial={'service_requested': mapped_val})
+
+    return render(request, 'public/service_booking.html', {'form': form})
+
+
+def book_service_success(request):
+    """View rendered after a successful booking."""
+    return render(request, 'public/service_success.html')

@@ -1,0 +1,78 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Consultation | PME Learning</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+    <style>
+        .form-container { max-width: 600px; margin: 40px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .form-input { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #E2E8F0; border-radius: 8px; font-family: inherit; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #1E293B; }
+        .page-header { background: #0F172A; color: white; padding: 60px 0; text-align: center; }
+    </style>
+</head>
+<body style="background: #F8FAFC;">
+    <nav class="public-nav">
+        <div class="container nav-flex">
+            <div class="brand">
+                <span class="logo-text">🇩🇪 PME</span>
+                <span class="sub-logo" style="font-weight:700; color: #0EA5E9; margin-left: 4px;">Learning</span>
+            </div>
+            <div class="nav-links">
+                <a href="{% url 'public_index' %}">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+    <div class="page-header">
+        <div class="container">
+            <h1 style="font-size: 2.5rem; margin-bottom: 10px;">Service Inquiry</h1>
+            <p style="color: #94A3B8;">Fill out the form below and our team will get in touch shortly.</p>
+        </div>
+    </div>
+    <div class="container">
+        <div class="form-container">
+            <form method="POST">
+                {% csrf_token %}
+                {% if form.errors %}
+                <div style="background: #FEF2F2; color: #DC2626; padding: 12px; border-radius: 8px; margin-bottom: 20px;">
+                    Please correct the errors below.
+                </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label>Full Name *</label>
+                    {{ form.name }}
+                    {{ form.name.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    {{ form.email }}
+                    {{ form.email.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    {{ form.phone }}
+                </div>
+                
+                <div class="form-group">
+                    <label>Service Requested *</label>
+                    {{ form.service_requested }}
+                    {{ form.service_requested.errors }}
+                </div>
+                
+                <div class="form-group">
+                    <label>Additional Details</label>
+                    {{ form.message }}
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 14px;">Submit Inquiry</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
