@@ -243,6 +243,31 @@
             </div>
         </section>
 
+        <!-- Resources Section -->
+        {% if latest_resources %}
+        <section id="resources" class="programs-section" style="background: #F8FAFC;">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Latest Resources</h2>
+                    <p>News, guides, and tools to aid your European integration journey.</p>
+                </div>
+                <div class="programs-grid">
+                    {% for resource in latest_resources %}
+                    <div class="program-card">
+                        <span class="program-icon">{{ resource.cover_emoji|default:"📖" }}</span>
+                        <h3 style="font-size:1.15rem; margin-bottom:8px;">{{ resource.title|truncatechars:40 }}</h3>
+                        <p style="font-size:0.9rem; line-height:1.6;">{{ resource.excerpt|truncatechars:90 }}</p>
+                        <a href="{% url 'resource_detail' resource.slug %}" class="btn btn-sm" style="margin-top: 15px;">Read Article</a>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="section-footer" style="text-align: center; margin-top: 3.5rem;">
+                    <a href="{% url 'resource_list' %}" class="btn lg" style="background: white; border: 2px solid #1E4D8C; color: #1E4D8C; font-weight:700;">Explore Knowledge Base</a>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
         <!-- Services Section -->
         <section id="services" class="programs-section">
             <div class="container">

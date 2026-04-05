@@ -2,6 +2,7 @@ import calendar
 from datetime import datetime
 from django.shortcuts import render, redirect
 from learning.models import TrainingEvent
+from resources.models import Post
 from .forms import ServiceInquiryForm
 
 
@@ -29,6 +30,9 @@ def public_index(request):
     prev_year = year - 1 if month == 1 else year
     next_year = year + 1 if month == 12 else year
 
+    # Fetch latest 3 resources for the teaser
+    latest_resources = Post.objects.filter(is_published=True).order_by('-published_at')[:3]
+
     context = {
         'cal': cal,
         'month_name': month_name,
@@ -43,6 +47,7 @@ def public_index(request):
         'events': events,
         'today': now.day,
         'current_month': now.month,
+        'latest_resources': latest_resources,
     }
     return render(request, 'public/index.html', context)
 
