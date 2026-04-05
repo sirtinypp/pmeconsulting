@@ -66,7 +66,8 @@
                 <a href="{% url 'student_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Add Student</a>
             </div>
             {% if students %}
-            <table>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table>
                 <thead>
                     <tr>
                         <th>Student</th>
@@ -96,6 +97,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
             {% else %}
             <p style="text-align:center; padding:2rem;">No students found.</p>
             {% endif %}
@@ -104,7 +106,8 @@
         <div class="card">
             <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">🛰️ Enrollment Requests</h3>
             {% if pending_enrollments %}
-            <table>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table>
                 <thead>
                     <tr><th>Student</th><th>Course</th><th>Actions</th></tr>
                 </thead>
@@ -120,6 +123,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
             {% else %}
             <p style="text-align:center; padding:1.5rem;">No pending requests.</p>
             {% endif %}
@@ -131,7 +135,8 @@
         <div class="card">
             <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">✨ Recent Guest Signups (Leads)</h3>
             {% if guests %}
-            <table>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table>
                 <thead>
                     <tr>
                         <th>Lead Identification</th>
@@ -208,6 +213,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
             {% else %}
             <p style="text-align:center; padding:2rem;">No new guests yet.</p>
             {% endif %}
@@ -222,7 +228,8 @@
                 <a href="{% url 'course_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Create New</a>
             </div>
             {% if all_courses %}
-            <table>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table>
                 <thead>
                     <tr><th>Course</th><th>Level</th><th>Status</th><th>Actions</th></tr>
                 </thead>
@@ -249,6 +256,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
             {% else %}
             <p style="text-align:center; padding:2rem;">No courses available.</p>
             {% endif %}
@@ -263,7 +271,8 @@
                 <a href="{% url 'event_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Schedule Event</a>
             </div>
             {% if training_events %}
-            <table>
+            <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+                <table>
                 <thead>
                     <tr><th>Event</th><th>Date</th><th>Platform</th><th>Actions</th></tr>
                 </thead>
@@ -286,6 +295,7 @@
                     {% endfor %}
                 </tbody>
             </table>
+            </div>
             {% else %}
             <p style="text-align:center; padding:2rem;">No live events scheduled.</p>
             {% endif %}
