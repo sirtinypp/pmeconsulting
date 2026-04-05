@@ -145,6 +145,20 @@
         color: #38BDF8;
     }
 
+    .course-title {
+        font-size: 2.25rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+    }
+
+    .course-desc {
+        font-size: 1.1rem;
+        opacity: 0.9;
+        max-width: 700px;
+        line-height: 1.6;
+    }
+
     .coming-soon-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -185,6 +199,35 @@
         .pricing-card.recommended:hover {
             transform: translateY(-8px);
         }
+        
+        .course-header {
+            padding: 2rem 1.5rem;
+        }
+        
+        .pricing-container {
+            padding: 2rem 1.5rem;
+            grid-template-columns: 1fr; /* Force stack on mobile */
+        }
+        
+        .coming-soon-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .course-title {
+            font-size: 1.5rem;
+        }
+        
+        .course-desc {
+            font-size: 1rem;
+        }
+        
+        .price-tag {
+            font-size: 2rem;
+        }
+        
+        .soon-card {
+            padding: 2rem 1.5rem;
+        }
     }
 </style>
 {% endblock %}
@@ -195,8 +238,8 @@
     <div class="main-course-card">
         <div class="course-header">
             <span class="course-badge">Flagship Program</span>
-            <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem;">German A1 for Healthcare Workers</h2>
-            <p style="font-size: 1.1rem; opacity: 0.9; max-width: 700px; line-height: 1.6;">
+            <h2 class="course-title">German A1 for Healthcare Workers</h2>
+            <p class="course-desc">
                 Structured German course designed for Laboratory Professionals planning to work in Europe. 
                 Includes real hospital scenarios, guided lessons, and speaking practice.
             </p>
