@@ -86,8 +86,39 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--space-xl);
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: var(--space-md);
+}
+
+@media (max-width: 900px) {
+    .nav-container {
+        flex-wrap: wrap;
+        padding: var(--space-sm) var(--space-md);
+        gap: var(--space-sm);
+    }
+    
+    .nav-menu {
+        order: 3;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        justify-content: flex-start !important;
+        padding-bottom: 4px;
+        margin-top: 4px;
+    }
+    
+    .nav-menu::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .user-actions {
+        order: 2;
+    }
+    
+    #main-brand-title {
+        font-size: 1rem !important;
+    }
 }
 
 /* ── Universal Sleek Branding (High Specificity) ── */
