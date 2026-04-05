@@ -29,7 +29,10 @@ urlpatterns = [
         path('', user_views.StudentLoginView.as_view(), name='login'),
         path('admin/', user_views.AdminLoginView.as_view(), name='admin_login'),
     ])),
+    path('accounts/signup/', user_views.StudentSignUpView.as_view(), name='signup'),
+    path('accounts/upgrade/', user_views.UpgradeToStudentView.as_view(), name='upgrade'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('contact/', book_service, name='contact'),
 ]
 
 if settings.DEBUG:

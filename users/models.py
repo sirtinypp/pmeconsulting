@@ -10,12 +10,13 @@ class CustomUser(AbstractUser):
     class Role(models.TextChoices):
         SUPERUSER     = 'SUPERUSER',     'Platform Superuser'
         SCHOOL_ADMIN  = 'SCHOOL_ADMIN',  'School Admin'
-        STUDENT       = 'STUDENT',       'Student'
+        STUDENT       = 'STUDENT',       'Paid Student'
+        GUEST         = 'GUEST',         'Guest Visitor'
 
     role = models.CharField(
         max_length=20,
         choices=Role.choices,
-        default=Role.STUDENT
+        default=Role.GUEST
     )
     school = models.ForeignKey(
         School,

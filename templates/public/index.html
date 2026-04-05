@@ -20,7 +20,9 @@
     <nav class="public-nav">
         <div class="container nav-flex">
             <div class="brand">
-                <span class="logo-text">🇩🇪 PME</span>
+                <img src="/static/images/ph_medtech_logo.png" alt="PH MedTech Logo"
+                    style="height: 50px; margin-right: 10px;">
+                <span class="logo-text">PH MedTech</span>
                 <span class="sub-logo" style="font-weight:700; color: #0EA5E9; margin-left: 4px;">Learning</span>
             </div>
             <input type="checkbox" id="nav-toggle" class="nav-toggle">
@@ -34,8 +36,17 @@
                 <a href="#courses">Courses</a>
                 <a href="#services">Services</a>
                 <a href="#calendar">Events</a>
-                <a href="{% url 'login' %}" class="btn btn-sm">Student Login</a>
-                <a href="{% url 'admin_login' %}" class="btn btn-primary btn-sm">Admin Portal</a>
+                {% if user.is_authenticated %}
+                    {% if user.role == 'GUEST' %}
+                        <a href="{% url 'upgrade' %}" class="btn btn-primary btn-sm">Upgrade to Student</a>
+                    {% else %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-sm">Dashboard</a>
+                    {% endif %}
+                {% else %}
+                    <a href="{% url 'login' %}" class="btn btn-sm">Sign In</a>
+                    <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Sign Up</a>
+                {% endif %}
+                <a href="{% url 'admin_login' %}" class="btn btn-sm" style="opacity: 0.7;">Admin Portal</a>
             </div>
         </div>
     </nav>
@@ -52,7 +63,15 @@
                 <h1 class="hero-title">Work as a Laboratory Professional in Europe</h1>
                 <p class="hero-subtitle">Step by step guidance for Recognition, language training.</p>
                 <div class="hero-actions">
-                    <a href="#courses" class="btn btn-primary lg">Start Learning</a>
+                    {% if user.is_authenticated %}
+                        {% if user.role == 'GUEST' %}
+                            <a href="{% url 'upgrade' %}" class="btn btn-primary lg">Start Learning (Paid)</a>
+                        {% else %}
+                            <a href="{% url 'dashboard' %}" class="btn btn-primary lg">Go to Dashboard</a>
+                        {% endif %}
+                    {% else %}
+                        <a href="{% url 'signup' %}" class="btn btn-primary lg">Join Now (Guest)</a>
+                    {% endif %}
                     <a href="{% url 'book_service' %}" class="btn lg">Book Consultation</a>
                 </div>
             </div>
@@ -129,7 +148,7 @@
                         progress to keep you motivated and on track.</p>
                 </div>
                 <div class="featured-visual">
-                    <span class="visual-icon">🇩🇪🇵🇭</span>
+                    <span class="visual-icon">🔬🇵🇭</span>
                     <p class="visual-tagline">Bridging Filipino Healthcare Professionals<br>Across Europe Through
                         Language.<br>
                         <small style="opacity:0.7; font-weight:400;">PME Consulting EU</small>
@@ -177,10 +196,17 @@
                 </div>
                 <div class="programs-grid">
                     <div class="program-card">
-                        <span class="program-icon">🇩🇪</span>
+                        <span class="program-icon">🔬</span>
                         <h3>German Courses (A1–C1)</h3>
-                        <p>Complete self-paced LMS course with real hospital scenarios, optional speaking sessions, and exam prep.</p>
-                        <a href="{% url 'login' %}" class="btn btn-sm" style="margin-top: 15px;">Enroll Now</a>
+                        <p>Complete self-paced LMS course with real hospital scenarios, optional speaking sessions, and
+                            exam prep.</p>
+                        {% if not user.is_authenticated %}
+                            <a href="{% url 'signup' %}" class="btn btn-sm" style="margin-top: 15px;">Enroll Now</a>
+                        {% elif user.role == 'GUEST' %}
+                            <a href="{% url 'upgrade' %}" class="btn btn-sm btn-primary" style="margin-top: 15px;">Upgrade to Enroll</a>
+                        {% else %}
+                            <a href="{% url 'dashboard' %}" class="btn btn-sm" style="margin-top: 15px;">Go to Class</a>
+                        {% endif %}
                     </div>
                     <div class="program-card" style="opacity: 0.8;">
                         <span class="program-icon">🇪🇸</span>
@@ -208,39 +234,46 @@
                         <span class="program-icon">📊</span>
                         <h3>Deep Analysis Consultation</h3>
                         <p>Personalized assessment and step-by-step plan for working in Europe. (₱2,500 - ₱3,500)</p>
-                        <a href="{% url 'book_service' %}?service=deep-analysis" class="btn btn-sm" style="margin-top: 15px;">Book Now</a>
+                        <a href="{% url 'book_service' %}?service=deep-analysis" class="btn btn-sm"
+                            style="margin-top: 15px;">Book Now</a>
                     </div>
                     <div class="program-card">
                         <span class="program-icon">📄</span>
                         <h3>CV & Motivation Letter</h3>
-                        <p>Professional CV and motivation letter tailored for European applications. (₱3,000 - ₱4,500)</p>
-                        <a href="{% url 'book_service' %}?service=cv-letter" class="btn btn-sm" style="margin-top: 15px;">Order Now</a>
+                        <p>Professional CV and motivation letter tailored for European applications. (₱3,000 - ₱4,500)
+                        </p>
+                        <a href="{% url 'book_service' %}?service=cv-letter" class="btn btn-sm"
+                            style="margin-top: 15px;">Order Now</a>
                     </div>
                     <div class="program-card">
                         <span class="program-icon">✅</span>
                         <h3>Personalized Checklist</h3>
                         <p>Custom document checklist based on your target country and current status. (₱1,000)</p>
-                        <a href="{% url 'book_service' %}?service=checklist" class="btn btn-sm" style="margin-top: 15px;">Get Checklist</a>
+                        <a href="{% url 'book_service' %}?service=checklist" class="btn btn-sm"
+                            style="margin-top: 15px;">Get Checklist</a>
                     </div>
                     <div class="program-card">
                         <span class="program-icon">🔄</span>
                         <h3>Follow Up Session</h3>
                         <p>Short session for progress check, clarifications, and next steps. (₱1,200)</p>
-                        <a href="{% url 'book_service' %}?service=follow-up" class="btn btn-sm" style="margin-top: 15px;">Book Follow Up</a>
+                        <a href="{% url 'book_service' %}?service=follow-up" class="btn btn-sm"
+                            style="margin-top: 15px;">Book Follow Up</a>
                     </div>
                 </div>
             </div>
         </section>
 
-<section id="calendar" class="calendar-section">
+        <section id="calendar" class="calendar-section">
             <div class="container">
                 <div class="section-header">
                     <h2>Training Schedule</h2>
                     <p>Join our live clinical workshops and PME community sessions.</p>
                 </div>
-                
-                <div class="card calendar-mini" style="max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(30, 77, 140, 0.08);">
-                    <div class="mini-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+
+                <div class="card calendar-mini"
+                    style="max-width: 900px; margin: 0 auto; background: white; padding: 40px; border-radius: 24px; box-shadow: 0 10px 30px rgba(30, 77, 140, 0.08); border-top: 6px solid var(--primary);">
+                    <div class="mini-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                         <div class="nav-controls" style="display: flex; align-items: center; gap: 20px;">
                             <h3 style="font-size: 1.25rem; color: var(--primary);">{{ month_name }} {{ year }}</h3>
                             <div style="display: flex; gap: 8px;">
@@ -254,7 +287,7 @@
                         </div>
                         <a href="{% url 'public_index' %}" class="link-btn">Reset to Today</a>
                     </div>
-                    
+
                     <div id="calendar-grid-wrapper">
                         {% include 'public/partials/calendar_partial.html' %}
                     </div>
@@ -265,15 +298,19 @@
 
     <footer class="public-footer">
         <div class="container footer-grid">
-            <div class="footer-brand">
-                <h3>🇩🇪 PME Learning Platform</h3>
-                <p style="color: #94A3B8; margin-top: 8px;">© 2026 PME Consulting EU. All rights
-                    reserved.</p>
+            <div class="footer-brand" style="display: flex; align-items: center; gap: 20px;">
+                <div style="background: white; padding: 10px; border-radius: 12px; display: inline-flex; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <img src="/static/images/ph_medtech_logo.png" alt="PH MedTech Logo" style="height: 50px;">
+                </div>
+                <div>
+                    <h3 style="margin: 0; font-size: 1.5rem;">PH MedTech in Europe</h3>
+                    <p style="color: #94A3B8; margin-top: 4px; font-size: 0.85rem;">© 2026 PME Consulting EU. All rights reserved.</p>
+                </div>
             </div>
             <div class="footer-links">
                 <a href="#">Privacy Policy</a>
                 <a href="#">Terms of Service</a>
-                <a href="#">Contact Support</a>
+                <a href="{% url 'contact' %}">Contact Support</a>
             </div>
         </div>
     </footer>

@@ -23,7 +23,7 @@ The following features are currently operational and within the scope of this Ag
 *   **Term**: This agreement commences on the date signed and continues until the completion of the "Final Phase" or as otherwise terminated.
 *   **Termination for Convenience**: Either party may terminate with **14 days' written notice**.
 *   **Termination Settlement**: Upon termination, the Client must settle all outstanding balances for work completed up to the termination date. 
-*   **Transition & Handover**: Upon full settlement, the Developer will provide a final stable repository of the code and database assets. A **14rd-day Grace Period** is established for the transfer of hosting (Railway) and Domain credentials to the Client's control, after which the Developer's access will be revoked.
+*   **Transition & Handover**: Upon full settlement, the Developer will provide a final stable repository of the code and database assets. A **14th-day Grace Period** is established for the transfer of hosting (Railway) and Domain credentials to the Client's control, after which the Developer's access will be revoked.
 
 ---
 

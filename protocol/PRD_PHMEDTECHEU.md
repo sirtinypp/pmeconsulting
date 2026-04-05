@@ -34,7 +34,7 @@
 *   **Admin Command Center**: Initial dashboard for content management.
 *   **Sync Framework**: Local-to-Live server synchronization for regional stability.
 
-### **Phase 2: Content & Service Engine (Milestone 2 - ₱40,000)**
+### **Phase 2: Content & Service Engine -Technical (Milestone 2 - ₱10,000)**
 *   **Advanced Resource Management**: Native support for Video (links/streaming), PDF/Documents, and Medical Vocabulary lists.
 *   **Quiz Engine V1**: Interactive MCQ and "Fill-in-the-Blank" vocabulary quizzes based on the current `QuizQuestion` models.
 *   **Additional Career Services**: Dedicated booking/request slots for:
@@ -43,14 +43,14 @@
     *   **Deep Analysis Consultations**: One-on-one booking module for career mapping.
 *   **Progress Tracking**: "Continue Learning" dashboard and lesson-level completion markers.
 
-### **Phase 3: Gamification & Payment Integration (Milestone 3 - ₱40,000)**
+### **Phase 3: Gamification & Payment Integration  - Complex (Milestone 3 - ₱20,000)**
 *   **Online Payment Gateway**: Integration of automated student enrollment payments via **Stripe, PayPal, and GCash** (as per the Capacity Clause in the SAFS).
 *   **UserProgression Engine**: Integration of XP (Experience Points) and Level-Up logic (Current `UserProgression` system).
 *   **Career Milestones**: Level-based rewards (e.g., reaching Level 10 grants access to a clinical scenario workshop).
 *   **Achievement Badges**: Automated rewards for "Perfect Quiz Scores," "7-Day Streaks," and "Level Completion."
 *   **Visual Polish**: Medical-themed UI/UX enhancements and micro-animations for UX delight.
 
-### **Phase 4: Launch & Verification (Milestone 4 - ₱40,000)**
+### **Phase 4: Public Launch and Social Media Integration (Milestone 4 - ₱40,000)**
 *   **Full Data Seeding**: Migration of 12 complete health-specialized modules (A1–C1 content).
 *   **Performance Hardening**: Caching, database optimization, and cross-border latency checks.
 *   **User Acceptance Testing (UAT)**: Final 5-day verification period and "Live-Fire" launch.
@@ -61,7 +61,7 @@
 *   **Backend**: Python / Django (Modern, Scalable Monolith).
 *   **Database**: SQLite (Development) / PostgreSQL (Production).
 *   **Styling**: Vanilla CSS for premium, controlled aesthetics.
-*   **Infrastructure**: Railway.app (European Server Hosting) & Namecheap (Domain Management).
+*   **Infrastructure**: Railway.app (European Server Hosting) & SquareSpace (Domain Management).
 
 ---
 
@@ -75,4 +75,4 @@
 ## 6. Project Roadmap (Tentative)
 *   **April 2026**: Soft Launch / Milestone 2 & 3 Development.
 *   **May 2026**: Phase 4 Seeding & UAT.
-*   **June 2026**: Official **phmedtecheu** Public Launch.
+*   **June 2026**: Official **phmedtecheu** Public Launch and Social Media Integration

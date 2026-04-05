@@ -1,0 +1,65 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upgrade to Paid Student | PME Consulting EU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-box" style="max-width: 600px; text-align: center;">
+            <div class="login-logo">
+                <div style="font-size:3rem; margin-bottom: 20px;">🔒 → 🔓</div>
+            </div>
+            <h2>Unlock Your Medical Career in Europe</h2>
+            <p class="subtitle" style="margin-bottom: 30px;">Upgrade to a **Paid Student** account to access all clinical German courses (A1-C1) and resources.</p>
+
+            <div style="background: #F8FAFC; border-radius: 16px; padding: 30px; margin-bottom: 40px; text-align: left; border: 1px solid #E2E8F0;">
+                <h3 style="color: #1E4D8C; margin-top: 0;">What you'll unlock:</h3>
+                <ul style="list-style: none; padding: 0; margin: 20px 0;">
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Full access to 12 modules of clinical German.
+                    </li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Enroll in any course and track your progress.
+                    </li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Downloadable medical-vocabulary lists and clinical scenarios.
+                    </li>
+                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Earn badges and certificates recognized by PME.
+                    </li>
+                </ul>
+                <div style="border-top: 1px dashed #CBD5E1; padding-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-weight: 600; color: #64748B;">Student Registration Fee:</span>
+                    <span style="font-size: 1.5rem; font-weight: 800; color: #1E4D8C;">₱2,500 <small style="font-size: 0.875rem; color: #94A3B8;">(One-time)</small></span>
+                </div>
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="login-btn" style="background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); width: 100%; padding: 18px; font-size: 1.125rem;">
+                    Pay & Upgrade Now →
+                </button>
+            </form>
+
+            <p style="margin-top: 20px; color: #94A3B8; font-size: 0.875rem;">
+                Secure payment simulation. No actual funds will be charged during this demo.
+            </p>
+
+            <div class="login-footer">
+                <a href="{% url 'dashboard' %}">Maybe later, back to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+

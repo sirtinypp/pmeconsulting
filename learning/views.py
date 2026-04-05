@@ -47,6 +47,10 @@ def course_detail(request, pk):
 @login_required
 def enroll_course(request, pk):
     """Student requests to enroll in a course (sets status to PENDING)."""
+    # GUEST users must upgrade before enrolling
+    if request.user.role == 'GUEST':
+        return redirect('upgrade')
+
     course = get_object_or_404(Course, pk=pk)
     if request.method == 'POST':
         CourseEnrollment.objects.get_or_create(

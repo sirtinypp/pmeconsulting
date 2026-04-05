@@ -1,0 +1,81 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join PME Learning | PME Consulting EU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+</head>
+
+<body>
+    <div class="login-page">
+        <div class="login-box" style="max-width: 500px;">
+            <div class="login-logo">
+                <div class="flag-bar">
+                    <span style="display:inline-block; width:40px; height:5px; background:#0F172A; border-radius:2px;"></span>
+                    <span style="display:inline-block; width:40px; height:5px; background:#1E4D8C; border-radius:2px; margin:0 3px;"></span>
+                    <span style="display:inline-block; width:40px; height:5px; background:#0EA5E9; border-radius:2px;"></span>
+                </div>
+                <div style="font-size:2rem;">🇩🇪</div>
+            </div>
+            <h2>Create Your Account</h2>
+            <p class="subtitle">Start your journey as a Guest and explore our clinical German curriculum.</p>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.errors %}
+                <div style="background:#EFF6FF; border:1px solid #FECACA; border-radius:8px; padding:12px; margin-bottom:16px; color:#1E4D8C; font-size:0.875rem;">
+                    Please correct the errors below.
+                </div>
+                {% endif %}
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div class="form-group">
+                        <label for="id_first_name">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="form-group">
+                        <label for="id_last_name">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_username">Username</label>
+                    {{ form.username }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_email">Email Address</label>
+                    {{ form.email }}
+                </div>
+
+                <div class="form-group">
+                    <label for="id_password1">Password</label>
+                    {{ form.password1 }}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_password2">Confirm Password</label>
+                    {{ form.password2 }}
+                </div>
+
+                <button type="submit" class="login-btn">Create Account →</button>
+            </form>
+
+            <div class="login-footer">
+                Already have an account? <a href="{% url 'login' %}">Sign In</a> &nbsp;·&nbsp;
+                <a href="{% url 'public_index' %}">← Back to Home</a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
+

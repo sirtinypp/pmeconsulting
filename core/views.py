@@ -53,6 +53,12 @@ def dashboard(request):
         context['brand_context'] = 'Management'
         return render(request, 'dashboards/school_admin.html', context)
 
+    elif request.user.role == 'GUEST':
+        context['brand_context'] = 'Discovery'
+        context['page_title'] = 'Guest Access'
+        context['featured_courses'] = Course.objects.filter(is_active=True)[:3]
+        return render(request, 'dashboards/guest.html', context)
+
     else:
         # Student dashboard
         enrollments = CourseEnrollment.objects.filter(user=request.user)
