@@ -15,8 +15,15 @@
     </div>
     <div class="card stat-card">
         <div class="stat-info">
+            <span class="label">Total Guests</span>
+            <span class="value">{{ guests|length }}</span>
+        </div>
+        <span class="stat-icon-lg">✨</span>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-info">
             <span class="label">Active Courses</span>
-            <span class="value">{{ active_courses }}</span>
+            <span class="value">{{ active_courses_count }}</span>
         </div>
         <span class="stat-icon-lg">📚</span>
     </div>
@@ -27,57 +34,214 @@
         </div>
         <span class="stat-icon-lg">📋</span>
     </div>
-    <div class="card stat-card">
-        <div class="stat-info">
-            <span class="label">School</span>
-            <span class="value" style="font-size:1rem;">{{ school_name }}</span>
-        </div>
-        <span class="stat-icon-lg">🏫</span>
-    </div>
 </div>
 
-<div class="card" style="margin-bottom: 2rem; border: none; background: #F1F5F9;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <h3 style="font-size: 1rem; font-weight: 700; margin: 0;">⚡ Quick Actions</h3>
-        <div style="display: flex; gap: 0.75rem;">
-            <a href="{% url 'course_add' %}" class="btn btn-sm btn-primary">Create New Course</a>
-            <a href="{% url 'student_add' %}" class="btn btn-sm" style="background: white; border: 1px solid var(--border);">Add New Student</a>
-            <a href="{% url 'event_add' %}" class="btn btn-sm" style="background: white; border: 1px solid var(--border);">Schedule Training Event</a>
-        </div>
-    </div>
+<!-- Tab Navigation -->
+<div class="dashboard-tabs">
+    <button class="tab-btn active" onclick="switchTab('students')">
+        <span class="tab-icon">👥</span> Student Management
+    </button>
+    <button class="tab-btn" onclick="switchTab('guests')">
+        <span class="tab-icon">✨</span> Guest Management
+    </button>
+    <button class="tab-btn" onclick="switchTab('courses')">
+        <span class="tab-icon">📚</span> Course Management
+    </button>
+    <button class="tab-btn" onclick="switchTab('trainings')">
+        <span class="tab-icon">📡</span> Trainings Management
+    </button>
+    <button class="tab-btn" onclick="switchTab('website')">
+        <span class="tab-icon">⚙️</span> Website Management
+    </button>
 </div>
 
-<div class="dashboard-grid">
-    <div>
-        <!-- Enrollment Requests (Transaction History) -->
+<!-- Tab Content Panes -->
+<div id="tab-content">
+    
+    <!-- 1. STUDENT MANAGEMENT -->
+    <div id="students" class="tab-pane active">
         <div class="card" style="margin-bottom:1.5rem;">
-            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">🛰️ Enrollment Requests</h3>
-            {% if pending_enrollments %}
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h3 style="font-size:1.1rem; font-weight:700;">Student Roster</h3>
+                <a href="{% url 'student_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Add Student</a>
+            </div>
+            {% if students %}
             <table>
                 <thead>
                     <tr>
                         <th>Student</th>
-                        <th>Course</th>
+                        <th>Enrollments</th>
+                        <th>Completion</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for req in pending_enrollments %}
+                    {% for student in students %}
                     <tr>
                         <td>
-                            <div style="font-weight:600;">{{ req.user.username }}</div>
-                            <div style="font-size:0.75rem; color:var(--text-muted);">{{ req.enrolled_at|date:"d M H:i" }}</div>
+                            <div style="font-weight:600;">{{ student.username }}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted);">{{ student.email }}</div>
                         </td>
-                        <td style="font-size:0.875rem;">{{ req.course.title }}</td>
+                        <td>{{ student.total_enrollments }}</td>
+                        <td>
+                            <div class="progress-bar-wrap">
+                                <div class="progress-bar-fill" style="width:{{ student.completion_rate }}%"></div>
+                            </div>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">{{ student.completion_rate }}%</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'student_edit' student.pk %}" class="btn" style="font-size:0.75rem;">Edit</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="text-align:center; padding:2rem;">No students found.</p>
+            {% endif %}
+        </div>
+        
+        <div class="card">
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">🛰️ Enrollment Requests</h3>
+            {% if pending_enrollments %}
+            <table>
+                <thead>
+                    <tr><th>Student</th><th>Course</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for req in pending_enrollments %}
+                    <tr>
+                        <td>{{ req.user.username }}</td>
+                        <td>{{ req.course.title }}</td>
+                        <td>
+                            <form method="post" action="{% url 'approve_enrollment' req.pk %}" style="display:inline;">{% csrf_token %}<button class="btn btn-primary btn-sm">Approve</button></form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="text-align:center; padding:1.5rem;">No pending requests.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 2. GUEST MANAGEMENT -->
+    <div id="guests" class="tab-pane">
+        <div class="card">
+            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">✨ Recent Guest Signups (Leads)</h3>
+            {% if guests %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Lead Identification</th>
+                        <th>Path Selection</th>
+                        <th>Status</th>
+                        <th>Enrollment Progress</th>
+                        <th>Strategic Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for guest in guests %}
+                    {% with latest_inquiry=guest.service_inquiries.all.0 %}
+                    <tr style="border-bottom: 8px solid transparent;">
+                        <td>
+                            <div style="font-weight:700; color: #1E293B;">{{ guest.username }}</div>
+                            <div style="font-size:0.75rem; color:#64748B; margin-bottom: 0.5rem;">{{ guest.email }}</div>
+                            
+                            {% if latest_inquiry %}
+                            <div style="background: #F8FAFC; border-radius: 12px; padding: 12px; border: 1px solid #E2E8F0; margin-top: 8px; font-size: 0.75rem;">
+                                <div style="margin-bottom: 4px;"><strong>💼 Job:</strong> {{ latest_inquiry.current_job|default:"Not Specified" }}</div>
+                                <div style="margin-bottom: 4px;"><strong>🎓 Background:</strong> {{ latest_inquiry.background|default:"Not Specified" }}</div>
+                                <div><strong>🇩🇪 Goal:</strong> {{ latest_inquiry.language_goal|default:"Not Specified" }}</div>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if latest_inquiry %}
+                                <div style="display: flex; flex-direction: column; gap: 6px;">
+                                    {% if latest_inquiry.service_requested == 'ENROLL_PREMIUM' %}
+                                        <span class="badge" style="background: #0F172A; color: #38BDF8; border: 1px solid #38BDF8;">PREMIUM PLAN</span>
+                                    {% elif latest_inquiry.service_requested == 'ENROLL_STANDARD' %}
+                                        <span class="badge" style="background: #1E4D8C; color: white;">STANDARD PLAN</span>
+                                    {% elif latest_inquiry.service_requested == 'ENROLL_BASIC' %}
+                                        <span class="badge" style="background: #F1F5F9; color: #475569; border: 1px solid #E2E8F0;">BASIC PLAN</span>
+                                    {% else %}
+                                        <span class="badge" style="background: #F1F5F9; color: #64748B;">{{ latest_inquiry.get_service_requested_display }}</span>
+                                    {% endif %}
+                                    <div style="font-size:0.7rem; color:#94A3B8;">Requested {{ latest_inquiry.created_at|date:"d M Y" }}</div>
+                                </div>
+                            {% else %}
+                                <span style="color:#CBD5E1; font-style:italic;">No Path Selected</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if latest_inquiry %}
+                                <div class="badge" style="background: #F0F9FF; color: #0369A1;">{{ latest_inquiry.get_status_display }}</div>
+                            {% else %}
+                                <div class="badge" style="background: #F8FAFC; color: #94A3B8;">Exploring</div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if latest_inquiry %}
+                                <span class="badge" style="background-color: {% if latest_inquiry.is_paid %}#DCFCE7{% else %}#FEF2F2{% endif %}; color: {% if latest_inquiry.is_paid %}#166534{% else %}#991B1B{% endif %}; border: 1px solid {% if latest_inquiry.is_paid %}#BBF7D0{% else %}#FECACA{% endif %};">
+                                    {% if latest_inquiry.is_paid %}PAID & ACTIVE{% else %}WAITING PAYMENT{% endif %}
+                                </span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:0.5rem; align-items:center;">
+                                <a href="{% url 'student_edit' guest.pk %}" class="btn btn-primary" style="font-size:0.7rem; padding: 6px 12px; border-radius: 8px;">Upgrade User</a>
+                                {% if latest_inquiry and not latest_inquiry.is_paid %}
+                                <form method="post" action="{% url 'inquiry_pay' latest_inquiry.pk %}" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button class="btn" style="background:white; color:#1E4D8C; border:1px solid #E2E8F0; padding: 6px 12px; border-radius: 8px;" title="Mark Paid and Close Inquiry">Confirm Fee</button>
+                                </form>
+                                {% endif %}
+                                <button onclick="navigator.clipboard.writeText('{{ guest.email }}'); this.textContent='✓ Copied'; setTimeout(()=>this.textContent='📧', 1500);" class="btn" style="background: #F8FAFC; border: 1px solid #E2E8F0; padding: 6px 12px; border-radius: 8px; cursor: pointer;" title="Copy Email Address">📧</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="text-align:center; padding:2rem;">No new guests yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 3. COURSE MANAGEMENT -->
+    <div id="courses" class="tab-pane">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h3 style="font-size:1.1rem; font-weight:700;">Course Catalog</h3>
+                <a href="{% url 'course_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Create New</a>
+            </div>
+            {% if all_courses %}
+            <table>
+                <thead>
+                    <tr><th>Course</th><th>Level</th><th>Status</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for course in all_courses %}
+                    <tr>
+                        <td><strong>{{ course.title }}</strong></td>
+                        <td>{{ course.level }}</td>
+                        <td>
+                            <span class="badge" style="background-color: {% if course.is_active %}#DCFCE7{% else %}#FEE2E2{% endif %}; color: {% if course.is_active %}#166534{% else %}#991B1B{% endif %};">
+                                {% if course.is_active %}Active{% else %}Inactive{% endif %}
+                            </span>
+                        </td>
                         <td>
                             <div style="display:flex; gap:0.5rem;">
-                                <form method="post" action="{% url 'approve_enrollment' req.pk %}">
+                                <a href="{% url 'course_edit' course.pk %}" class="btn btn-sm">Edit</a>
+                                <form method="post" action="{% url 'course_delete' course.pk %}" style="display:inline;" onsubmit="return confirm('Archive this course?')">
                                     {% csrf_token %}
-                                    <button type="submit" class="btn btn-primary" style="font-size:0.7rem; padding:0.25rem 0.5rem;">Approve</button>
-                                </form>
-                                <form method="post" action="{% url 'reject_enrollment' req.pk %}">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-danger" style="font-size:0.7rem; padding:0.25rem 0.5rem;">Deny</button>
+                                    <button type="submit" class="btn btn-danger btn-sm" style="padding:0.25rem 0.5rem;">✕</button>
                                 </form>
                             </div>
                         </td>
@@ -86,68 +250,102 @@
                 </tbody>
             </table>
             {% else %}
-            <p style="color:var(--text-muted); text-align:center; padding:1.5rem 0;">No pending requests at the moment.</p>
+            <p style="text-align:center; padding:2rem;">No courses available.</p>
             {% endif %}
         </div>
-
-        <div class="card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-            <h3 style="font-size:1.1rem; font-weight:700;">Student Roster</h3>
-            <a href="{% url 'student_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Add Student</a>
-        </div>
-        {% if students %}
-        <table>
-            <thead>
-                <tr>
-                    <th>Student</th>
-                    <th>Enrollments</th>
-                    <th>Completion</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for student in students %}
-                <tr>
-                    <td>
-                        <div style="font-weight:600;">{{ student.username }}</div>
-                        <div style="font-size:0.8rem; color:var(--text-muted);">{{ student.email }}</div>
-                    </td>
-                    <td>{{ student.total_enrollments }}</td>
-                    <td>
-                        <div class="progress-bar-wrap">
-                            <div class="progress-bar-fill" style="width:{{ student.completion_rate }}%"></div>
-                        </div>
-                        <span style="font-size:0.75rem; color:var(--text-muted);">{{ student.completion_rate }}%</span>
-                    </td>
-                    <td>
-                        <a href="{% url 'student_edit' student.pk %}" class="btn"
-                            style="font-size:0.75rem; padding:0.3rem 0.6rem;">Edit</a>
-                        <form method="post" action="{% url 'student_delete' student.pk %}" style="display:inline;"
-                            onsubmit="return confirm('Deactivate this student?')">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger"
-                                style="font-size:0.75rem; padding:0.3rem 0.6rem;">Remove</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No students enrolled yet. <a
-                href="{% url 'student_add' %}" style="color:var(--primary);">Add the first student →</a></p>
-        {% endif %}
     </div>
 
-    <div>
+    <!-- 4. TRAININGS MANAGEMENT -->
+    <div id="trainings" class="tab-pane">
         <div class="card">
-            <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">⚡ Quick Actions</h3>
-            <div class="quick-actions-list">
-                <a href="{% url 'student_add' %}" class="btn action-btn">➕ Add New Student</a>
-                <a href="{% url 'course_list' %}" class="btn action-btn">📚 Course Catalog</a>
-                <a href="/admin/" class="btn action-btn">⚙️ Admin Panel</a>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h3 style="font-size:1.1rem; font-weight:700;">Live Training Schedule</h3>
+                <a href="{% url 'event_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Schedule Event</a>
+            </div>
+            {% if training_events %}
+            <table>
+                <thead>
+                    <tr><th>Event</th><th>Date</th><th>Platform</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for event in training_events %}
+                    <tr>
+                        <td><strong>{{ event.title }}</strong></td>
+                        <td>{{ event.date|date:"d M, H:i" }}</td>
+                        <td>{{ event.get_platform_display|default:event.location }}</td>
+                        <td>
+                            <div style="display:flex; gap:0.5rem;">
+                                <a href="{% url 'event_edit' event.pk %}" class="btn btn-sm">Edit</a>
+                                <form method="post" action="{% url 'event_delete' event.pk %}" style="display:inline;" onsubmit="return confirm('Delete this event?')">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger btn-sm" style="padding:0.25rem 0.5rem;">✕</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p style="text-align:center; padding:2rem;">No live events scheduled.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 5. WEBSITE MANAGEMENT -->
+    <div id="website" class="tab-pane">
+        <div class="dashboard-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+            <div class="card">
+                <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">⚡ Quick Admin Controls</h3>
+                <div class="quick-actions-list" style="display:flex; flex-direction:column; gap:12px;">
+                    <a href="{% url 'school_settings' %}" class="btn" style="text-align:left; padding:1rem; display:flex; justify-content:space-between; background:white; border:1px solid var(--border);">
+                        <span>⚙️ High-Fidelity Branding Settings</span>
+                        <span>→</span>
+                    </a>
+                    <a href="/admin/" class="btn" style="text-align:left; padding:1rem; display:flex; justify-content:space-between;">
+                        <span>🛡️ Core Django Admin Hub</span>
+                        <span>→</span>
+                    </a>
+                    <a href="{% url 'public_index' %}" class="btn" style="text-align:left; padding:1rem; display:flex; justify-content:space-between;">
+                        <span>🏠 View Public Site Architecture</span>
+                        <span>→</span>
+                    </a>
+                </div>
+            </div>
+            <div class="card" style="background-color:#F1F5F9; border:none;">
+                <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1rem;">ℹ️ Management Hint</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem; line-height:1.6;">
+                    Website management allows you to control the public-facing content and system-wide settings. 
+                    Use the Core Admin for sensitive data modifications.
+                </p>
             </div>
         </div>
     </div>
+
 </div>
+
+<script>
+    function switchTab(tabId) {
+        // Remove active from all buttons
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        // Remove active from all panes
+        document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+        
+        // Add active to current
+        event.currentTarget.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+        
+        // Save to local storage for persistence
+        localStorage.setItem('admin_last_tab', tabId);
+    }
+
+    // Persistence logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const lastTab = localStorage.getItem('admin_last_tab');
+        if (lastTab && document.getElementById(lastTab)) {
+            const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(lastTab));
+            if (btn) btn.click();
+        }
+    });
+</script>
 {% endblock %}

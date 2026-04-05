@@ -1,0 +1,274 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Language Programs | PME Consulting EU{% endblock %}
+{% block page_title %}Career Preparation Programs{% endblock %}
+{% block page_subtitle %}Specialized language training for Filipino healthcare professionals pursuing careers in Europe.{% endblock %}
+
+{% block extra_head %}
+<style>
+    .courses-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        margin-top: 3rem;
+    }
+
+    .main-course-card {
+        background: white;
+        border-radius: 32px;
+        overflow: hidden;
+        box-shadow: 0 20px 50px rgba(30, 77, 140, 0.08);
+        border: 1px solid rgba(30, 77, 140, 0.05);
+    }
+
+    .course-header {
+        padding: 3rem;
+        background: linear-gradient(135deg, #1E4D8C 0%, #0D2D5B 100%);
+        color: white;
+        position: relative;
+    }
+
+    .course-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: 100px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 1rem;
+        backdrop-filter: blur(4px);
+    }
+
+    .pricing-container {
+        padding: 4rem 3rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        position: relative;
+    }
+
+    .pricing-card {
+        background: #F8FAFC;
+        border-radius: 24px;
+        padding: 2.5rem;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid #E2E8F0;
+        position: relative;
+    }
+
+    .pricing-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 35px rgba(30, 77, 140, 0.1);
+        border-color: var(--primary);
+    }
+
+    .pricing-card.recommended {
+        background: white;
+        border: 2px solid var(--primary);
+        transform: scale(1.05);
+        z-index: 2;
+    }
+
+    .pricing-card.recommended:hover {
+        transform: scale(1.05) translateY(-8px);
+    }
+
+    .pricing-card.premium {
+        background: #0F172A;
+        color: white;
+        border: none;
+    }
+
+    .pricing-card.premium .feature-list li {
+        color: #94A3B8;
+    }
+
+    .recommended-badge {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--primary);
+        color: white;
+        padding: 0.25rem 1.25rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .price-tag {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin: 1.5rem 0;
+        color: var(--primary);
+        display: flex;
+        align-items: baseline;
+        gap: 0.25rem;
+    }
+
+    .pricing-card.premium .price-tag {
+        color: #38BDF8;
+    }
+
+    .currency { font-size: 1.25rem; font-weight: 600; }
+
+    .feature-list {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 2.5rem 0;
+        flex-grow: 1;
+    }
+
+    .feature-list li {
+        padding: 0.75rem 0;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        font-size: 0.95rem;
+        color: #475569;
+    }
+
+    .feature-list li::before {
+        content: '✓';
+        color: #10B981;
+        font-weight: 800;
+    }
+
+    .pricing-card.premium .feature-list li::before {
+        color: #38BDF8;
+    }
+
+    .coming-soon-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-top: 5rem;
+    }
+
+    .soon-card {
+        background: rgba(255, 255, 255, 0.6);
+        border: 2px dashed #CBD5E1;
+        border-radius: 24px;
+        padding: 3rem;
+        text-align: center;
+        opacity: 0.8;
+        transition: all 0.3s;
+    }
+
+    .soon-card:hover {
+        opacity: 1;
+        border-color: var(--primary);
+        background: white;
+    }
+
+    .payment-notice {
+        margin-top: 4rem;
+        padding: 2rem;
+        background: #F1F5F9;
+        border-radius: 16px;
+        text-align: center;
+        font-size: 0.9rem;
+        color: #64748B;
+    }
+
+    @media (max-width: 900px) {
+        .pricing-card.recommended {
+            transform: none;
+        }
+        .pricing-card.recommended:hover {
+            transform: translateY(-8px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="courses-grid">
+    <!-- Product #1: German A1 -->
+    <div class="main-course-card">
+        <div class="course-header">
+            <span class="course-badge">Flagship Program</span>
+            <h2 style="font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem;">German A1 for Healthcare Workers</h2>
+            <p style="font-size: 1.1rem; opacity: 0.9; max-width: 700px; line-height: 1.6;">
+                Structured German course designed for Laboratory Professionals planning to work in Europe. 
+                Includes real hospital scenarios, guided lessons, and speaking practice.
+            </p>
+        </div>
+
+        <div class="pricing-container">
+            <!-- BASIC Tier -->
+            <div class="pricing-card">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Basic</span>
+                <div class="price-tag"><span class="currency">₱</span>12,000</div>
+                <ul class="feature-list">
+                    <li>Full LMS access (Self-Paced)</li>
+                    <li>Professional Video lessons</li>
+                    <li>Downloadable PDF materials</li>
+                    <li>Chapter Quizzes & Tests</li>
+                </ul>
+                <a href="{% url 'upgrade' %}" class="btn btn-secondary" style="width: 100%; border-radius: 12px; padding: 1rem;">Enroll Now</a>
+            </div>
+
+            <!-- STANDARD Tier -->
+            <div class="pricing-card recommended">
+                <div class="recommended-badge">Recommended</div>
+                <span style="font-size: 0.8rem; font-weight: 700; color: var(--primary); text-transform: uppercase;">Standard</span>
+                <div class="price-tag"><span class="currency">₱</span>15,000</div>
+                <ul class="feature-list">
+                    <li>Everything in Basic</li>
+                    <li>Speaking session with Native teacher</li>
+                    <li>Level A1 Mock Exam</li>
+                    <li>Direct Instructor Q&A</li>
+                </ul>
+                <a href="{% url 'upgrade' %}" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem;">Enroll Now</a>
+            </div>
+
+            <!-- PREMIUM Tier -->
+            <div class="pricing-card premium">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Premium</span>
+                <div class="price-tag"><span class="currency">₱</span>20,000</div>
+                <ul class="feature-list">
+                    <li>Everything in Standard</li>
+                    <li>Multiple speaking sessions</li>
+                    <li>Mock exam with detailed feedback</li>
+                    <li>Priority response support</li>
+                    <li>Certificate of Completion</li>
+                </ul>
+                <a href="{% url 'upgrade' %}" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem; background: #38BDF8; border: none; color: #0F172A;">Enroll Now</a>
+            </div>
+        </div>
+
+        <div class="payment-notice">
+            <p><strong>Payment Options:</strong> Full payment discount or flexible installment plans available upon verification.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Coming Soon Section -->
+<div class="section-header" style="margin-top: 6rem; text-align: center;">
+    <h2 style="font-size: 1.75rem; font-weight: 800; color: #1E4D8C;">Upcoming Programs</h2>
+    <p style="color: #64748B;">Expanding our European career curriculum for the 2026 academic year.</p>
+</div>
+
+<div class="coming-soon-grid">
+    <div class="soon-card">
+        <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">🏥</span>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1E4D8C;">German A2: Career Integration</h3>
+        <p style="color: #64748B; margin-top: 0.5rem;">Advanced vocabulary and workflows for European healthcare settings.</p>
+        <span class="badge" style="margin-top: 1.5rem;">Q3 2026</span>
+    </div>
+    <div class="soon-card">
+        <span style="font-size: 2.5rem; display: block; margin-bottom: 1rem;">💉</span>
+        <h3 style="font-size: 1.25rem; font-weight: 700; color: #1E4D8C;">German B1: Professional Mastery</h3>
+        <p style="color: #64748B; margin-top: 0.5rem;">Full recognition path preparation for laboratory specialists.</p>
+        <span class="badge" style="margin-top: 1.5rem;">Q4 2026</span>
+    </div>
+</div>
+{% endblock %}

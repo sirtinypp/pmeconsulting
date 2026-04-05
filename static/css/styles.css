@@ -90,30 +90,45 @@ body {
     gap: var(--space-md);
 }
 
-.brand-section {
-    display: flex;
-    align-items: center;
-    gap: var(--space-md);
-    flex-shrink: 0;
+/* ── Universal Sleek Branding (High Specificity) ── */
+#main-brand-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-shrink: 0 !important;
+    text-decoration: none !important;
+    border: none !important;
 }
 
-.logo-circle {
-    width: 40px;
-    height: 40px;
-    background: var(--primary-pale);
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    border: 1px solid var(--accent-light);
+#main-brand-link * {
+    text-decoration: none !important;
 }
 
-.brand-name {
-    font-weight: 700;
-    font-size: 1.25rem;
-    color: var(--dark);
-    white-space: nowrap;
+#main-brand-logo {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 1px solid var(--accent-light) !important;
+}
+
+#main-brand-title {
+    font-weight: 800 !important;
+    font-size: 1.15rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+    line-height: normal !important;
+}
+
+.brand-main {
+    color: #1E4D8C !important;
+}
+
+.brand-accent {
+    color: #0EA5E9 !important;
 }
 
 .nav-menu {
@@ -336,14 +351,33 @@ body {
 }
 
 .btn-primary {
-    background-color: var(--primary);
-    color: white;
+    background: var(--primary);
+    color: white !important;
     border: none;
+    border-radius: 32px !important;
 }
 
 .btn-primary:hover {
-    background-color: #163d72;
+    background: var(--primary-dark);
     box-shadow: 0 4px 12px rgba(30, 77, 140, 0.3);
+}
+
+.btn-cta {
+    background: var(--accent); /* #0EA5E9 */
+    color: white !important;
+    border: none !important;
+    border-radius: 32px !important;
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
+    padding: 8px 24px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+}
+
+.btn-cta:hover {
+    background: #0284C7;
+    box-shadow: 0 6px 18px rgba(14, 165, 233, 0.35);
+    transform: translateY(-2px);
 }
 
 .btn-danger {
@@ -533,4 +567,62 @@ td {
     .profile-text {
         display: none;
     }
+}
+
+/* ── Dashboard Tabulated Hub ── */
+.dashboard-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 2rem;
+    padding: 6px;
+    background: rgba(30, 77, 140, 0.04);
+    border-radius: 40px;
+    width: fit-content;
+    border: 1px solid rgba(30, 77, 140, 0.05);
+}
+
+.tab-btn {
+    padding: 10px 24px;
+    border-radius: 32px;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+}
+
+.tab-btn:hover {
+    opacity: 1;
+    background: rgba(30, 77, 140, 0.05);
+}
+
+.tab-btn.active {
+    background: white;
+    color: var(--primary);
+    box-shadow: 0 4px 12px rgba(30, 77, 140, 0.12);
+    opacity: 1;
+}
+
+.tab-pane {
+    display: none;
+    animation: dashboardFadeIn 0.4s ease-out forwards;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+@keyframes dashboardFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tab-icon {
+    font-size: 1.1rem;
 }

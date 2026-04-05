@@ -13,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- Styles -->
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1.2">
 
     <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
@@ -26,29 +26,29 @@
         <!-- Top Navigation Bar -->
         <nav class="top-nav">
             <div class="nav-container">
-                <div class="brand-section">
-                    <div class="logo-circle">
-                        <span>🇩🇪</span>
-                    </div>
-                    <span class="brand-name">
-                        <span style="color: #1E4D8C;">{{ user.school.code|default:"DEUTSCH" }}</span>
-                        <span style="color: var(--accent);">{% block brand_context %}Learning{% endblock %}</span>
+                <a href="/" class="brand-link" id="main-brand-link">
+                    <img src="{% static 'images/ph_medtech_logo.png' %}" alt="PH MedTech Europe Logo" class="brand-logo" id="main-brand-logo">
+                    <span class="brand-name" id="main-brand-title">
+                        <span class="brand-main">PH MedTech</span>
+                        <span class="brand-accent">Europe</span>
                     </span>
-                </div>
+                </a>
 
                 <ul class="nav-menu">
+                    {% if '/courses/' not in request.path %}
                     <li class="nav-item {% if '/dashboard/' in request.path %}active{% endif %}">
                         <a href="{% url 'dashboard' %}">
                             <span class="nav-icon">📊</span>
-                            Dashboard
+                            {% if user.role == 'GUEST' %}Discovery Hub{% elif user.role == 'STUDENT' %}Training Hub{% elif user.role == 'SCHOOL_ADMIN' %}School Management{% else %}Platform Oversight{% endif %}
                         </a>
                     </li>
+                    {% endif %}
 
                     {% if user.role == 'STUDENT' %}
-                    <li class="nav-item {% if '/learning/' in request.path %}active{% endif %}">
-                        <a href="{% url 'course_list' %}">
+                    <li class="nav-item {% if '/courses/' in request.path %}active{% endif %}">
+                        <a href="{% url 'public_courses' %}">
                             <span class="nav-icon">📖</span>
-                            My Courses
+                            Our Courses
                         </a>
                     </li>
                     <li class="nav-item">
@@ -72,24 +72,7 @@
                     {% endif %}
 
                     {% if user.role == 'SCHOOL_ADMIN' %}
-                    <li class="nav-item {% if '/dashboard/' in request.path %}active{% endif %}">
-                        <a href="{% url 'dashboard' %}">
-                            <span class="nav-icon">👥</span>
-                            Student Management
-                        </a>
-                    </li>
-                    <li class="nav-item {% if '/learning/' in request.path %}active{% endif %}">
-                        <a href="{% url 'course_list' %}">
-                            <span class="nav-icon">📚</span>
-                            Course Catalog
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="{% url 'student_add' %}">
-                            <span class="nav-icon">➕</span>
-                            Add Student
-                        </a>
-                    </li>
+                    <!-- Redundant links removed, centrally managed in dashboard -->
                     {% endif %}
 
                     {% if user.is_superuser %}
@@ -102,6 +85,7 @@
                     {% endif %}
                 </ul>
 
+                {% if '/courses/' not in request.path %}
                 <div class="user-actions">
                     <div class="user-profile">
                         <div class="profile-text">
@@ -116,6 +100,7 @@
                             style="background: none; border: none; cursor: pointer; padding: 0; font-size: 1.25rem;">🚪</button>
                     </form>
                 </div>
+                {% endif %}
             </div>
         </nav>
 
@@ -172,7 +157,7 @@
                     dropdown.querySelector('.dropdown-menu').classList.remove('show');
                 });
             });
-      ;
+        });
     </script>
 </body>
 

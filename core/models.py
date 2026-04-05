@@ -42,20 +42,30 @@ class SchoolScopedModel(models.Model):
 
 class ServiceInquiry(models.Model):
     class ServiceType(models.TextChoices):
-        DEEP_ANALYSIS = 'DEEP_ANALYSIS', 'Deep Analysis Consultation'
+        DEEP_ANALYSIS = 'DEEP_ANALYSIS', 'Direct Career Consultation'
         FOLLOW_UP = 'FOLLOW_UP', 'Follow Up Session'
         CV_LETTER = 'CV_LETTER', 'CV & Motivation Letter'
         CHECKLIST = 'CHECKLIST', 'Personalized Checklist'
+        PROGRAM = 'PROGRAM', 'Full German Training Program'
+        PASSING_BY = 'EXPLORING', 'Just Exploring / Passing By'
+        ENROLL_BASIC = 'ENROLL_BASIC', 'German Career: Basic (₱12,000)'
+        ENROLL_STANDARD = 'ENROLL_STANDARD', 'German Career: Standard (₱15,000)'
+        ENROLL_PREMIUM = 'ENROLL_PREMIUM', 'German Career: Premium (₱20,000)'
 
     class Status(models.TextChoices):
         PENDING = 'PENDING', 'Pending'
         CONTACTED = 'CONTACTED', 'Contacted'
         RESOLVED = 'RESOLVED', 'Resolved'
 
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, null=True, blank=True, related_name='service_inquiries')
     name = models.CharField(max_length=150)
     email = models.EmailField()
     phone = models.CharField(max_length=50, blank=True, null=True)
+    current_job = models.CharField(max_length=100, blank=True, null=True, verbose_name="Current Job/Status")
+    background = models.CharField(max_length=255, blank=True, null=True, verbose_name="Educational/Clinical Background")
+    language_goal = models.CharField(max_length=255, blank=True, null=True, verbose_name="German Language/Career Goal")
     service_requested = models.CharField(max_length=50, choices=ServiceType.choices)
+    is_paid = models.BooleanField(default=False)
     message = models.TextField(blank=True, null=True)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)

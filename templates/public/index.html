@@ -11,20 +11,21 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-    <link rel="stylesheet" href="{% static 'css/public.css' %}">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=1.2">
+    <link rel="stylesheet" href="{% static 'css/public.css' %}?v=1.2">
     <script src="https://unpkg.com/htmx.org@2.0.0"></script>
 </head>
 
 <body>
     <nav class="public-nav">
         <div class="container nav-flex">
-            <div class="brand">
-                <img src="/static/images/ph_medtech_logo.png" alt="PH MedTech Logo"
-                    style="height: 50px; margin-right: 10px;">
-                <span class="logo-text">PH MedTech</span>
-                <span class="sub-logo" style="font-weight:700; color: #0EA5E9; margin-left: 4px;">Learning</span>
-            </div>
+            <a href="/" class="brand-link" id="main-brand-link">
+                <img src="/static/images/ph_medtech_logo.png" alt="PH MedTech Europe Logo" class="brand-logo" id="main-brand-logo">
+                <span class="brand-name" id="main-brand-title">
+                    <span class="brand-main">PH MedTech</span>
+                    <span class="brand-accent">Europe</span>
+                </span>
+            </a>
             <input type="checkbox" id="nav-toggle" class="nav-toggle">
             <label for="nav-toggle" class="menu-icon">
                 <span></span>
@@ -33,20 +34,20 @@
             </label>
             <div class="nav-links">
                 <a href="#about">About</a>
-                <a href="#courses">Courses</a>
+                <a href="{% url 'public_courses' %}">Courses</a>
                 <a href="#services">Services</a>
                 <a href="#calendar">Events</a>
                 {% if user.is_authenticated %}
                     {% if user.role == 'GUEST' %}
-                        <a href="{% url 'upgrade' %}" class="btn btn-primary btn-sm">Upgrade to Student</a>
+                        <a href="{% url 'dashboard' %}" class="btn btn-sm">Explore Resources</a>
+                        <a href="{% url 'upgrade' %}" class="btn-primary btn-sm">Upgrade to Student</a>
                     {% else %}
-                        <a href="{% url 'dashboard' %}" class="btn btn-sm">Dashboard</a>
+                        <a href="{% url 'dashboard' %}" class="btn-primary btn-sm">Management Hub</a>
                     {% endif %}
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-sm">Sign In</a>
-                    <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Sign Up</a>
+                    <a href="{% url 'login' %}" class="btn-primary btn-sm">Student Login</a>
+                    <a href="{% url 'admin_login' %}" class="btn-primary btn-sm">Admin Login</a>
                 {% endif %}
-                <a href="{% url 'admin_login' %}" class="btn btn-sm" style="opacity: 0.7;">Admin Portal</a>
             </div>
         </div>
     </nav>
@@ -65,9 +66,11 @@
                 <div class="hero-actions">
                     {% if user.is_authenticated %}
                         {% if user.role == 'GUEST' %}
-                            <a href="{% url 'upgrade' %}" class="btn btn-primary lg">Start Learning (Paid)</a>
+                            <a href="{% url 'dashboard' %}" class="btn btn-primary lg">Start Discovery</a>
+                        {% elif user.role == 'STUDENT' %}
+                            <a href="{% url 'dashboard' %}" class="btn btn-primary lg">Resume My Lessons</a>
                         {% else %}
-                            <a href="{% url 'dashboard' %}" class="btn btn-primary lg">Go to Dashboard</a>
+                            <a href="{% url 'dashboard' %}" class="btn btn-primary lg">Admin Dashboard</a>
                         {% endif %}
                     {% else %}
                         <a href="{% url 'signup' %}" class="btn btn-primary lg">Join Now (Guest)</a>
@@ -146,9 +149,18 @@
                     <p>We believe German is more than a language — it's a gateway to culture, career, and community.
                         Our platform combines structured CEFR-aligned content with live sessions and gamified
                         progress to keep you motivated and on track.</p>
+                    <div style="margin-top: 1.5rem;">
+                        {% if not user.is_authenticated %}
+                            <a href="{% url 'signup' %}" class="btn btn-primary btn-sm">Join the Community</a>
+                        {% elif user.role == 'GUEST' %}
+                            <a href="{% url 'upgrade' %}" class="btn btn-primary btn-sm">Access Member Vision</a>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="featured-visual">
-                    <span class="visual-icon">🔬🇵🇭</span>
+                    <div style="margin-bottom: 24px; background: white; padding: 15px; border-radius: 50%; display: inline-flex; box-shadow: 0 8px 15px rgba(0,0,0,0.2);">
+                        <img src="/static/images/ph_medtech_logo.png" alt="PH MedTech Logo" style="height: 64px;">
+                    </div>
                     <p class="visual-tagline">Bridging Filipino Healthcare Professionals<br>Across Europe Through
                         Language.<br>
                         <small style="opacity:0.7; font-weight:400;">PME Consulting EU</small>
@@ -203,9 +215,9 @@
                         {% if not user.is_authenticated %}
                             <a href="{% url 'signup' %}" class="btn btn-sm" style="margin-top: 15px;">Enroll Now</a>
                         {% elif user.role == 'GUEST' %}
-                            <a href="{% url 'upgrade' %}" class="btn btn-sm btn-primary" style="margin-top: 15px;">Upgrade to Enroll</a>
+                            <a href="{% url 'upgrade' %}" class="btn btn-sm btn-primary" style="margin-top: 15px;">Upgrade to Student</a>
                         {% else %}
-                            <a href="{% url 'dashboard' %}" class="btn btn-sm" style="margin-top: 15px;">Go to Class</a>
+                            <a href="{% url 'dashboard' %}" class="btn btn-sm" style="margin-top: 15px;">Open Classroom</a>
                         {% endif %}
                     </div>
                     <div class="program-card" style="opacity: 0.8;">
@@ -218,6 +230,15 @@
                         <h3>English (Coming Soon)</h3>
                         <p>OET preparation and medical English for the UK and Ireland.</p>
                     </div>
+                </div>
+                <div class="section-footer" style="text-align: center; margin-top: 3.5rem;">
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'signup' %}" class="btn btn-primary lg">Start My Training Today</a>
+                    {% elif user.role == 'GUEST' %}
+                        <a href="{% url 'upgrade' %}" class="btn btn-primary lg">Unlock Full Curriculum</a>
+                    {% else %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary lg">Return to Classroom</a>
+                    {% endif %}
                 </div>
             </div>
         </section>
@@ -259,6 +280,10 @@
                         <a href="{% url 'book_service' %}?service=follow-up" class="btn btn-sm"
                             style="margin-top: 15px;">Book Follow Up</a>
                     </div>
+                </div>
+                <div class="section-footer" style="text-align: center; margin-top: 3.5rem;">
+                    <a href="{% url 'contact' %}" class="btn btn-primary lg">Contact Advisor Now</a>
+                    <p style="margin-top: 1.25rem; font-size: 0.9rem; color: #64748B;">Need a custom plan? <a href="mailto:info@pme-consulting.eu" style="color: var(--primary);">Email us directly</a></p>
                 </div>
             </div>
         </section>

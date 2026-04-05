@@ -13,53 +13,108 @@
 </head>
 
 <body>
-    <div class="login-page">
-        <div class="login-box" style="max-width: 600px; text-align: center;">
-            <div class="login-logo">
-                <div style="font-size:3rem; margin-bottom: 20px;">🔒 → 🔓</div>
+    <div style="min-height: 100vh; background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=2574&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; padding: 4rem 2rem; display: flex; flex-direction: column; align-items: center;">
+        
+        <div style="width: 100%; max-width: 1200px; text-align: center;">
+            <div style="margin-bottom: 4rem;">
+                <h2 style="font-size: 3rem; font-weight: 800; color: white; margin-bottom: 1rem; letter-spacing: -0.02em;">Choose Your Path to Europe</h2>
+                <p style="font-size: 1.25rem; color: #94A3B8; max-width: 700px; margin: 0 auto;">Enroll as a Full Student to unlock the premium German Career & Language curriculum and start your journey today.</p>
             </div>
-            <h2>Unlock Your Medical Career in Europe</h2>
-            <p class="subtitle" style="margin-bottom: 30px;">Upgrade to a **Paid Student** account to access all clinical German courses (A1-C1) and resources.</p>
 
-            <div style="background: #F8FAFC; border-radius: 16px; padding: 30px; margin-bottom: 40px; text-align: left; border: 1px solid #E2E8F0;">
-                <h3 style="color: #1E4D8C; margin-top: 0;">What you'll unlock:</h3>
-                <ul style="list-style: none; padding: 0; margin: 20px 0;">
-                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Full access to 12 modules of clinical German.
-                    </li>
-                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Enroll in any course and track your progress.
-                    </li>
-                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Downloadable medical-vocabulary lists and clinical scenarios.
-                    </li>
-                    <li style="margin-bottom: 12px; display: flex; align-items: center; gap: 10px;">
-                        <span style="color: #0EA5E9; font-weight: bold;">✓</span> Earn badges and certificates recognized by PME.
-                    </li>
-                </ul>
-                <div style="border-top: 1px dashed #CBD5E1; padding-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                    <span style="font-weight: 600; color: #64748B;">Student Registration Fee:</span>
-                    <span style="font-size: 1.5rem; font-weight: 800; color: #1E4D8C;">₱2,500 <small style="font-size: 0.875rem; color: #94A3B8;">(One-time)</small></span>
+            <!-- Tiered Pricing Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem; margin-bottom: 5rem; align-items: stretch; justify-content: center;">
+                
+                <!-- BASIC -->
+                <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #E2E8F0; padding: 3rem 2.5rem; border-radius: 32px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); display: flex; flex-direction: column; transition: transform 0.3s ease;">
+                    <div style="text-align: left;">
+                        <span style="font-size: 0.75rem; font-weight: 800; color: #64748B; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;">Self-Paced Discovery</span>
+                        <h3 style="margin: 0; font-size: 1.75rem; color: #0F172A; font-weight: 800;">Basic</h3>
+                        <p style="font-size: 0.9rem; color: #64748B; margin: 0.5rem 0 2rem; line-height: 1.5;">Core essentials to start your German journey independently.</p>
+                        <div style="font-size: 2.75rem; font-weight: 800; color: #1E4D8C; margin-bottom: 2rem; display: flex; align-items: baseline; gap: 0.25rem;">
+                            <span style="font-size: 1.5rem;">₱</span>12,000
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem 0; font-size: 1rem; color: #475569;">
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Full LMS access (A1 Modules)</span>
+                            </li>
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Professional video lessons</span>
+                            </li>
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Downloadable PDF guides</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'contact' %}?tier=Basic" class="btn btn-secondary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; border: 2px solid #E2E8F0; background: white; text-decoration: none; color: #475569;">Request Enrollment</a>
+                </div>
+
+                <!-- STANDARD (Recommended) -->
+                <div style="background: white; border: 3px solid #1E4D8C; padding: 4rem 2.5rem; border-radius: 32px; box-shadow: 0 30px 60px -12px rgba(30, 77, 140, 0.25); position: relative; display: flex; flex-direction: column; transform: scale(1.05); z-index: 2;">
+                    <div style="position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: #1E4D8C; color: white; padding: 8px 24px; border-radius: 100px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">Most Recommended</div>
+                    <div style="text-align: left;">
+                        <span style="font-size: 0.75rem; font-weight: 800; color: #1E4D8C; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;">Guided Career Prep</span>
+                        <h3 style="margin: 0; font-size: 1.75rem; color: #0F172A; font-weight: 800;">Standard</h3>
+                        <p style="font-size: 0.9rem; color: #64748B; margin: 0.5rem 0 2rem; line-height: 1.5;">Accelerate your path with native teacher support and mock exams.</p>
+                        <div style="font-size: 3rem; font-weight: 800; color: #1E4D8C; margin-bottom: 2rem; display: flex; align-items: baseline; gap: 0.25rem;">
+                            <span style="font-size: 1.5rem;">₱</span>15,000
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem 0; font-size: 1rem; color: #475569;">
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start; font-weight: 600;">
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Everything in Basic</span>
+                            </li>
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Speaking sessions with Native</span>
+                            </li>
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Direct Instructor Q&A Support</span>
+                            </li>
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>European Work Mock Scenarios</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'contact' %}?tier=Standard" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); border: none; text-decoration: none; color: white;">Request Enrollment</a>
+                </div>
+
+                <!-- PREMIUM -->
+                <div style="background: #0F172A; color: white; border: none; padding: 3rem 2.5rem; border-radius: 32px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); display: flex; flex-direction: column;">
+                    <div style="text-align: left;">
+                        <span style="font-size: 0.75rem; font-weight: 800; color: #38BDF8; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 0.5rem;">Full Accelerator</span>
+                        <h3 style="margin: 0; font-size: 1.75rem; color: white; font-weight: 800;">Premium</h3>
+                        <p style="font-size: 0.9rem; color: #94A3B8; margin: 0.5rem 0 2rem; line-height: 1.5;">The complete 1-on-1 solution for rapid career placement.</p>
+                        <div style="font-size: 2.75rem; font-weight: 800; color: #38BDF8; margin-bottom: 2rem; display: flex; align-items: baseline; gap: 0.25rem;">
+                            <span style="font-size: 1.5rem;">₱</span>20,000
+                        </div>
+                        <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem 0; font-size: 1rem; color: #94A3B8;">
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #38BDF8; font-weight: bold;">✓</span> <span>Everything in Standard</span>
+                            </li>
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #38BDF8; font-weight: bold;">✓</span> <span>Advanced interview coaching</span>
+                            </li>
+                            <li style="align-items: flex-start; display: flex; gap: 12px; margin-bottom: 1rem;">
+                                <span style="color: #38BDF8; font-weight: bold;">✓</span> <span>CV & Motivation Letter Review</span>
+                            </li>
+                            <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
+                                <span style="color: #38BDF8; font-weight: bold;">✓</span> <span>Certificate of Excellence</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <a href="{% url 'contact' %}?tier=Premium" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: white; color: #0F172A; border: none; text-decoration: none;">Request Enrollment</a>
                 </div>
             </div>
 
-            <form method="post">
-                {% csrf_token %}
-                <button type="submit" class="login-btn" style="background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); width: 100%; padding: 18px; font-size: 1.125rem;">
-                    Pay & Upgrade Now →
-                </button>
-            </form>
-
-            <p style="margin-top: 20px; color: #94A3B8; font-size: 0.875rem;">
-                Secure payment simulation. No actual funds will be charged during this demo.
+            <p style="margin-top: 2rem; color: rgba(255,255,255,0.7); font-size: 0.95rem; text-align: center; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+                Your enrollment fee is processed securely through encrypted channels. By proceeding, you agree to the PME Consulting EU <a href="{% url 'terms' %}" target="_blank" style="color: white; font-weight: 700; text-decoration: underline;">Terms of Service</a> and Privacy Policy. All enrollment fees are one-time and provide full access to your selected tier features.
             </p>
 
-            <div class="login-footer">
-                <a href="{% url 'dashboard' %}">Maybe later, back to Dashboard</a>
+            <div style="margin-top: 3rem;">
+                <a href="{% url 'dashboard' %}" style="color: white; text-decoration: none; border-bottom: 1px solid rgba(255,255,255,0.3); padding-bottom: 4px; font-size: 0.95rem; opacity: 0.8;">Maybe later, back to Dashboard</a>
             </div>
         </div>
     </div>
 </body>
+</html>
 
 </html>
 

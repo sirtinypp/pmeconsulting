@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto; padding: 3rem;">
+    <div style="margin-bottom: 2.5rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">📡</div>
+        <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary);">{{ page_title }}</h2>
+        <p style="color: var(--text-muted);">Schedule a live speaking session, webinar, or cultural event.</p>
+    </div>
+
+    <form method="post" class="sleek-form">
+        {% csrf_token %}
+        
+        <!-- Title -->
+        <div class="form-group">
+            <label for="title" class="form-label">Event/Session Title</label>
+            <input type="text" name="title" id="title" class="form-control" value="{{ event.title|default:'' }}" placeholder="e.g., Clinical German Speaking Practice" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Date/Time -->
+            <div class="form-group">
+                <label for="date" class="form-label">Scheduled Date & Time</label>
+                <input type="datetime-local" name="date" id="date" class="form-control" value="{{ event.date|date:'Y-m-d\TH:i' }}" required>
+            </div>
+            <!-- Location -->
+            <div class="form-group">
+                <label for="location" class="form-label">Platform/Location</label>
+                <input type="text" name="location" id="location" class="form-control" value="{{ event.location|default:'Online - Zoom' }}" placeholder="e.g., Zoom Meeting ID">
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label for="description" class="form-label">Event Description & Agenda</label>
+            <textarea name="description" id="description" class="form-control" rows="4" placeholder="Briefly describe the session agenda... ">{{ event.description|default:'' }}</textarea>
+        </div>
+
+        <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary lg" style="flex: 2; border-radius: 32px;">Schedule Session</button>
+            <a href="{% url 'dashboard' %}" class="btn lg" style="flex: 1; border-radius: 32px; text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .sleek-form .form-group {
+        margin-bottom: 2rem;
+    }
+    .sleek-form .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+    .sleek-form .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: #F8FAFC;
+    }
+    .sleek-form .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(30, 77, 140, 0.1);
+    }
+</style>
+{% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Guest Dashboard | PME Consulting EU{% endblock %}
 {% block page_title %}Willkommen! 👋{% endblock %}
-{% block page_subtitle %}You are currently in guest mode. Upgrade to unlock full clinical training.{% endblock %}
+{% block page_subtitle %}You are currently in guest mode. Upgrade to unlock full German career & language training.{% endblock %}
 {% block brand_context %}Discovery{% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
     <div style="font-size: 3rem; margin-bottom: 1.5rem;">🎒</div>
     <h2 style="font-size: 2rem; font-weight: 800; color: #1E4D8C; margin-bottom: 1rem;">Unlock Your Potential</h2>
     <p style="font-size: 1.125rem; color: #475569; max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.6;">
-        As a guest, you can explore our platform but don't yet have access to full course materials. To start your journey as a specialized laboratory professional, please upgrade your membership.
+        As a guest, you can explore our platform but don't yet have access to full course materials. To start your journey as a specialized professional in Europe, please upgrade your membership.
     </p>
     <div style="display: flex; gap: 1rem; justify-content: center;">
         <a href="{% url 'upgrade' %}" class="btn btn-primary lg" style="padding: 1rem 2.5rem; border-radius: 12px; font-weight: 700;">🚀 Upgrade Now</a>
@@ -31,6 +31,32 @@
             <h4 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">{{ course.title }}</h4>
             <p style="font-size: 0.875rem; color: #64748B; line-height: 1.5; margin-bottom: 1.5rem;">{{ course.description|truncatewords:20 }}</p>
             <a href="{% url 'upgrade' %}" style="font-size: 0.875rem; color: var(--primary); font-weight: 700; text-decoration: none;">View Syllabus →</a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div style="margin-bottom: 3rem;">
+    <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span style="color: #0F172A;">✍️</span> Career Resources & DIY Prep
+    </h3>
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
+        {% for resource in recent_resources %}
+        <div class="card" style="padding: 0; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column;">
+            <div style="padding: 1.5rem; background: #F8FAFC; border-bottom: 1px solid #F1F5F9; position: relative;">
+                <span style="font-size: 1.5rem;">{{ resource.cover_emoji }}</span>
+                <span class="badge" style="position: absolute; top: 1.5rem; right: 1.5rem; background: #FFF; border: 1px solid #E2E8F0;">
+                    {{ resource.get_category_display }}
+                </span>
+            </div>
+            <div style="padding: 1.5rem; flex-grow: 1;">
+                <h4 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 0.75rem; color: #0F172A;">{{ resource.title }}</h4>
+                <p style="font-size: 0.9rem; color: #475569; line-height: 1.6; margin-bottom: 1.5rem;">{{ resource.excerpt|truncatewords:15 }}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: auto;">
+                    <span style="font-size: 0.75rem; color: #94A3B8;">By {{ resource.author }}</span>
+                    <a href="{% url 'upgrade' %}" class="btn btn-sm btn-primary" style="padding: 0.5rem 1rem; border-radius: 32px;">Open Full Details</a>
+                </div>
+            </div>
         </div>
         {% endfor %}
     </div>

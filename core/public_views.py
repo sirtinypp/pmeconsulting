@@ -49,26 +49,44 @@ def public_index(request):
 
 def book_service(request):
     """View to handle consultation and service inquiries."""
-    initial_service = request.GET.get('service', '')
+    tier = request.GET.get('tier', '')
+    
+    # Map tier param to models
+    initial_data = {}
+    if tier == 'Basic':
+        initial_data['service_requested'] = 'ENROLL_BASIC'
+    elif tier == 'Standard':
+        initial_data['service_requested'] = 'ENROLL_STANDARD'
+    elif tier == 'Premium':
+        initial_data['service_requested'] = 'ENROLL_PREMIUM'
+
     if request.method == 'POST':
         form = ServiceInquiryForm(request.POST)
         if form.is_valid():
-            form.save()
+            inquiry = form.save(commit=False)
+            if request.user.is_authenticated:
+                inquiry.user = request.user
+            inquiry.save()
             return redirect('book_service_success')
     else:
-        # Map URL params to exact choices
-        service_map = {
-            'deep-analysis': 'DEEP_ANALYSIS',
-            'cv-letter': 'CV_LETTER',
-            'checklist': 'CHECKLIST',
-            'follow-up': 'FOLLOW_UP',
-        }
-        mapped_val = service_map.get(initial_service, '')
-        form = ServiceInquiryForm(initial={'service_requested': mapped_val})
-
+        form = ServiceInquiryForm(initial=initial_data)
+    
     return render(request, 'public/service_booking.html', {'form': form})
 
 
 def book_service_success(request):
     """View rendered after a successful booking."""
     return render(request, 'public/service_success.html')
+
+
+def public_courses(request):
+    """Showcase of all offered courses with tiered pricing."""
+    return render(request, 'public/courses.html', {
+        'page_title': 'Language Programs',
+        'brand_context': 'Programs',
+    })
+
+
+def terms(request):
+    """Public Terms & Conditions page."""
+    return render(request, 'public/terms.html')

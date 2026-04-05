@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto; padding: 3rem;">
+    <div style="margin-bottom: 2.5rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">📚</div>
+        <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary);">{{ page_title }}</h2>
+        <p style="color: var(--text-muted);">Configure your German language program details below.</p>
+    </div>
+
+    <form method="post" class="sleek-form">
+        {% csrf_token %}
+        
+        <!-- Course Title -->
+        <div class="form-group">
+            <label for="title" class="form-label">Course Title</label>
+            <input type="text" name="title" id="title" class="form-control" value="{{ course.title|default:'' }}" placeholder="e.g., German A1 For Nurses" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Level -->
+            <div class="form-group">
+                <label for="level" class="form-label">Proficiency Level</label>
+                <select name="level" id="level" class="form-control">
+                    {% for code, label in level_choices %}
+                    <option value="{{ code }}" {% if course.level == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- Duration -->
+            <div class="form-group">
+                <label for="duration" class="form-label">Duration (Optional)</label>
+                <input type="text" name="duration" id="duration" class="form-control" value="{{ course.duration|default:'' }}" placeholder="e.g., 8 weeks">
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+            <label for="description" class="form-label">Detailed Description</label>
+            <textarea name="description" id="description" class="form-control" rows="4" placeholder="What will students learn in this course?">{{ course.description|default:'' }}</textarea>
+        </div>
+
+        <!-- Activation Toggle -->
+        <div class="form-group" style="display: flex; align-items: center; gap: 12px; background: #F8FAFC; padding: 1rem; border-radius: 16px;">
+            <input type="checkbox" name="is_active" id="is_active" {% if course.is_active or not course %}checked{% endif %} style="width: 20px; height: 20px; cursor: pointer;">
+            <label for="is_active" style="font-weight: 700; cursor: pointer;">Course is currently Active</label>
+        </div>
+
+        <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary lg" style="flex: 2; border-radius: 32px;">Save Course Details</button>
+            <a href="{% url 'dashboard' %}" class="btn lg" style="flex: 1; border-radius: 32px; text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .sleek-form .form-group {
+        margin-bottom: 2rem;
+    }
+    .sleek-form .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+    .sleek-form .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: #F8FAFC;
+    }
+    .sleek-form .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(30, 77, 140, 0.1);
+    }
+</style>
+{% endblock %}

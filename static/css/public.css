@@ -71,15 +71,49 @@ h3 {
     align-items: center;
 }
 
-.brand .logo-text {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--primary);
+/* ── Universal Sleek Branding (High Specificity) ── */
+#main-brand-link {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    text-decoration: none !important;
+}
+
+#main-brand-link * {
+    text-decoration: none !important;
+}
+
+#main-brand-logo {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+    border: 1px solid var(--glass-border) !important;
+    flex-shrink: 0 !important;
+}
+
+#main-brand-title {
+    font-weight: 800 !important;
+    font-size: 1.15rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    letter-spacing: -0.02em !important;
+    white-space: nowrap !important;
+    line-height: normal !important;
+}
+
+.brand-main {
+    color: #1E4D8C !important;
+}
+
+.brand-accent {
+    color: #0EA5E9 !important;
 }
 
 .nav-links {
     display: flex;
-    gap: 32px;
+    gap: 24px;
     align-items: center;
 }
 
@@ -121,11 +155,11 @@ h3 {
     border-radius: 2px;
 }
 
-/* ── Buttons ── */
+/* ── Unified Premium Buttons (32px Rounded) ── */
 .btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
+    padding: 10px 24px;
+    border-radius: 32px;
+    font-weight: 700;
     text-decoration: none;
     transition: all 0.2s;
     display: inline-block;
@@ -148,13 +182,28 @@ h3 {
 
 .btn-primary {
     background: var(--primary);
-    color: white;
+    color: white !important;
     border: none;
 }
 
 .btn-primary:hover {
     background: var(--primary-dark);
     box-shadow: 0 4px 12px rgba(30, 77, 140, 0.3);
+}
+
+.btn-cta {
+    background: var(--accent); /* #0EA5E9 */
+    color: white !important;
+    border: none;
+    border-radius: 32px !important;
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(14, 165, 233, 0.25);
+}
+
+.btn-cta:hover {
+    background: #0284C7;
+    box-shadow: 0 6px 18px rgba(14, 165, 233, 0.35);
+    transform: translateY(-2px);
 }
 
 .btn.lg {

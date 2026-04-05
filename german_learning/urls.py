@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from core import views as dashboard_views
-from core.public_views import public_index, book_service, book_service_success
+from core.public_views import public_index, public_courses, book_service, book_service_success, terms
 from users import views as user_views
 
 from django.conf import settings
@@ -10,6 +10,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', public_index, name='public_index'),
+    path('courses/', public_courses, name='public_courses'),
     path('services/book/', book_service, name='book_service'),
     path('services/success/', book_service_success, name='book_service_success'),
     path('dashboard/', dashboard_views.dashboard, name='dashboard'),
@@ -19,12 +20,17 @@ urlpatterns = [
     path('management/student/add/', dashboard_views.student_upsert, name='student_add'),
     path('management/student/<int:pk>/edit/', dashboard_views.student_upsert, name='student_edit'),
     path('management/student/<int:pk>/delete/', dashboard_views.student_delete, name='student_delete'),
+    path('management/settings/', dashboard_views.school_settings, name='school_settings'),
+    path('management/inquiry/<int:pk>/pay/', dashboard_views.mark_inquiry_paid, name='inquiry_pay'),
+    path('management/inquiry/<int:pk>/status/<str:status>/', dashboard_views.mark_inquiry_status, name='inquiry_status'),
     path('management/course/add/', dashboard_views.course_upsert, name='course_add'),
     path('management/course/<int:pk>/edit/', dashboard_views.course_upsert, name='course_edit'),
+    path('management/course/<int:pk>/delete/', dashboard_views.course_delete, name='course_delete'),
     path('management/course/<int:course_id>/lesson/add/', dashboard_views.lesson_upsert, name='lesson_add'),
     path('management/lesson/<int:pk>/edit/', dashboard_views.lesson_upsert, name='lesson_edit'),
     path('management/event/add/', dashboard_views.event_upsert, name='event_add'),
     path('management/event/<int:pk>/edit/', dashboard_views.event_upsert, name='event_edit'),
+    path('management/event/<int:pk>/delete/', dashboard_views.event_delete, name='event_delete'),
     path('accounts/login/', include([
         path('', user_views.StudentLoginView.as_view(), name='login'),
         path('admin/', user_views.AdminLoginView.as_view(), name='admin_login'),
@@ -32,7 +38,9 @@ urlpatterns = [
     path('accounts/signup/', user_views.StudentSignUpView.as_view(), name='signup'),
     path('accounts/upgrade/', user_views.UpgradeToStudentView.as_view(), name='upgrade'),
     path('accounts/', include('django.contrib.auth.urls')),
+    path('resources/', include('resources.urls')),
     path('contact/', book_service, name='contact'),
+    path('terms/', terms, name='terms'),
 ]
 
 if settings.DEBUG:

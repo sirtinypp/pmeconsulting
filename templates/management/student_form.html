@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto; padding: 3rem;">
+    <div style="margin-bottom: 2.5rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">👤</div>
+        <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary);">{{ page_title }}</h2>
+        <p style="color: var(--text-muted);">Manage user access and profile details for your school.</p>
+    </div>
+
+    <form method="post" class="sleek-form">
+        {% csrf_token %}
+        
+        <!-- Username -->
+        <div class="form-group">
+            <label for="username" class="form-label">Full Name / Username</label>
+            <input type="text" name="username" id="username" class="form-control" value="{{ student.username|default:'' }}" placeholder="e.g., Maria Sanchez" required>
+        </div>
+
+        <!-- Email -->
+        <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" name="email" id="email" class="form-control" value="{{ student.email|default:'' }}" placeholder="e.g., maria@example.com" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <!-- Role Selection (Upgrade Logic) -->
+            <div class="form-group">
+                <label for="role" class="form-label">Access Role</label>
+                <select name="role" id="role" class="form-control">
+                    <option value="GUEST" {% if student.role == 'GUEST' %}selected{% endif %}>Guest / Lead (Trial Access)</option>
+                    <option value="STUDENT" {% if student.role == 'STUDENT' or not student %}selected{% endif %}>Full Student (Course Access)</option>
+                </select>
+            </div>
+            <!-- Password Reset -->
+            <div class="form-group">
+                <label for="password" class="form-label">Set Password (Optional)</label>
+                <input type="password" name="password" id="password" class="form-control" placeholder="Leave blank to keep current">
+            </div>
+        </div>
+
+        {% if inquiry %}
+        <!-- Lead & Revenue Section -->
+        <div style="background: #F0F9FF; border: 1px solid #BAE6FD; padding: 2rem; border-radius: 24px; margin-top: 1rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 800; color: #0369A1; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                <span>✨ Lead & Service Tracking</span>
+                <span style="font-weight: 400; font-size: 0.8rem; background: #0369A1; color: white; padding: 2px 8px; border-radius: 12px;">Active Lead</span>
+            </h3>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group">
+                    <label for="inquiry_status" class="form-label">Lifecycle Status</label>
+                    <select name="inquiry_status" id="inquiry_status" class="form-control">
+                        {% for code, label in inquiry_choices %}
+                            <option value="{{ code }}" {% if inquiry.status == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Payment Toggle -->
+                <div class="form-group" style="display: flex; align-items: center; gap: 12px; background: white; padding: 0.75rem 1rem; border-radius: 16px; border: 1px solid #BAE6FD;">
+                    <input type="checkbox" name="is_paid" id="is_paid" {% if inquiry.is_paid %}checked{% endif %} style="width: 20px; height: 20px; cursor: pointer;">
+                    <label for="is_paid" style="font-weight: 700; cursor: pointer; font-size: 0.9rem; color: #0369A1;">Payment Received</label>
+                </div>
+            </div>
+            <div style="margin-top: 0.5rem; font-size: 0.85rem; color: #0369A1;">
+                <strong>Service Availed:</strong> {{ inquiry.get_service_requested_display }}
+            </div>
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary lg" style="flex: 2; border-radius: 32px;">Update User Profile</button>
+            <a href="{% url 'dashboard' %}" class="btn lg" style="flex: 1; border-radius: 32px; text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .sleek-form .form-group {
+        margin-bottom: 2rem;
+    }
+    .sleek-form .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+    .sleek-form .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: #F8FAFC;
+    }
+    .sleek-form .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(30, 77, 140, 0.1);
+    }
+</style>
+{% endblock %}

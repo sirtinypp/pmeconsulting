@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="card" style="max-width: 800px; margin: 0 auto; padding: 3rem;">
+    <div style="margin-bottom: 2.5rem; text-align: center;">
+        <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚙️</div>
+        <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary);">{{ page_title }}</h2>
+        <p style="color: var(--text-muted);">Customize your school institution's branding and public-facing identity.</p>
+    </div>
+
+    <form method="post" class="sleek-form">
+        {% csrf_token %}
+        
+        <!-- School Name -->
+        <div class="form-group">
+            <label for="name" class="form-label">Institution Name</label>
+            <input type="text" name="name" id="name" class="form-control" value="{{ school.name|default:'' }}" placeholder="e.g., PME Consulting EU" required>
+        </div>
+
+        <!-- Primary Color -->
+        <div class="form-group">
+            <label for="primary_color" class="form-label">Brand Primary Color (HEX)</label>
+            <div style="display: flex; gap: 1rem;">
+                <input type="color" name="primary_color" id="primary_color" class="form-control" style="width: 80px; padding: 0.5rem; height: 50px;" value="{{ school.primary_color|default:'#1E4D8C' }}">
+                <input type="text" name="primary_color_text" id="primary_color_text" class="form-control" value="{{ school.primary_color|default:'#1E4D8C' }}" placeholder="#1E4D8C">
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">This color will be used for primary buttons and dashboard accents.</p>
+        </div>
+
+        <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+            <button type="submit" class="btn btn-primary lg" style="flex: 2; border-radius: 32px;">Save Identity Settings</button>
+            <a href="{% url 'dashboard' %}" class="btn lg" style="flex: 1; border-radius: 32px; text-align: center;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .sleek-form .form-group {
+        margin-bottom: 2rem;
+    }
+    .sleek-form .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+    .sleek-form .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: #F8FAFC;
+    }
+    .sleek-form .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(30, 77, 140, 0.1);
+    }
+</style>
+{% endblock %}

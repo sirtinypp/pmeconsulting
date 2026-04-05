@@ -37,7 +37,20 @@ class StudentSignUpView(CreateView):
     success_url = reverse_lazy('dashboard')
 
     def form_valid(self, form):
+        from core.models import ServiceInquiry
         user = form.save()
+        interest = form.cleaned_data.get('primary_interest')
+        
+        # Auto-create lead inquiry for the admin dashboard context
+        if interest:
+            ServiceInquiry.objects.create(
+                user=user,
+                name=f"{user.first_name} {user.last_name}",
+                email=user.email,
+                service_requested=interest,
+                status=ServiceInquiry.Status.PENDING
+            )
+            
         login(self.request, user)
         return redirect(self.success_url)
 
