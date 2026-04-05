@@ -3,14 +3,60 @@
 {% block page_title %}Terms and Conditions{% endblock %}
 {% block page_subtitle %}Essential legal framework for our European career preparation programs.{% endblock %}
 
-{% block content %}
-<div class="card" style="padding: 4rem; border-radius: 32px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #E2E8F0; background: white; line-height: 1.8; color: #334155;">
+{% block extra_head %}
+<style>
+    .terms-card {
+        padding: 4rem;
+        border-radius: 32px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        border: 1px solid #E2E8F0;
+        background: white;
+        line-height: 1.8;
+        color: #334155;
+    }
+    .terms-section {
+        margin-bottom: 3rem;
+    }
+    .terms-heading {
+        color: #1E4D8C;
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .terms-pill {
+        font-size: 1rem;
+        background: #EFF6FF;
+        color: #1E4D8C;
+        padding: 4px 12px;
+        border-radius: 8px;
+        flex-shrink: 0;
+        line-height: 1.5;
+    }
     
+    @media (max-width: 768px) {
+        .terms-card {
+            padding: 2rem 1.25rem;
+            border-radius: 20px;
+        }
+        .terms-heading {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="terms-card">
     <div style="max-width: 800px; margin: 0 auto;">
         
-        <section style="margin-bottom: 3rem;">
-            <h3 style="color: #1E4D8C; font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                <span style="font-size: 1rem; background: #EFF6FF; color: #1E4D8C; padding: 4px 12px; border-radius: 8px;">01</span>
+        <section class="terms-section">
+            <h3 class="terms-heading">
+                <span class="terms-pill">01</span>
                 Acceptance of Terms
             </h3>
             <p>
@@ -18,24 +64,24 @@
             </p>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h3 style="color: #1E4D8C; font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                <span style="font-size: 1rem; background: #EFF6FF; color: #1E4D8C; padding: 4px 12px; border-radius: 8px;">02</span>
+        <section class="terms-section">
+            <h3 class="terms-heading">
+                <span class="terms-pill">02</span>
                 Enrollment and Fee Structure
             </h3>
             <p>
                 Students may enroll in our curriculum via three distinct tiers: **Basic, Standard, and Premium**. Payments are one-time registration fees that provide access to specific LMS modules, video lessons, and native instructor sessions as described in the course catalog.
             </p>
-            <ul style="margin-top: 1rem;">
+            <ul style="margin-top: 1rem; padding-left: 1.5rem;">
                 <li>Enrollment fees are non-refundable once course materials have been accessed.</li>
                 <li>Access to advanced levels (A1-C1) is contingent upon successful completion of prerequisite modules or placement tests.</li>
                 <li>PME Consulting EU reserves the right to adjust tuition and fee structures with prior notice.</li>
             </ul>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h3 style="color: #1E4D8C; font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                <span style="font-size: 1rem; background: #EFF6FF; color: #1E4D8C; padding: 4px 12px; border-radius: 8px;">03</span>
+        <section class="terms-section">
+            <h3 class="terms-heading">
+                <span class="terms-pill">03</span>
                 Intellectual Property
             </h3>
             <p>
@@ -43,9 +89,9 @@
             </p>
         </section>
 
-        <section style="margin-bottom: 3rem;">
-            <h3 style="color: #1E4D8C; font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
-                <span style="font-size: 1rem; background: #EFF6FF; color: #1E4D8C; padding: 4px 12px; border-radius: 8px;">04</span>
+        <section class="terms-section">
+            <h3 class="terms-heading">
+                <span class="terms-pill">04</span>
                 European Career Preparation Disclaimer
             </h3>
             <p>
