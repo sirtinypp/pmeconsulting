@@ -79,10 +79,15 @@ class Command(BaseCommand):
         created_lessons = 0
 
         for c_data in COURSES:
+            if Course.objects.filter(title=c_data['title'], school=school).exists():
+                self.stdout.write(self.style.WARNING(f"Skiping '{c_data['title']}' - already exists."))
+                continue
+
             course = Course.objects.create(
                 title=c_data['title'],
                 school=school,
                 level=c_data['level'],
+                category='LANG',
                 duration=c_data['duration'],
                 description=c_data['description'],
                 is_active=True
@@ -110,21 +115,23 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"✓ Seeded {created_courses} realistic courses and {created_lessons} lessons."))
 
         # Today's Live Event (for THE PULSE!)
-        TrainingEvent.objects.create(
-            title="🔴 LIVE: Simulation Training - Patient Handover",
-            school=school,
-            date=timezone.now().replace(hour=10, minute=0, second=0),
-            location="Virtual Simulation Room A",
-            description="Active roleplaying session for clinical handovers using the ISBAR method. Join now for feedback from Dr. Schmidt."
-        )
+        if not TrainingEvent.objects.filter(title__contains=" Simulation Training").exists():
+             TrainingEvent.objects.create(
+                title="🔴 LIVE: Simulation Training - Patient Handover",
+                school=school,
+                date=timezone.now().replace(hour=10, minute=0, second=0),
+                location="Virtual Simulation Room A",
+                description="Active roleplaying session for clinical handovers using the ISBAR method. Join now for feedback from Dr. Schmidt."
+            )
 
         # Other events
-        TrainingEvent.objects.create(
-            title="Workshop: The German Licensing Exam (Approbation)",
-            school=school,
-            date=timezone.now() + timezone.timedelta(days=5),
-            location="Berlin Center / Zoom",
-            description="Preparation strategies for the FSP and KP exams."
-        )
+        if not TrainingEvent.objects.filter(title__contains="Approbat").exists():
+            TrainingEvent.objects.create(
+                title="Workshop: The German Licensing Exam (Approbation)",
+                school=school,
+                date=timezone.now() + timezone.timedelta(days=5),
+                location="Berlin Center / Zoom",
+                description="Preparation strategies for the FSP and KP exams."
+            )
 
         self.stdout.write(self.style.SUCCESS("✓ Seeded Live events (including today's pulse session)."))

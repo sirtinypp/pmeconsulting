@@ -34,7 +34,11 @@ def dashboard(request):
         return render(request, 'dashboards/superuser.html', context)
 
     elif request.user.role == 'SCHOOL_ADMIN':
-        students = CustomUser.objects.filter(school=request.user.school, role='STUDENT')
+        school = request.user.school
+        if not school and (request.user.is_superuser or request.user.role in ['SUPERUSER', 'SCHOOL_ADMIN']):
+            school = School.objects.first()
+
+        students = CustomUser.objects.filter(school=school, role='STUDENT')
         for student in students:
             enrollments = CourseEnrollment.objects.filter(user=student)
             completed = enrollments.filter(status='COMPLETED').count()
@@ -47,20 +51,20 @@ def dashboard(request):
         from django.db.models import Q
         context['guests'] = CustomUser.objects.filter(
             Q(role='GUEST'),
-            Q(school=request.user.school) | Q(school__isnull=True)
+            Q(school=school) | Q(school__isnull=True)
         ).prefetch_related('service_inquiries').order_by('-date_joined')
-        context['school_name'] = request.user.school.name if request.user.school else 'General Management'
+        context['school_name'] = school.name if school else 'General Management'
         
         # Course Management Data
-        context['all_courses'] = Course.objects.filter(school=request.user.school).order_by('title')
+        context['all_courses'] = Course.objects.filter(school=school).order_by('title')
         context['active_courses_count'] = context['all_courses'].filter(is_active=True).count()
         
         # Training Management Data
-        context['training_events'] = TrainingEvent.objects.filter(school=request.user.school).order_by('date')
+        context['training_events'] = TrainingEvent.objects.filter(school=school).order_by('date')
         
-        context['total_enrollments'] = CourseEnrollment.objects.filter(course__school=request.user.school).count()
+        context['total_enrollments'] = CourseEnrollment.objects.filter(course__school=school).count()
         context['pending_enrollments'] = CourseEnrollment.objects.filter(
-            course__school=request.user.school, 
+            course__school=school, 
             status=CourseEnrollment.Status.PENDING
         ).order_by('-enrolled_at')
         context['brand_context'] = 'Management'
