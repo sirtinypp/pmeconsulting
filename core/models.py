@@ -17,13 +17,21 @@ class School(models.Model):
         verbose_name_plural = "Schools"
 
 
-class SchoolScopedManager(models.Manager):
     def for_user(self, user):
         """Returns a queryset filtered by the user's school, unless superuser."""
-        if user.is_authenticated and (user.is_superuser or user.role == 'SUPERUSER'):
+        if not user.is_authenticated:
+            return self.none()
+            
+        if user.is_superuser or user.role == 'SUPERUSER':
             return self.all()
-        if user.is_authenticated and user.school:
-            return self.filter(school=user.school)
+            
+        school = user.school
+        if not school and user.role == 'SCHOOL_ADMIN':
+            school = School.objects.first()
+            
+        if school:
+            return self.filter(school=school)
+            
         return self.none()
 
 
