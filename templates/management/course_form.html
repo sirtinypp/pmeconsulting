@@ -9,7 +9,7 @@
         <p style="color: var(--text-muted);">Configure your German language program details below.</p>
     </div>
 
-    <form method="post" class="sleek-form">
+    <form method="post" class="sleek-form" enctype="multipart/form-data">
         {% csrf_token %}
         
         <!-- Course Title -->
@@ -19,20 +19,29 @@
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-            <!-- Level -->
+            <!-- Category -->
             <div class="form-group">
-                <label for="level" class="form-label">Proficiency Level</label>
-                <select name="level" id="level" class="form-control">
-                    {% for code, label in level_choices %}
-                    <option value="{{ code }}" {% if course.level == code %}selected{% endif %}>{{ label }}</option>
+                <label for="category" class="form-label">Classification / Category</label>
+                <select name="category" id="category" class="form-control" style="appearance: auto;">
+                    {% for code, label in category_choices %}
+                    <option value="{{ code }}" {% if course.category == code %}selected{% endif %}>{{ label }}</option>
                     {% endfor %}
                 </select>
             </div>
             <!-- Duration -->
             <div class="form-group">
-                <label for="duration" class="form-label">Duration (Optional)</label>
+                <label for="duration" class="form-label">Duration</label>
                 <input type="text" name="duration" id="duration" class="form-control" value="{{ course.duration|default:'' }}" placeholder="e.g., 8 weeks">
             </div>
+        </div>
+
+        <!-- Thumbnail Upload -->
+        <div class="form-group">
+            <label for="thumbnail" class="form-label">Course Card Image (Visuals)</label>
+            <input type="file" name="thumbnail" id="thumbnail" class="form-control" accept="image/*" style="padding: 0.6rem;">
+            {% if course.thumbnail %}
+            <p style="font-size: 0.8rem; color: var(--primary); margin-top: 8px;">Existing: <a href="{{ course.thumbnail.url }}" target="_blank" style="color: inherit;">{{ course.thumbnail.name }}</a></p>
+            {% endif %}
         </div>
 
         <!-- Description -->

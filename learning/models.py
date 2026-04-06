@@ -13,7 +13,15 @@ class Course(SchoolScopedModel):
         ('C2', 'C2 — Mastery'),
         ('CUSTOM', 'Custom'),
     ]
+    CATEGORY_CHOICES = [
+        ('LANG', 'Language Course'),
+        ('LMS', 'LMS'),
+        ('EXM', 'Exam Preparation Course'),
+        ('OTH', 'Others'),
+    ]
     title = models.CharField(max_length=255)
+    category = models.CharField(max_length=4, choices=CATEGORY_CHOICES, default='LANG')
+    thumbnail = models.ImageField(upload_to='course_thumbnails/', blank=True, null=True)
     description = models.TextField()
     level = models.CharField(max_length=10, choices=LEVEL_CHOICES, default='A1')
     start_date = models.DateField(null=True, blank=True)

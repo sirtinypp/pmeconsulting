@@ -1,7 +1,7 @@
 import calendar
 from datetime import datetime
 from django.shortcuts import render, redirect
-from learning.models import TrainingEvent
+from learning.models import TrainingEvent, Course
 from resources.models import Post
 from .forms import ServiceInquiryForm
 
@@ -85,8 +85,10 @@ def book_service_success(request):
 
 
 def public_courses(request):
-    """Showcase of all offered courses with tiered pricing."""
+    """Showcase of all offered courses with dynamic DB entries."""
+    active_courses = Course.objects.filter(is_active=True).order_by('title')
     return render(request, 'public/courses.html', {
+        'courses': active_courses,
         'page_title': 'Language Programs',
         'brand_context': 'Programs',
     })

@@ -372,29 +372,38 @@ def course_upsert(request, pk=None):
 
     if request.method == 'POST':
         title = request.POST.get('title')
-        level = request.POST.get('level')
+        category = request.POST.get('category', 'GEN')
         duration = request.POST.get('duration')
         description = request.POST.get('description')
         is_active = request.POST.get('is_active') == 'on'
+        
+        # Handle thumbnail file upload
+        thumbnail = request.FILES.get('thumbnail')
 
         if not course:
             course = Course.objects.create(
-                title=title, school=request.user.school, level=level,
-                duration=duration, description=description, is_active=is_active
+                title=title, school=request.user.school, level='A1', # Hidden but required
+                category=category, duration=duration, 
+                description=description, is_active=is_active
             )
+            if thumbnail:
+                course.thumbnail = thumbnail
+                course.save()
         else:
             course.title = title
-            course.level = level
+            course.category = category
             course.duration = duration
             course.description = description
             course.is_active = is_active
+            if thumbnail:
+                course.thumbnail = thumbnail
             course.save()
 
         return redirect('dashboard')
 
     return render(request, 'management/course_form.html', {
         'course': course,
-        'levels': ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+        'category_choices': Course.CATEGORY_CHOICES,
         'page_title': 'Edit Course' if pk else 'Create New Course',
         'brand_context': 'Management',
     })
