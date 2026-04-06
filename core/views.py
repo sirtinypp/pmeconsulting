@@ -126,12 +126,16 @@ def student_upsert(request, pk=None):
         password = request.POST.get('password')
         role = request.POST.get('role', 'STUDENT')
 
+        school = request.user.school
+        if not school and (request.user.is_superuser or request.user.role == 'SUPERUSER'):
+            school = School.objects.first()
+
         if not student:
             student = CustomUser.objects.create_user(
                 username=username,
                 email=email,
                 password=password or 'german_temp123',
-                school=request.user.school,
+                school=school,
                 role=role
             )
         else:
@@ -380,9 +384,20 @@ def course_upsert(request, pk=None):
         # Handle thumbnail file upload
         thumbnail = request.FILES.get('thumbnail')
 
+        school = request.user.school
+        if not school and (request.user.is_superuser or request.user.role == 'SUPERUSER'):
+            school = School.objects.first()
+
+        if not school:
+             return render(request, 'management/course_form.html', {
+                'error': "No school association found. Please create a school first.",
+                'course': course,
+                'category_choices': Course.CATEGORY_CHOICES,
+            })
+
         if not course:
             course = Course.objects.create(
-                title=title, school=request.user.school, level='A1', # Hidden but required
+                title=title, school=school, level='A1', 
                 category=category, duration=duration, 
                 description=description, is_active=is_active
             )
@@ -470,9 +485,13 @@ def event_upsert(request, pk=None):
         location = request.POST.get('location')
         description = request.POST.get('description')
 
+        school = request.user.school
+        if not school and (request.user.is_superuser or request.user.role == 'SUPERUSER'):
+            school = School.objects.first()
+
         if not event:
             TrainingEvent.objects.create(
-                title=title, school=request.user.school,
+                title=title, school=school,
                 date=date, location=location, description=description
             )
         else:
