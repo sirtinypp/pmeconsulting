@@ -127,7 +127,7 @@ def student_upsert(request, pk=None):
         role = request.POST.get('role', 'STUDENT')
 
         school = request.user.school
-        if not school and (request.user.is_superuser or request.user.role == 'SUPERUSER'):
+        if not school and (request.user.is_superuser or request.user.role in ['SUPERUSER', 'SCHOOL_ADMIN']):
             school = School.objects.first()
 
         if not student:
@@ -385,7 +385,7 @@ def course_upsert(request, pk=None):
         thumbnail = request.FILES.get('thumbnail')
 
         school = request.user.school
-        if not school and (request.user.is_superuser or request.user.role == 'SUPERUSER'):
+        if not school and (request.user.is_superuser or request.user.role in ['SUPERUSER', 'SCHOOL_ADMIN']):
             school = School.objects.first()
 
         if not school:
@@ -486,7 +486,7 @@ def event_upsert(request, pk=None):
         description = request.POST.get('description')
 
         school = request.user.school
-        if not school and (request.user.is_superuser or request.user.role == 'SUPERUSER'):
+        if not school and (request.user.is_superuser or request.user.role in ['SUPERUSER', 'SCHOOL_ADMIN']):
             school = School.objects.first()
 
         if not event:
