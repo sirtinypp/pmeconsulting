@@ -17,6 +17,7 @@ class School(models.Model):
         verbose_name_plural = "Schools"
 
 
+class SchoolScopedManager(models.Manager):
     def for_user(self, user):
         """Returns a queryset filtered by the user's school, unless superuser."""
         if not user.is_authenticated:
