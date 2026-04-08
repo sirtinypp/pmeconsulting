@@ -167,9 +167,13 @@
                 <div>📝 <strong>Lessons:</strong> {{ lessons|length }}</div>
             </div>
         </div>
-        <div class="card">
-            <h3 style="font-size:1rem; font-weight:700; margin-bottom:0.75rem;">📖 About This Course</h3>
-            <p style="font-size:0.875rem; color:var(--text-muted);">{{ course.description }}</p>
+      <!-- Course Description & Info -->
+    <div style="background: white; padding: 2.5rem; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+        <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.75rem;">📖</span> About This Course
+        </h2>
+        <div style="font-size: 1.05rem; line-height: 1.8; color: #4A5568; letter-spacing: -0.01em;">
+            {{ course.description|linebreaks }}
         </div>
     </div>
 </div>
