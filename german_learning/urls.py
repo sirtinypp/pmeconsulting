@@ -3,6 +3,7 @@ from django.urls import path, include
 from core import views as dashboard_views
 from core.public_views import public_index, public_courses, book_service, book_service_success, terms
 from users import views as user_views
+from learning import views as learning_views
 
 from django.conf import settings
 from django.conf.urls.static import static
@@ -25,10 +26,17 @@ urlpatterns = [
     path('management/inquiry/<int:pk>/status/<str:status>/', dashboard_views.mark_inquiry_status, name='inquiry_status'),
     path('management/course/add/', dashboard_views.course_upsert, name='course_add'),
     path('management/course/<int:pk>/edit/', dashboard_views.course_upsert, name='course_edit'),
+    path('management/course/<int:pk>/roster/', dashboard_views.course_roster, name='course_roster'),
     path('management/course/<int:pk>/delete/', dashboard_views.course_delete, name='course_delete'),
     path('management/course/<int:course_id>/lesson/add/', dashboard_views.lesson_upsert, name='lesson_add'),
     path('management/lesson/<int:pk>/edit/', dashboard_views.lesson_upsert, name='lesson_edit'),
     path('management/lesson/<int:pk>/delete/', dashboard_views.lesson_delete, name='lesson_delete'),
+    path('management/lesson/<int:pk>/quiz-studio/', dashboard_views.quiz_studio, name='quiz_studio'),
+    path('management/quiz/question/<int:pk>/add/', dashboard_views.quiz_question_add, name='quiz_question_add'),
+    path('management/quiz/question/<int:pk>/delete/', dashboard_views.quiz_question_delete, name='quiz_question_delete'),
+    path('management/quiz/choice/<int:pk>/add/', dashboard_views.quiz_choice_add, name='quiz_choice_add'),
+    path('management/quiz/choice/<int:pk>/delete/', dashboard_views.quiz_choice_delete, name='quiz_choice_delete'),
+    path('learning/lesson/<int:pk>/submit-quiz/', learning_views.submit_quiz, name='submit_quiz'),
     path('management/lesson/<int:lesson_id>/activity/add/', dashboard_views.activity_upsert, name='activity_add'),
     path('management/activity/<int:pk>/edit/', dashboard_views.activity_upsert, name='activity_edit'),
     path('management/activity/<int:pk>/delete/', dashboard_views.activity_delete, name='activity_delete'),

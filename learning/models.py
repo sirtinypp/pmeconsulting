@@ -50,6 +50,8 @@ class Lesson(models.Model):
     is_required = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
     video_url = models.URLField(blank=True, null=True)
+    is_final_exam = models.BooleanField(default=False, help_text="If true, this quiz acts as the course completion exam.")
+    duration_minutes = models.PositiveIntegerField(default=30, help_text="Time limit in minutes (for quizzes/exams).")
 
     class Meta:
         ordering = ['course', 'order']

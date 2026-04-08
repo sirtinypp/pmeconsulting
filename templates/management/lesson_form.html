@@ -12,6 +12,19 @@
             <p style="color: var(--text-muted);">Configure lesson for: <strong>{{ course.title }}</strong></p>
         </div>
 
+        {% if lesson.pk and lesson.lesson_type == 'QIZ' %}
+        <div style="margin-bottom: 2rem; padding: 1.5rem; background: #EEF2FF; border: 1px solid #C7D2FE; border-radius: 20px; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
+            <div style="display:flex; align-items:center; gap:1rem;">
+                <span style="font-size:2rem;">🛠️</span>
+                <div>
+                    <h4 style="margin:0; font-weight:800; color:#3730A3;">Quiz Builder Active</h4>
+                    <p style="margin:0.25rem 0 0 0; font-size:0.875rem; color:#4338CA;">Manually design questions, choices, and timers in the studio.</p>
+                </div>
+            </div>
+            <a href="{% url 'quiz_studio' lesson.pk %}" class="btn btn-primary" style="background:#4F46E5; border:none; padding:0.6rem 1.25rem; font-weight:700;">Open Quiz Studio</a>
+        </div>
+        {% endif %}
+
         <form method="post" class="sleek-form" enctype="multipart/form-data">
             {% csrf_token %}
             

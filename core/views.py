@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
 from django.db.models import Sum
 
@@ -38,13 +39,20 @@ def dashboard(request):
         if not school and (request.user.is_superuser or request.user.role in ['SUPERUSER', 'SCHOOL_ADMIN']):
             school = School.objects.first()
 
+        from learning.models import LessonCompletion, Lesson
         students = CustomUser.objects.filter(school=school, role='STUDENT')
         for student in students:
-            enrollments = CourseEnrollment.objects.filter(user=student)
-            completed = enrollments.filter(status='COMPLETED').count()
-            total = enrollments.count()
-            student.completion_rate = int((completed / total * 100)) if total > 0 else 0
-            student.total_enrollments = total
+            enrollments = CourseEnrollment.objects.filter(user=student, status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED'])
+            course_ids = enrollments.values_list('course_id', flat=True)
+            
+            # Count total mandatory lessons in these courses
+            total_lessons = Lesson.objects.filter(course_id__in=course_ids, is_required=True).count()
+            
+            # Count completed lessons by this student
+            completed_lessons = LessonCompletion.objects.filter(user=student, lesson__course_id__in=course_ids).count()
+            
+            student.completion_rate = int((completed_lessons / total_lessons * 100)) if total_lessons > 0 else 0
+            student.total_enrollments = enrollments.count()
 
         context['students'] = students.order_by('-date_joined')
         # Prefetch inquiries for guests (institutional leads + unassigned leads)
@@ -56,7 +64,10 @@ def dashboard(request):
         context['school_name'] = school.name if school else 'General Management'
         
         # Course Management Data
-        context['all_courses'] = Course.objects.filter(school=school).order_by('title')
+        from django.db.models import Count, Q
+        context['all_courses'] = Course.objects.filter(school=school).annotate(
+            enrollment_count=Count('enrollments', filter=Q(enrollments__status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']))
+        ).order_by('title')
         context['active_courses_count'] = context['all_courses'].filter(is_active=True).count()
         
         # Training Management Data
@@ -86,10 +97,17 @@ def dashboard(request):
 
     else:
         # Student dashboard
+        from learning.models import LessonCompletion, Lesson
         all_enrollments = CourseEnrollment.objects.filter(user=request.user)
+        active_course_ids = all_enrollments.filter(status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']).values_list('course_id', flat=True)
         
+        # Calculate curriculum-wide completion rate
+        total_lessons = Lesson.objects.filter(course_id__in=active_course_ids, is_required=True).count()
+        completed_lessons = LessonCompletion.objects.filter(user=request.user, lesson__course_id__in=active_course_ids).count()
+        context['completion_rate'] = int((completed_lessons / total_lessons * 100)) if total_lessons > 0 else 0
+
         # Stat counters
-        context['assigned_count'] = all_enrollments.filter(status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']).count()
+        context['assigned_count'] = len(active_course_ids)
         context['pending_count'] = all_enrollments.filter(status='PENDING').count()
         context['completed_count'] = all_enrollments.filter(status='COMPLETED').count()
         context['in_progress_count'] = all_enrollments.filter(status='IN_PROGRESS').count()
@@ -646,3 +664,109 @@ def activity_review_detail(request, pk):
         'page_title': f'Review: {submission.user.username}',
         'brand_context': 'Management',
     })
+
+
+@login_required
+def course_roster(request, pk):
+    """View a list of students enrolled in a specific course."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    course = get_object_or_404(Course, pk=pk)
+    
+    if not request.user.is_superuser and course.school != request.user.school:
+        raise PermissionDenied
+
+    enrollments = CourseEnrollment.objects.filter(
+        course=course
+    ).select_related('user').order_by('user__username')
+
+    return render(request, 'management/course_roster.html', {
+        'course': course,
+        'enrollments': enrollments,
+        'page_title': f'Roster: {course.title}',
+        'brand_context': 'Management',
+    })
+
+
+@login_required
+def quiz_studio(request, pk):
+    """A dedicated workspace for admins to manually build and edit quizzes."""
+    from learning.models import Lesson, QuizQuestion, QuizChoice
+    
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    lesson = get_object_or_404(Lesson, pk=pk)
+    if lesson.lesson_type != 'QIZ':
+        return redirect('lesson_edit', pk=lesson.pk)
+    
+    if not request.user.is_superuser and lesson.course.school != request.user.school:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        # Safely handle the integer conversion
+        try:
+            d_min = request.POST.get('duration_minutes', '30')
+            lesson.duration_minutes = int(d_min) if d_min.isdigit() else 30
+        except (ValueError, TypeError):
+            lesson.duration_minutes = 30
+            
+        lesson.is_final_exam = request.POST.get('is_final_exam') == 'on'
+        lesson.save()
+        from django.contrib import messages
+        messages.success(request, "Quiz settings updated successfully.")
+        return redirect('quiz_studio', pk=lesson.pk)
+
+    questions = lesson.questions.all().prefetch_related('choices')
+    
+    return render(request, 'management/quiz_studio.html', {
+        'lesson': lesson,
+        'questions': questions,
+        'page_title': f'Quiz Studio: {lesson.title}',
+        'brand_context': 'Management',
+    })
+
+
+@login_required
+@require_POST
+def quiz_question_add(request, pk):
+    from learning.models import Lesson, QuizQuestion
+    lesson = get_object_or_404(Lesson, pk=pk)
+    text = request.POST.get('text', 'New Question')
+    QuizQuestion.objects.create(lesson=lesson, text=text, order=lesson.questions.count() + 1)
+    return redirect('quiz_studio', pk=lesson.pk)
+
+
+@login_required
+@require_POST
+def quiz_question_delete(request, pk):
+    from learning.models import QuizQuestion
+    question = get_object_or_404(QuizQuestion, pk=pk)
+    lesson_id = question.lesson_id
+    question.delete()
+    return redirect('quiz_studio', pk=lesson_id)
+
+
+@login_required
+@require_POST
+def quiz_choice_add(request, pk):
+    from learning.models import QuizQuestion, QuizChoice
+    question = get_object_or_404(QuizQuestion, pk=pk)
+    text = request.POST.get('text', 'New Answer')
+    is_correct = 'is_correct' in request.POST
+    
+    if is_correct:
+        question.choices.update(is_correct=False)
+    QuizChoice.objects.create(question=question, text=text, is_correct=is_correct)
+    return redirect('quiz_studio', pk=question.lesson.pk)
+
+
+@login_required
+@require_POST
+def quiz_choice_delete(request, pk):
+    from learning.models import QuizChoice
+    choice = get_object_or_404(QuizChoice, pk=pk)
+    lesson_id = choice.question.lesson_id
+    choice.delete()
+    return redirect('quiz_studio', pk=lesson_id)

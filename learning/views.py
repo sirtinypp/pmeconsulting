@@ -1,5 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
 from .models import Course, CourseEnrollment, Lesson, LessonCompletion
 
@@ -34,10 +35,34 @@ def course_detail(request, pk):
         user=request.user, lesson__course=course
     ).values_list('lesson_id', flat=True)
 
+    # Split lessons into standard curriculum and the final exam
+    regular_lessons = lessons.filter(is_final_exam=False)
+    final_exam = lessons.filter(is_final_exam=True).first()
+
+    # Calculate curriculum progress (excluding the exam itself)
+    required_lessons = regular_lessons.filter(is_required=True)
+    required_count = required_lessons.count()
+    
+    completed_required_count = LessonCompletion.objects.filter(
+        user=request.user, 
+        lesson__in=required_lessons
+    ).count()
+
+    progress_percent = int((completed_required_count / required_count * 100)) if required_count > 0 else 100
+    can_take_exam = (progress_percent >= 100)
+
+    # Sync enrollment progress for the dashboard stats
+    if enrollment:
+        enrollment.progress_percent = progress_percent
+        enrollment.save()
+
     return render(request, 'learning/course_detail.html', {
         'course': course,
-        'lessons': lessons,
+        'lessons': regular_lessons,
+        'final_exam': final_exam,
+        'can_take_exam': can_take_exam,
         'enrollment': enrollment,
+        'progress_percent': progress_percent,
         'completed_lesson_ids': list(completed_lesson_ids),
         'page_title': course.title,
         'brand_context': 'Learning',
@@ -148,9 +173,19 @@ def lesson_detail(request, pk):
         s.activity_id: s for s in ActivitySubmission.objects.filter(user=request.user, activity__lesson=lesson)
     }
 
+    # Quiz specific data
+    questions = None
+    previous_attempt = None
+    if lesson.lesson_type == 'QIZ':
+        from .models import QuizAttempt
+        questions = lesson.questions.all().prefetch_related('choices')
+        previous_attempt = QuizAttempt.objects.filter(user=request.user, lesson=lesson).first()
+
     return render(request, 'learning/lesson_detail.html', {
-        'lesson': lesson,
         'course': lesson.course,
+        'lesson': lesson,
+        'questions': questions,
+        'previous_attempt': previous_attempt,
         'completed': completed,
         'user_submissions': user_submissions,
         'page_title': lesson.title,
@@ -193,3 +228,72 @@ def submit_activity(request, pk):
         )
 
     return redirect('lesson_detail', pk=activity.lesson.pk)
+
+
+@login_required
+@require_POST
+def submit_quiz(request, pk):
+    """Processes quiz submissions, calculates score, and marks course as completed if final exam."""
+    from .models import Lesson, QuizQuestion, QuizChoice, QuizAttempt, LessonCompletion, CourseEnrollment
+    import datetime
+
+    lesson = get_object_or_404(Lesson, pk=pk)
+    questions = lesson.questions.all().prefetch_related('choices')
+    total_questions = questions.count()
+    correct_count = 0
+
+    if total_questions == 0:
+        return redirect('lesson_detail', pk=pk)
+
+    for q in questions:
+        selected_choice_id = request.POST.get(f'question_{q.id}')
+        if selected_choice_id:
+            try:
+                choice = QuizChoice.objects.get(id=selected_choice_id, question=q)
+                if choice.is_correct:
+                    correct_count += 1
+            except QuizChoice.DoesNotExist:
+                continue
+
+    score_percent = int((correct_count / total_questions) * 100) if total_questions > 0 else 0
+    passed = score_percent >= 80
+
+    # Record the attempt
+    QuizAttempt.objects.update_or_create(
+        user=request.user,
+        lesson=lesson,
+        defaults={
+            'score': correct_count,
+            'total_questions': total_questions,
+            'passed': passed,
+            'attempted_at': datetime.datetime.now()
+        }
+    )
+
+    if passed:
+        # Mark lesson as completed
+        LessonCompletion.objects.get_or_create(user=request.user, lesson=lesson)
+
+        # Re-calculate overall enrollment progress immediately
+        enrollment = CourseEnrollment.objects.filter(user=request.user, course=lesson.course).first()
+        if enrollment:
+            required_lessons = Lesson.objects.filter(course=lesson.course, is_required=True, is_final_exam=False)
+            required_count = required_lessons.count()
+            completed_required_count = LessonCompletion.objects.filter(
+                user=request.user, 
+                lesson__in=required_lessons
+            ).count()
+            
+            new_progress = int((completed_required_count / required_count * 100)) if required_count > 0 else 100
+            enrollment.progress_percent = new_progress
+
+            # If this is the Final Exam and they passed, mark the entire course as completed
+            if lesson.is_final_exam:
+                enrollment.status = CourseEnrollment.Status.COMPLETED
+                enrollment.completed_at = datetime.datetime.now()
+                enrollment.save()
+                return redirect('dashboard') # Celebrate!
+            
+            enrollment.save()
+
+    return redirect('lesson_detail', pk=pk)

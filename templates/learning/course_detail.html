@@ -111,6 +111,49 @@
             <p style="color:var(--text-muted); text-align:center; padding:2rem 0;">No lessons added yet.</p>
             {% endfor %}
         </div>
+
+        <!-- NEW: Final Course Evaluator -->
+        <div class="card" style="margin-top: 2rem; border: 2px solid {% if can_take_exam %}var(--primary){% else %}#E2E8F0{% endif %}; background: {% if can_take_exam %}#F8FAFC{% else %}#F9FAFB{% endif %};">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <div>
+                    <h3 style="font-size:1.25rem; font-weight:800; color:{% if can_take_exam %}var(--text){% else %}#94A3B8{% endif %};">🎓 Final Course Examination</h3>
+                    <p style="font-size:0.875rem; color:var(--text-muted);">Confirm your mastery of this course to earn your final completion status.</p>
+                </div>
+                {% if can_take_exam %}
+                <span style="font-size:2rem;">🔓</span>
+                {% else %}
+                <span style="font-size:2rem; opacity:0.3;">🔒</span>
+                {% endif %}
+            </div>
+
+            {% if final_exam %}
+                <div style="padding:1.5rem; border:1px dashed #CBD5E1; border-radius:12px; margin-bottom:1.5rem;">
+                    <div style="font-weight:700; margin-bottom:0.5rem;">Exam Details:</div>
+                    <ul style="font-size:0.875rem; color:var(--text-muted); list-style:none; padding:0; display:flex; gap:1.5rem;">
+                        <li>⏱️ <strong>Time Limit:</strong> {{ final_exam.duration_minutes }} Minutes</li>
+                        <li>🎯 <strong>Score Needed:</strong> 80% to Pass</li>
+                        <li>🏆 <strong>Reward:</strong> Official Course Completion</li>
+                    </ul>
+                </div>
+
+                {% if can_take_exam %}
+                    <div style="text-align:center;">
+                        <a href="{% url 'lesson_detail' final_exam.pk %}" class="btn btn-primary" style="padding:0.75rem 2.5rem; font-weight:700; font-size:1rem; border-radius:12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">🚀 START FINAL EXAMINATION</a>
+                        <p style="font-size:0.75rem; color: #64748B; margin-top:0.75rem;">You have completed 100% of the lessons. Good luck!</p>
+                    </div>
+                {% else %}
+                    <div style="text-align:center; padding:1.5rem; background:#F1F5F9; border-radius:12px; color:#475569;">
+                        <p style="font-weight:600; margin-bottom:0.5rem;">Final Exam Locked</p>
+                        <p style="font-size:0.8125rem;">Please finish the <strong>{{ course.lessons.all|length }} required lessons</strong> in the curriculum to unlock this assessment.</p>
+                        <div class="progress-bar-wrap" style="height:8px; width:200px; margin: 1rem auto; background:#E2E8F0;">
+                            <div class="progress-bar-fill" style="width:{{ progress_percent }}%;"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p style="color:var(--text-muted); font-size:0.875rem; text-align:center; padding:1rem 0;">No final exam has been configured for this course yet.</p>
+            {% endif %}
+        </div>
     </div>
 
     <!-- Sidebar -->

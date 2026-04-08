@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% block title %}Quiz Studio: {{ lesson.title }} | Management{% endblock %}
+{% block page_title %}Quiz Studio: {{ lesson.title }}{% endblock %}
+{% block page_subtitle %}Manually architect your German assessments and final exams.{% endblock %}
+{% block brand_context %}Management{% endblock %}
+
+{% block content %}
+{% if messages %}
+    <div style="margin-bottom: 2rem;">
+        {% for message in messages %}
+            <div style="padding: 1rem 1.5rem; background: #F0FDF4; border: 1px solid #BBF7D0; color: #166534; border-radius: 12px; font-weight: 700; display: flex; align-items: center; gap: 0.75rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
+                <span>✨</span> {{ message }}
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div style="display:grid; grid-template-columns: 1fr 340px; gap:2rem; align-items: start;">
+    <!-- Main Question Canvas -->
+    <div>
+        <div style="margin-bottom:2rem; display:flex; justify-content:space-between; align-items:center;">
+            <h3 style="font-size:1.25rem; font-weight:800;">🏗️ Assessment Builder</h3>
+            <button onclick="document.getElementById('add-question-modal').style.display='flex'" class="btn btn-primary">➕ Add Main Question</button>
+        </div>
+
+        {% if not questions %}
+        <div class="card" style="text-align:center; padding:4rem 2rem; border:2px dashed var(--border); background:none;">
+            <span style="font-size:3rem; display:block; margin-bottom:1rem;">📝</span>
+            <h4 style="margin-bottom:0.5rem;">Your quiz is empty</h4>
+            <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Start by adding your first German grammar or vocabulary question.</p>
+            <button onclick="document.getElementById('add-question-modal').style.display='flex'" class="btn btn-primary">Create First Question</button>
+        </div>
+        {% endif %}
+
+        {% for q in questions %}
+        <div class="card" style="margin-bottom:2rem; border-left: 4px solid var(--primary); transition: transform 0.2s;">
+            <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid #F1F5F9;">
+                <div>
+                    <span style="font-size:0.7rem; text-transform:uppercase; font-weight:800; color:var(--primary); letter-spacing:0.05em;">QUESTION {{ forloop.counter }}</span>
+                    <h4 style="font-size:1.15rem; font-weight:700; margin:0.25rem 0;">{{ q.text }}</h4>
+                </div>
+                <form method="post" action="{% url 'quiz_question_delete' q.pk %}" onsubmit="return confirm('Delete this question and all its answers?')">
+                    {% csrf_token %}
+                    <button type="submit" style="background:none; border:none; color:#EF4444; cursor:pointer; font-size:0.9rem; padding:0.5rem;">🗑️ Delete</button>
+                </form>
+            </div>
+
+            <!-- Choices List -->
+            <div style="display:grid; gap:0.75rem; margin-bottom:1.5rem;">
+                {% for choice in q.choices.all %}
+                <div style="display:flex; align-items:center; justify-content:space-between; padding:0.875rem 1.25rem; border-radius:10px; border:1px solid {% if choice.is_correct %}#BBF7D0{% else %}#F1F5F9{% endif %}; background:{% if choice.is_correct %}#F0FDF4{% else %}white{% endif %};">
+                    <div style="display:flex; align-items:center; gap:0.75rem;">
+                        <span style="font-size:1.1rem;">{% if choice.is_correct %}✅{% else %}⚪{% endif %}</span>
+                        <span style="font-size:0.95rem; {% if choice.is_correct %}font-weight:700; color:#166534;{% endif %}">{{ choice.text }}</span>
+                    </div>
+                    <form method="post" action="{% url 'quiz_choice_delete' choice.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" style="background:none; border:none; opacity:0.3; cursor:pointer;" title="Remove Answer">✕</button>
+                    </form>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Add Choice Form -->
+            <div style="padding-top:1.25rem; border-top:1px solid #F1F5F9;">
+                <form method="post" action="{% url 'quiz_choice_add' q.pk %}" style="display:flex; gap:0.5rem;">
+                    {% csrf_token %}
+                    <input type="text" name="text" placeholder="Add an answer choice..." required style="flex:1; border:1px solid #E2E8F0; border-radius:8px; padding:0.5rem 0.75rem; font-size:0.875rem;">
+                    <label style="display:flex; align-items:center; gap:0.25rem; font-size:0.75rem; color:var(--text-muted); cursor:pointer;">
+                        <input type="checkbox" name="is_correct" style="accent-color:#16A34A;"> Correct Answer
+                    </label>
+                    <button type="submit" class="btn btn-sm" style="background:var(--primary); color:white; border:none; padding:0 1rem;">Add</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Sticky Settings Sidebar -->
+    <div style="position: sticky; top: 1.5rem;">
+        <div class="card" style="border:1px solid var(--primary);">
+            <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:1.5rem; display:flex; align-items:center; gap:0.5rem;">
+                <span>⚙️ Quiz Rules</span>
+            </h3>
+            <form method="post">
+                {% csrf_token %}
+                <div style="margin-bottom:1.25rem;">
+                    <label style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem;">⏱️ Time Limit (Minutes)</label>
+                    <input type="number" name="duration_minutes" value="{{ lesson.duration_minutes }}" 
+                           style="width:100%; padding:0.75rem; border:1px solid #E2E8F0; border-radius:10px; font-weight:700; font-size:1rem;">
+                </div>
+
+                <div style="margin-bottom:1.5rem; padding:1rem; background:#F8FAFC; border-radius:12px; border:1px solid #E2E8F0;">
+                    <label style="display:flex; align-items:center; gap:0.75rem; cursor:pointer; font-weight:700;">
+                        <input type="checkbox" name="is_final_exam" {% if lesson.is_final_exam %}checked{% endif %} style="width:1.2rem; height:1.2rem; accent-color:var(--primary);">
+                        <span>🚩 This is a Final Exam</span>
+                    </label>
+                    <p style="font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem; margin-left:2rem;">
+                        If checked, passing this will auto-mark the entire Course as COMPLETED for students.
+                    </p>
+                </div>
+
+                <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid #F1F5F9;">
+                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:1rem;">💾 Save Core Settings</button>
+                    <a href="{% url 'lesson_edit' lesson.pk %}" style="display:block; text-align:center; margin-top:1rem; font-size:0.875rem; color:var(--text-muted); text-decoration:none;">← Back to Lesson Editor</a>
+                </div>
+            </form>
+        </div>
+        
+        <div class="card" style="margin-top:1.5rem; background: #FFFBEB; border: 1px solid #FDE68A;">
+            <h4 style="color:#92400E; font-size:0.875rem; margin-bottom:0.5rem;">💡 Pro Tip</h4>
+            <p style="font-size:0.785rem; color:#B45309; line-height:1.5;">Ensure every question has at least one <strong>correct answer</strong> checked, otherwise the system won't be able to grade it properly!</p>
+        </div>
+    </div>
+</div>
+
+<!-- Add Question Modal (Simple Implementation) -->
+<div id="add-question-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:1000;">
+    <div class="card" style="width:500px; padding:2rem;">
+        <h3 style="margin-bottom:1.5rem; font-weight:800;">Add New Question</h3>
+        <form method="post" action="{% url 'quiz_question_add' lesson.pk %}">
+            {% csrf_token %}
+            <textarea name="text" placeholder="e.g., What is the German word for 'Butterfly'?" required 
+                      style="width:100%; height:120px; border:1px solid #E2E8F0; border-radius:12px; padding:1rem; font-family:inherit; margin-bottom:1.5rem;"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
+                <button type="button" onclick="document.getElementById('add-question-modal').style.display='none'" class="btn" style="background:none; border:1px solid #CBD5E1;">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Question</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
