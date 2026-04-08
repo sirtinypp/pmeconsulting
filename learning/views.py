@@ -42,9 +42,8 @@ def course_detail(request, pk):
         
         final_exam = lessons.filter(is_final_exam=True).first()
         if final_exam:
-             _ = final_exam.is_final_exam # Touch the field to force check
+             _ = final_exam.is_final_exam
              
-        # Calculate curriculum progress (excluding the exam itself)
         required_lessons = [l for l in regular_lessons if l.is_required]
         required_count = len(required_lessons)
         
@@ -57,8 +56,9 @@ def course_detail(request, pk):
         can_take_exam = (progress_percent >= 100)
         
     except Exception:
-        # Emergency fallback if migrations haven't run yet
-        regular_lessons = list(lessons)
+        # 🚨 SURGICAL FALLBACK: Fetch lessons while EXPORTLY DEFERRING missing columns
+        # This prevents the SQL query from including columns that don't exist yet.
+        regular_lessons = list(lessons.defer('is_final_exam', 'duration_minutes'))
         final_exam = None
         can_take_exam = False
         progress_percent = 0
@@ -162,7 +162,13 @@ def complete_lesson(request, pk):
 @login_required
 def lesson_detail(request, pk):
     """View a single lesson's full content."""
-    lesson = get_object_or_404(Lesson, pk=pk)
+    try:
+        lesson = Lesson.objects.get(pk=pk)
+        # Force a check for the new column
+        _ = lesson.is_final_exam
+    except Exception:
+        # Fallback for missing columns
+        lesson = get_object_or_404(Lesson.objects.defer('is_final_exam', 'duration_minutes'), pk=pk)
     
     # Check if user is enrolled in the course or is admin
     enrollment = CourseEnrollment.objects.filter(
