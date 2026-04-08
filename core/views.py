@@ -692,7 +692,8 @@ def course_roster(request, pk):
 @login_required
 def emergency_migrate(request):
     """Surgical tool to force migrations if Railway build steps fail."""
-    if not request.user.is_superuser:
+    # Allow both Superusers and School Admins during this deployment emergency
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
         raise PermissionDenied
     
     from django.core.management import call_command
