@@ -35,33 +35,21 @@ def course_detail(request, pk):
         user=request.user, lesson__course=course
     ).values_list('lesson_id', flat=True)
 
-    try:
-        # Force evaluation to catch database errors early
-        regular_lessons_qs = lessons.filter(is_final_exam=False)
-        regular_lessons = list(regular_lessons_qs) 
-        
-        final_exam = lessons.filter(is_final_exam=True).first()
-        if final_exam:
-             _ = final_exam.is_final_exam
-             
-        required_lessons = [l for l in regular_lessons if l.is_required]
-        required_count = len(required_lessons)
-        
-        completed_required_count = LessonCompletion.objects.filter(
-            user=request.user, 
-            lesson__id__in=[l.id for l in required_lessons]
-        ).count()
+    # Split lessons into standard curriculum and the final exam
+    regular_lessons = lessons.filter(is_final_exam=False)
+    final_exam = lessons.filter(is_final_exam=True).first()
 
-        progress_percent = int((completed_required_count / required_count * 100)) if required_count > 0 else 100
-        can_take_exam = (progress_percent >= 100)
-        
-    except Exception:
-        # 🚨 SURGICAL FALLBACK: Fetch lessons while EXPORTLY DEFERRING missing columns
-        # This prevents the SQL query from including columns that don't exist yet.
-        regular_lessons = list(lessons.defer('is_final_exam', 'duration_minutes'))
-        final_exam = None
-        can_take_exam = False
-        progress_percent = 0
+    # Calculate curriculum progress (excluding the exam itself)
+    required_lessons = regular_lessons.filter(is_required=True)
+    required_count = required_lessons.count()
+    
+    completed_required_count = LessonCompletion.objects.filter(
+        user=request.user, 
+        lesson__in=required_lessons
+    ).count()
+
+    progress_percent = int((completed_required_count / required_count * 100)) if required_count > 0 else 100
+    can_take_exam = (progress_percent >= 100)
 
     # Sync enrollment progress for the dashboard stats
     if enrollment:
