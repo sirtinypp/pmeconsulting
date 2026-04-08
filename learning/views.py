@@ -35,21 +35,29 @@ def course_detail(request, pk):
         user=request.user, lesson__course=course
     ).values_list('lesson_id', flat=True)
 
-    # Split lessons into standard curriculum and the final exam
-    regular_lessons = lessons.filter(is_final_exam=False)
-    final_exam = lessons.filter(is_final_exam=True).first()
+    try:
+        # Split lessons into standard curriculum and the final exam
+        regular_lessons = lessons.filter(is_final_exam=False)
+        final_exam = lessons.filter(is_final_exam=True).first()
 
-    # Calculate curriculum progress (excluding the exam itself)
-    required_lessons = regular_lessons.filter(is_required=True)
-    required_count = required_lessons.count()
-    
-    completed_required_count = LessonCompletion.objects.filter(
-        user=request.user, 
-        lesson__in=required_lessons
-    ).count()
+        # Calculate curriculum progress (excluding the exam itself)
+        required_lessons = regular_lessons.filter(is_required=True)
+        required_count = required_lessons.count()
+        
+        completed_required_count = LessonCompletion.objects.filter(
+            user=request.user, 
+            lesson__in=required_lessons
+        ).count()
 
-    progress_percent = int((completed_required_count / required_count * 100)) if required_count > 0 else 100
-    can_take_exam = (progress_percent >= 100)
+        progress_percent = int((completed_required_count / required_count * 100)) if required_count > 0 else 100
+        can_take_exam = (progress_percent >= 100)
+        
+    except Exception:
+        # Emergency fallback if migrations haven't run yet
+        regular_lessons = lessons
+        final_exam = None
+        can_take_exam = False
+        progress_percent = 0
 
     # Sync enrollment progress for the dashboard stats
     if enrollment:
