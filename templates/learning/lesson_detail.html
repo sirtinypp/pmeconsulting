@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load learning_tags %}
 {% block title %}{{ lesson.title }} | {{ course.title }}{% endblock %}
 {% block page_title %}{{ lesson.title }}{% endblock %}
 {% block page_subtitle %}{{ course.title }}{% endblock %}
@@ -28,6 +29,79 @@
                 ✨ Lesson Completed
             </div>
             {% endif %}
+
+            {% if lesson.activities.all %}
+            <div style="margin-top: 3rem; border-top: 1px solid #E2E8F0; padding-top: 2rem;">
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>✨ Interactive Activities</span>
+                    <span class="badge badge-yellow" style="font-size: 0.7rem;">{{ lesson.activities.count }} Tasks</span>
+                </h3>
+                <div style="display: grid; gap: 1.25rem;">
+                    {% for activity in lesson.activities.all %}
+                    <div style="padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0; background: #F8FAFC;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                            <div>
+                                <span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; color: var(--text-muted);">{{ activity.get_activity_type_display }}</span>
+                                <h4 style="margin: 0.25rem 0; font-size: 1.1rem; font-weight: 700; color: var(--text-dark);">{{ activity.title }}</h4>
+                            </div>
+                            {% if activity.is_required %}
+                            <span style="font-size: 0.65rem; background: #FEF2F2; color: #991B1B; padding: 2px 8px; border-radius: 4px; font-weight: 700;">REQUIRED</span>
+                            {% endif %}
+                        </div>
+                        <div style="font-size: 0.95rem; color: #475569; line-height: 1.6; margin-bottom: 1.5rem;">
+                            {{ activity.description|linebreaks }}
+                        </div>
+
+                        <!-- Submission Logic -->
+                        {% with sub=user_submissions|dict_get:activity.pk %}
+                        <div style="padding: 1rem; background: white; border-radius: 12px; border: 1px solid var(--border);">
+                            {% if sub %}
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                    <span class="badge {% if sub.status == 'PENDING' %}badge-yellow{% elif sub.status == 'GRADED' %}badge-green{% else %}badge-red{% endif %}">
+                                        {{ sub.get_status_display }}
+                                    </span>
+                                    <span style="font-size: 0.7rem; color: var(--text-muted);">Submitted: {{ sub.submitted_at|date:"M d, Y" }}</span>
+                                </div>
+                                {% if sub.feedback %}
+                                <div style="margin-top: 1rem; padding: 0.75rem; background: #F1F5F9; border-radius: 8px; font-size: 0.85rem;">
+                                    <strong>Instructor Feedback:</strong><br/>
+                                    {{ sub.feedback }}
+                                </div>
+                                {% endif %}
+                                <hr style="border: none; border-top: 1px solid #F1F5F9; margin: 1rem 0;">
+                                <p style="font-size: 0.75rem; color: var(--text-muted);">You can re-submit if needed.</p>
+                            {% endif %}
+
+                            <form method="post" action="{% url 'submit_activity' activity.pk %}" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                {% if activity.activity_type == 'ASN' or activity.activity_type == 'REF' %}
+                                <textarea name="submission_text" placeholder="Write your submission here (Optional if using link)..." 
+                                          style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; font-family: inherit;">{{ sub.submission_text|default:'' }}</textarea>
+                                {% endif %}
+
+                                <div style="margin-bottom: 0.75rem;">
+                                    <label style="font-size:0.75rem; font-weight:800; color:var(--primary); text-transform:uppercase;">🔗 Submission Link (Google Drive, etc.)</label>
+                                    <input type="url" name="submission_url" value="{{ sub.submission_url|default:'' }}" 
+                                           placeholder="https://drive.google.com/..."
+                                           style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 0.65rem; margin-top:0.25rem;">
+                                </div>
+                                
+                                <div style="margin-bottom: 0.75rem; padding: 0.75rem; background: #F8FAFC; border-radius: 8px; border: 1px dashed var(--border);">
+                                    <label style="font-size:0.7rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Or Upload Evidence (Temporary)</label>
+                                    <input type="file" name="submission_file" style="display:block; width:100%; font-size:0.75rem; margin-top:0.25rem;">
+                                </div>
+
+                                <button type="submit" class="btn btn-sm btn-primary" style="width: 100%; justify-content: center;">
+                                    {% if sub %}Update Submission{% else %}Submit My Work{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                        {% endwith %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -42,7 +116,11 @@
                         {% if resource.resource_type == 'DOC' %}📄{% elif resource.resource_type == 'VID' %}🎬{% else %}🔗{% endif %}
                     </span>
                     <div style="flex:1;">
-                        <a href="{{ resource.url|default:'#' }}" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
+                        {% if resource.file %}
+                            <a href="{{ resource.file.url }}" target="_blank" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
+                        {% else %}
+                            <a href="{{ resource.url|default:'#' }}" target="_blank" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
+                        {% endif %}
                         <div style="font-size:0.75rem; color:var(--text-muted);">{{ resource.get_resource_type_display }}</div>
                     </div>
                 </li>

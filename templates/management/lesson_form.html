@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns: 1fr 340px; gap:2.5rem; max-width: 1200px; margin: 0 auto; align-items: start;">
+    
+    <!-- Main Form Area -->
+    <div class="card" style="padding: 3rem;">
+        <div style="margin-bottom: 2.5rem; text-align: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">📖</div>
+            <h2 style="font-size: 2rem; font-weight: 800; color: var(--primary);">{{ page_title }}</h2>
+            <p style="color: var(--text-muted);">Configure lesson for: <strong>{{ course.title }}</strong></p>
+        </div>
+
+        <form method="post" class="sleek-form" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Lesson Title -->
+            <div class="form-group">
+                <label for="title" class="form-label">Lesson Title</label>
+                <input type="text" name="title" id="title" class="form-control" value="{{ lesson.title|default:'' }}" placeholder="e.g., Introduction to Clinical German" required>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <!-- Lesson Type -->
+                <div class="form-group">
+                    <label for="lesson_type" class="form-label">Lesson Type</label>
+                    <select name="lesson_type" id="lesson_type" class="form-control" style="appearance: auto;">
+                        {% for code, label in lesson_types %}
+                        <option value="{{ code }}" {% if lesson.lesson_type == code %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Order -->
+                <div class="form-group">
+                    <label for="order" class="form-label">Sequence (Order #)</label>
+                    <input type="number" name="order" id="order" class="form-control" value="{{ lesson.order|default:0 }}" min="0">
+                </div>
+            </div>
+
+            <!-- Material Upload -->
+            <div class="form-group">
+                <label for="lesson_material" class="form-label">Upload Study Material (PDF/DOC/ZIP)</label>
+                <input type="file" name="lesson_material" id="lesson_material" class="form-control" style="padding:0.6rem;">
+                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Automatically added to student resources sidebar.</p>
+            </div>
+
+            <!-- Description / Content -->
+            <div class="form-group">
+                <label for="description" class="form-label">Lesson Content / Instructions</label>
+                <textarea name="description" id="description" class="form-control" rows="8" placeholder="Provide material here.">{{ lesson.description|default:'' }}</textarea>
+            </div>
+
+            <!-- Activities Section (Only for existing lessons) -->
+            {% if lesson.pk %}
+            <div style="margin-top: 3rem; padding-top: 2rem; border-top: 2px solid var(--border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <div>
+                        <h3 style="font-weight: 800; color: var(--primary); margin: 0; font-size: 1.25rem;">✨ Interactive Activities</h3>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0.25rem 0 0 0;">Add assignments, practice tasks, or journals for students.</p>
+                    </div>
+                    <a href="{% url 'activity_add' lesson.pk %}" class="btn btn-sm btn-primary">+ Add Activity</a>
+                </div>
+                
+                <div style="display: grid; gap: 1rem;">
+                    {% for activity in lesson.activities.all %}
+                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 1.25rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 16px;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: 900; color: var(--primary); border: 1px solid #E2E8F0;">
+                                {{ activity.order }}
+                            </div>
+                            <div>
+                                <div style="font-weight: 700; color: var(--text-dark);">{{ activity.title }}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">{{ activity.get_activity_type_display }}</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <a href="{% url 'activity_edit' activity.pk %}" class="btn btn-sm" style="background: white; border: 1px solid #E2E8F0;">✏️ Edit</a>
+                            <form method="post" action="{% url 'activity_delete' activity.pk %}" onsubmit="return confirm('Delete this activity?')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm" style="background: white; border: 1px solid #E2E8F0; color: #EF4444;">🗑️</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div style="text-align: center; padding: 2rem; border: 2px dashed #E2E8F0; border-radius: 16px; color: var(--text-muted); font-size: 0.875rem;">
+                        No interactive activities added yet.
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="margin-top: 3rem; display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary lg" style="flex: 2; border-radius: 32px;">Save Lesson</button>
+                <a href="{% url 'course_detail' course.pk %}" class="btn lg" style="flex: 1; border-radius: 32px; text-align: center;">Cancel</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Sequence Sidebar -->
+    <div class="card" style="position: sticky; top: 1.5rem; background: #F8FAFC;">
+        <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
+            <span>📋 Current Sequence</span>
+            <span style="font-size: 0.7rem; background: var(--primary); color: white; padding: 2px 6px; border-radius: 6px;">{{ course.lessons.count }}</span>
+        </h3>
+        
+        <div style="font-size: 0.875rem;">
+            {% for cl in course.lessons.all|dictsort:"order" %}
+            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid #E2E8F0; {% if cl.pk == lesson.pk %}background: #EFF6FF; margin: 0 -1rem; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; color: var(--primary);{% endif %}">
+                <span style="font-weight: 900; color: #94A3B8; min-width: 20px;">{{ cl.order }}</span>
+                <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ cl.title }}">
+                    {% if cl.pk == lesson.pk %}→ {% endif %}{{ cl.title }}
+                </span>
+                <span style="opacity: 0.6; font-size: 0.75rem;">
+                    {% if cl.lesson_type == 'VID' %}🎬{% elif cl.lesson_type == 'QIZ' %}❓{% else %}📄{% endif %}
+                </span>
+            </div>
+            {% empty %}
+            <p style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No lessons yet.</p>
+            {% endfor %}
+        </div>
+        
+        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px dashed #E2E8F0; font-size: 0.8rem; color: #64748B;">
+            <strong>Tip:</strong> Matching two lessons with the same sequence number will sort them alphabetically.
+        </div>
+    </div>
+</div>
+
+<style>
+    .sleek-form .form-group {
+        margin-bottom: 2rem;
+    }
+    .sleek-form .form-label {
+        display: block;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-muted);
+        margin-bottom: 0.75rem;
+    }
+    .sleek-form .form-control {
+        width: 100%;
+        padding: 1rem 1.25rem;
+        border: 2px solid #E2E8F0;
+        border-radius: 16px;
+        font-size: 1rem;
+        transition: all 0.2s;
+        background: #F8FAFC;
+    }
+    .sleek-form .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(30, 77, 140, 0.1);
+    }
+</style>
+{% endblock %}

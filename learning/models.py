@@ -74,6 +74,30 @@ class LessonResource(models.Model):
         return f"{self.title} — {self.get_resource_type_display()}"
 
 
+class LessonActivity(models.Model):
+    """An interactive task or assignment within a lesson."""
+    class ActivityType(models.TextChoices):
+        ASSIGNMENT = 'ASN', 'Assignment/Submission'
+        INTERACTIVE = 'INT', 'Interactive Task'
+        REFLECTION  = 'REF', 'Reflection/Journal'
+        PRACTICE    = 'PRC', 'Practice Session'
+
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, related_name='activities')
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    activity_type = models.CharField(max_length=3, choices=ActivityType.choices, default=ActivityType.PRACTICE)
+    is_required = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['order']
+        verbose_name_plural = "Lesson Activities"
+
+    def __str__(self):
+        return f"{self.lesson.title} Activity: {self.title}"
+
+
 class TrainingEvent(SchoolScopedModel):
     """A live session, workshop, or cultural event."""
     title = models.CharField(max_length=255)
@@ -83,6 +107,29 @@ class TrainingEvent(SchoolScopedModel):
 
     def __str__(self):
         return f"{self.title} — {self.date.date()} ({self.school.code})"
+
+
+class ActivitySubmission(models.Model):
+    """A student submission for a lesson activity."""
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='activity_submissions')
+    activity = models.ForeignKey(LessonActivity, on_delete=models.CASCADE, related_name='submissions')
+    submission_text = models.TextField(blank=True, help_text="Text-based answer or reflection")
+    submission_url = models.URLField(blank=True, null=True, help_text="Link to external work (e.g., Google Drive, Dropbox)")
+    submission_file = models.FileField(upload_to='activity_submissions/', null=True, blank=True, help_text="Supports Audio (MP3/WAV), PDF, or Images")
+    status = models.CharField(max_length=20, default='PENDING', choices=[
+        ('PENDING', 'Pending Review'),
+        ('GRADED', 'Graded/Reviewed'),
+        ('RESUBMIT', 'Requires Resubmission')
+    ])
+    feedback = models.TextField(blank=True)
+    grade = models.IntegerField(null=True, blank=True)
+    submitted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'activity')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.activity.title}"
 
 
 class CourseEnrollment(models.Model):

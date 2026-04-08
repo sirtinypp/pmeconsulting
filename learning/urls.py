@@ -9,4 +9,5 @@ urlpatterns = [
     path('reject-enrollment/<int:pk>/', views.reject_enrollment, name='reject_enrollment'),
     path('lesson/<int:pk>/', views.lesson_detail, name='lesson_detail'),
     path('lesson/<int:pk>/complete/', views.complete_lesson, name='complete_lesson'),
+    path('activity/<int:pk>/submit/', views.submit_activity, name='submit_activity'),
 ]

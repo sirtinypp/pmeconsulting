@@ -141,11 +141,55 @@ def lesson_detail(request, pk):
         return redirect('course_detail', pk=lesson.course.pk)
 
     completed = LessonCompletion.objects.filter(user=request.user, lesson=lesson).exists()
+    
+    # Fetch user's submissions for activities in this lesson
+    from .models import ActivitySubmission
+    user_submissions = {
+        s.activity_id: s for s in ActivitySubmission.objects.filter(user=request.user, activity__lesson=lesson)
+    }
 
     return render(request, 'learning/lesson_detail.html', {
         'lesson': lesson,
         'course': lesson.course,
         'completed': completed,
+        'user_submissions': user_submissions,
         'page_title': lesson.title,
         'brand_context': 'Learning',
     })
+
+
+@login_required
+def submit_activity(request, pk):
+    """Handle student activity submissions (text and/or file uploads like Audio)."""
+    from .models import LessonActivity, ActivitySubmission
+    activity = get_object_or_404(LessonActivity, pk=pk)
+    
+    # Check if student is enrolled in the parent course
+    enrollment = CourseEnrollment.objects.filter(
+        user=request.user, course=activity.lesson.course, status='ENROLLED'
+    ).exists()
+    
+    if not enrollment and not request.user.is_superuser:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        submission_text = request.POST.get('submission_text', '')
+        submission_url = request.POST.get('submission_url', '')
+        submission_file = request.FILES.get('submission_file')
+
+        # Create or update submission logic
+        defaults = {
+            'submission_text': submission_text,
+            'submission_url': submission_url,
+            'status': 'PENDING'
+        }
+        if submission_file:
+            defaults['submission_file'] = submission_file
+
+        ActivitySubmission.objects.update_or_create(
+            user=request.user,
+            activity=activity,
+            defaults=defaults
+        )
+
+    return redirect('lesson_detail', pk=activity.lesson.pk)

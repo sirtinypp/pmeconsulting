@@ -67,6 +67,13 @@ def dashboard(request):
             course__school=school, 
             status=CourseEnrollment.Status.PENDING
         ).order_by('-enrolled_at')
+        
+        from learning.models import ActivitySubmission
+        context['pending_submissions'] = ActivitySubmission.objects.filter(
+            activity__lesson__course__school=school,
+            status='PENDING'
+        ).order_by('-submitted_at')
+        
         context['brand_context'] = 'Management'
         return render(request, 'dashboards/school_admin.html', context)
 
@@ -241,50 +248,6 @@ def event_delete(request, pk):
     return redirect('dashboard')
 
 
-@login_required
-def lesson_upsert(request, course_id=None, pk=None):
-    """Create or edit a course (admin only)."""
-    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
-        raise PermissionDenied
-
-    course = None
-    if pk:
-        course = get_object_or_404(Course, pk=pk)
-        if not request.user.is_superuser and course.school != request.user.school:
-            raise PermissionDenied
-
-    if request.method == 'POST':
-        title = request.POST.get('title')
-        description = request.POST.get('description')
-        level = request.POST.get('level')
-        duration = request.POST.get('duration')
-        is_active = request.POST.get('is_active') == 'on'
-
-        if not course:
-            course = Course.objects.create(
-                title=title,
-                description=description,
-                level=level,
-                duration=duration,
-                is_active=is_active,
-                school=request.user.school
-            )
-        else:
-            course.title = title
-            course.description = description
-            course.level = level
-            course.duration = duration
-            course.is_active = is_active
-            course.save()
-
-        return redirect('dashboard')
-
-    return render(request, 'management/course_form.html', {
-        'course': course,
-        'page_title': 'Edit Course' if pk else 'Create New Course',
-        'level_choices': Course.LEVEL_CHOICES,
-        'brand_context': 'Management',
-    })
 
 
 @login_required
@@ -429,18 +392,22 @@ def course_upsert(request, pk=None):
 
 
 @login_required
-def lesson_upsert(request, course_id, pk=None):
+def lesson_upsert(request, pk=None, course_id=None):
     """Create or edit a lesson (admin only)."""
     if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
-        raise PermissionDenied
-
-    course = get_object_or_404(Course, pk=course_id)
-    if not request.user.is_superuser and course.school != request.user.school:
         raise PermissionDenied
 
     lesson = None
     if pk:
         lesson = get_object_or_404(Lesson, pk=pk)
+        course = lesson.course
+    elif course_id:
+        course = get_object_or_404(Course, pk=course_id)
+    else:
+        return redirect('school_settings') # Fallback if no context provided
+
+    if not request.user.is_superuser and course.school != request.user.school:
+        raise PermissionDenied
 
     if request.method == 'POST':
         title = request.POST.get('title')
@@ -460,15 +427,113 @@ def lesson_upsert(request, course_id, pk=None):
             lesson.order = order
             lesson.save()
 
+        # Handle Material Upload
+        lesson_material = request.FILES.get('lesson_material')
+        if lesson_material:
+            from learning.models import LessonResource
+            LessonResource.objects.create(
+                lesson=lesson,
+                title=lesson_material.name,
+                resource_type='DOC',
+                file=lesson_material
+            )
+
         return redirect('course_detail', pk=course.pk)
 
     return render(request, 'management/lesson_form.html', {
         'lesson': lesson,
         'course': course,
-        'lesson_types': Lesson.Type.choices,
+        'lesson_types': Lesson.LessonType.choices,
         'page_title': 'Edit Lesson' if pk else 'Add Lesson',
         'brand_context': 'Management',
     })
+
+
+@login_required
+def lesson_delete(request, pk):
+    """Delete a lesson (admin only)."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+    
+    lesson = get_object_or_404(Lesson, pk=pk)
+    course_pk = lesson.course.pk
+    
+    if not request.user.is_superuser and lesson.course.school != request.user.school:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        lesson.delete()
+        return redirect('course_detail', pk=course_pk)
+    
+    return redirect('course_detail', pk=course_pk)
+
+
+@login_required
+def activity_upsert(request, pk=None, lesson_id=None):
+    """Create or edit a lesson activity (admin only)."""
+    from learning.models import LessonActivity
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    activity = None
+    if pk:
+        activity = get_object_or_404(LessonActivity, pk=pk)
+        lesson = activity.lesson
+    elif lesson_id:
+        lesson = get_object_or_404(Lesson, pk=lesson_id)
+    else:
+        return redirect('school_settings')
+
+    if not request.user.is_superuser and lesson.course.school != request.user.school:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        activity_type = request.POST.get('activity_type')
+        description = request.POST.get('description')
+        order = request.POST.get('order', 0)
+
+        if not activity:
+            LessonActivity.objects.create(
+                lesson=lesson, title=title, activity_type=activity_type,
+                description=description, order=order
+            )
+        else:
+            activity.title = title
+            activity.activity_type = activity_type
+            activity.description = description
+            activity.order = order
+            activity.save()
+
+        return redirect('lesson_edit', pk=lesson.pk)
+
+    return render(request, 'management/activity_form.html', {
+        'activity': activity,
+        'lesson': lesson,
+        'activity_types': LessonActivity.ActivityType.choices,
+        'page_title': 'Edit Activity' if pk else 'Add Activity',
+        'brand_context': 'Management',
+    })
+
+
+@login_required
+def activity_delete(request, pk):
+    """Delete an activity (admin only)."""
+    from learning.models import LessonActivity
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+    
+    activity = get_object_or_404(LessonActivity, pk=pk)
+    lesson_pk = activity.lesson.pk
+    
+    if not request.user.is_superuser and activity.lesson.course.school != request.user.school:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        activity.delete()
+        return redirect('lesson_edit', pk=lesson_pk)
+    
+    return redirect('lesson_edit', pk=lesson_pk)
 
 
 @login_required
@@ -510,5 +575,64 @@ def event_upsert(request, pk=None):
     return render(request, 'management/event_form.html', {
         'event': event,
         'page_title': 'Edit Event' if pk else 'Schedule Training Event',
+        'brand_context': 'Management',
+    })
+
+
+@login_required
+def activity_review_list(request):
+    """List all student activity submissions for the school's admin to review."""
+    from learning.models import ActivitySubmission
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    # Filter submissions for courses belonging to this admin's school
+    school = request.user.school
+    if not school:
+        from core.models import School
+        school = School.objects.first()
+
+    submissions = ActivitySubmission.objects.filter(
+        activity__lesson__course__school=school
+    ).order_by('-submitted_at')
+
+    if request.user.is_superuser:
+        submissions = ActivitySubmission.objects.all().order_by('-submitted_at')
+
+    return render(request, 'management/activity_review_list.html', {
+        'submissions': submissions,
+        'page_title': 'Activity Review Hub',
+        'brand_context': 'Management',
+    })
+
+
+@login_required
+def activity_review_detail(request, pk):
+    """Review and grade a specific student submission."""
+    from learning.models import ActivitySubmission
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    submission = get_object_or_404(ActivitySubmission, pk=pk)
+    
+    if not request.user.is_superuser and submission.activity.lesson.course.school != request.user.school:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        status = request.POST.get('status')
+        feedback = request.POST.get('feedback')
+        grade = request.POST.get('grade')
+
+        submission.status = status
+        submission.feedback = feedback
+        if grade:
+            submission.grade = int(grade)
+        submission.save()
+        
+        return redirect('activity_review_list')
+
+    return render(request, 'management/activity_review_detail.html', {
+        'submission': submission,
+        'page_title': f'Review: {submission.user.username}',
         'brand_context': 'Management',
     })

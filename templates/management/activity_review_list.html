@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+{% block title %}Activity Review Hub | Management{% endblock %}
+{% block page_title %}Activity Review Hub{% endblock %}
+{% block page_subtitle %}Review and grade student submissions across all courses{% endblock %}
+{% block brand_context %}Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
+        <h3 style="font-size:1.25rem; font-weight:800;">Submissions History</h3>
+        <div style="display:flex; gap:0.5rem;">
+            <span class="badge badge-yellow">{{ submissions|length }} Total</span>
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table style="width:100%; border-collapse: collapse;">
+            <thead>
+                <tr style="text-align:left; border-bottom:2px solid var(--border);">
+                    <th style="padding:1rem;">Student</th>
+                    <th style="padding:1rem;">Activity</th>
+                    <th style="padding:1rem;">Status</th>
+                    <th style="padding:1rem;">Submitted</th>
+                    <th style="padding:1rem;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sub in submissions %}
+                <tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:1.5rem 1rem;">
+                        <div style="font-weight:700;">{{ sub.user.username }}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ sub.user.email }}</div>
+                    </td>
+                    <td style="padding:1.5rem 1rem;">
+                        <div style="font-weight:600;">{{ sub.activity.title }}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ sub.activity.lesson.course.title }}</div>
+                    </td>
+                    <td style="padding:1.5rem 1rem;">
+                        <span class="badge {% if sub.status == 'PENDING' %}badge-yellow{% elif sub.status == 'GRADED' %}badge-green{% else %}badge-red{% endif %}">
+                            {{ sub.get_status_display }}
+                        </span>
+                    </td>
+                    <td style="padding:1.5rem 1rem; font-size:0.875rem;">
+                        {{ sub.submitted_at|date:"d M Y" }}<br/>
+                        <small style="color:var(--text-muted);">{{ sub.submitted_at|time:"H:i" }}</small>
+                    </td>
+                    <td style="padding:1.5rem 1rem;">
+                        <a href="{% url 'activity_review_detail' sub.pk %}" class="btn btn-sm btn-primary">Review Work</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="padding:4rem; text-align:center; color:var(--text-muted);">
+                        No submissions yet. 
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -44,3 +44,27 @@ def handle_user_creation(sender, instance, created, **kwargs):
         if instance.role in [CustomUser.Role.SCHOOL_ADMIN, CustomUser.Role.SUPERUSER]:
             instance.is_staff = True
             CustomUser.objects.filter(pk=instance.pk).update(is_staff=True)
+
+
+class GuestUser(CustomUser):
+    """Proxy model for Guest Management in Admin."""
+    class Meta:
+        proxy = True
+        verbose_name = "Guest User (Lead)"
+        verbose_name_plural = "01. Guest Users (Leads)"
+
+
+class StudentUser(CustomUser):
+    """Proxy model for Student Management in Admin."""
+    class Meta:
+        proxy = True
+        verbose_name = "Student User"
+        verbose_name_plural = "02. Paid Students"
+
+
+class AdminUser(CustomUser):
+    """Proxy model for Admin/Staff Management in Admin."""
+    class Meta:
+        proxy = True
+        verbose_name = "Platform Administrator"
+        verbose_name_plural = "03. Staff & Admins"

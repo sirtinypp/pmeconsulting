@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% block title %}Reviewing: {{ submission.user.username }} | Management{% endblock %}
+{% block page_title %}Student Task Review{% endblock %}
+{% block page_subtitle %}{{ submission.activity.title }} | Student: {{ submission.user.username }}{% endblock %}
+{% block brand_context %}Management{% endblock %}
+
+{% block content %}
+<div style="display:grid; grid-template-columns: 1fr 340px; gap:2rem; align-items: start;">
+    <!-- Review Area -->
+    <div class="card">
+        <div style="margin-bottom:2rem; border-bottom:1px solid var(--border); padding-bottom:1rem;">
+            <h3 style="font-size:1.1rem; font-weight:800; color:var(--primary); margin-bottom:0.5rem;">TASK INSTRUCTIONS</h3>
+            <div style="font-size:0.9rem; color:#475569; background:#F8FAFC; padding:1.25rem; border-radius:12px; line-height:1.6;">
+                {{ submission.activity.description|linebreaks }}
+            </div>
+        </div>
+
+        <div style="margin-bottom:2.5rem;">
+            <h3 style="font-size:1.1rem; font-weight:800; color:var(--text-dark); margin-bottom:1.25rem;">STUDENT SUBMISSION</h3>
+            
+            {% if submission.submission_text %}
+            <div style="margin-bottom:2rem;">
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:0.75rem;">✏️ Text Response</label>
+                <div style="padding:1.5rem; background:#FFF; border:2px solid #F1F5F9; border-radius:16px; font-size:1.05rem; line-height:1.7;">
+                    {{ submission.submission_text|linebreaks }}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if submission.submission_url %}
+            <div style="margin-bottom:2rem;">
+                <label style="font-size:0.75rem; font-weight:800; color:var(--primary); text-transform:uppercase; display:block; margin-bottom:0.75rem;">🔗 External Submission Link</label>
+                <div style="padding:1.25rem; background:#F0F9FF; border:1px solid #BAE6FD; border-radius:16px; display:flex; align-items:center; justify-content:space-between;">
+                    <div style="font-size:0.95rem; font-weight:700; color:#0369A1; overflow:hidden; text-overflow:ellipsis;">
+                        {{ submission.submission_url }}
+                    </div>
+                    <a href="{{ submission.submission_url }}" target="_blank" class="btn btn-primary btn-sm">Open in New Tab ↗</a>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if submission.submission_file %}
+            <div>
+                <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:0.75rem;">📁 Attached Evidence</label>
+                <div style="padding:1.25rem; background:#F1F5F9; border-radius:16px; display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <span style="font-size:2rem;">
+                            {% if '.pdf' in submission.submission_file.name %}📄{% elif '.wav' in submission.submission_file.name or '.mp3' in submission.submission_file.name %}🎤{% else %}🖼️{% endif %}
+                        </span>
+                        <div>
+                            <div style="font-weight:700; font-size:0.9rem; color:var(--text-dark);">{{ submission.submission_file.name|slice:"20:" }}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">{{ submission.submission_file.size|filesizeformat }}</div>
+                        </div>
+                    </div>
+                    <a href="{{ submission.submission_file.url }}" class="btn btn-sm" download style="background:white; border:1px solid #E2E8F0;">Download File</a>
+                </div>
+
+                {% if '.wav' in submission.submission_file.name or '.mp3' in submission.submission_file.name or '.m4a' in submission.submission_file.name %}
+                <div style="margin-top:1.5rem; padding:1.5rem; background:#E0F2FE; border-radius:16px;">
+                    <label style="font-size:0.75rem; font-weight:800; color:#0369A1; display:block; margin-bottom:1rem;">🎧 AUDIO PLAYBACK</label>
+                    <audio controls style="width:100%;">
+                        <source src="{{ submission.submission_file.url }}" type="audio/mpeg">
+                        Your browser does not support the audio element.
+                    </audio>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {% if not submission.submission_text and not submission.submission_file %}
+            <p style="color:var(--text-muted); font-style:italic;">No content submitted yet.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Feedback & Grading Sidebar -->
+    <div class="card" style="position:sticky; top:2rem; background: #FFF; border: 2px solid var(--primary);">
+        <h3 style="font-size:1.1rem; font-weight:800; margin-bottom:1.5rem; color:var(--primary);">Review Evaluation</h3>
+        <form method="post">
+            {% csrf_token %}
+            <div style="margin-bottom:1.5rem;">
+                <label class="label" style="display:block; margin-bottom:0.5rem; font-weight:700; font-size:0.85rem;">STATUS</label>
+                <select name="status" class="form-control" style="width:100%; padding:0.75rem; border:1px solid var(--border); border-radius:8px;">
+                    <option value="PENDING" {% if submission.status == 'PENDING' %}selected{% endif %}>🕒 Pending Review</option>
+                    <option value="GRADED" {% if submission.status == 'GRADED' %}selected{% endif %}>✅ Graded / Approved</option>
+                    <option value="RESUBMIT" {% if submission.status == 'RESUBMIT' %}selected{% endif %}>🔄 Needs Resubmission</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom:1.5rem;">
+                <label class="label" style="display:block; margin-bottom:0.5rem; font-weight:700; font-size:0.85rem;">GRADE (Optional 0-100)</label>
+                <input type="number" name="grade" value="{{ submission.grade|default:'' }}" min="0" max="100" 
+                       style="width:100%; padding:0.75rem; border:1px solid var(--border); border-radius:8px;">
+            </div>
+
+            <div style="margin-bottom:1.5rem;">
+                <label class="label" style="display:block; margin-bottom:0.5rem; font-weight:700; font-size:0.85rem;">FEEDBACK TO STUDENT</label>
+                <textarea name="feedback" rows="6" 
+                          style="width:100%; padding:0.75rem; border:1px solid var(--border); border-radius:8px; font-family:inherit; font-size:0.9rem;"
+                          placeholder="What did the student do well? What should they improve?">{{ submission.feedback|default:'' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width:100%; padding:1rem; border-radius:12px; justify-content:center;">Submit Evaluation</button>
+            <a href="{% url 'activity_review_list' %}" class="btn" style="width:100%; margin-top:0.75rem; border-radius:12px; justify-content:center; background:#F8FAFC;">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
