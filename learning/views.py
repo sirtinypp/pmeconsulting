@@ -36,17 +36,21 @@ def course_detail(request, pk):
     ).values_list('lesson_id', flat=True)
 
     try:
-        # Split lessons into standard curriculum and the final exam
-        regular_lessons = lessons.filter(is_final_exam=False)
+        # Force evaluation to catch database errors early
+        regular_lessons_qs = lessons.filter(is_final_exam=False)
+        regular_lessons = list(regular_lessons_qs) 
+        
         final_exam = lessons.filter(is_final_exam=True).first()
-
+        if final_exam:
+             _ = final_exam.is_final_exam # Touch the field to force check
+             
         # Calculate curriculum progress (excluding the exam itself)
-        required_lessons = regular_lessons.filter(is_required=True)
-        required_count = required_lessons.count()
+        required_lessons = [l for l in regular_lessons if l.is_required]
+        required_count = len(required_lessons)
         
         completed_required_count = LessonCompletion.objects.filter(
             user=request.user, 
-            lesson__in=required_lessons
+            lesson__id__in=[l.id for l in required_lessons]
         ).count()
 
         progress_percent = int((completed_required_count / required_count * 100)) if required_count > 0 else 100
@@ -54,7 +58,7 @@ def course_detail(request, pk):
         
     except Exception:
         # Emergency fallback if migrations haven't run yet
-        regular_lessons = lessons
+        regular_lessons = list(lessons)
         final_exam = None
         can_take_exam = False
         progress_percent = 0
