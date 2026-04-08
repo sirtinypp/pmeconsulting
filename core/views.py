@@ -690,6 +690,24 @@ def course_roster(request, pk):
 
 
 @login_required
+def emergency_migrate(request):
+    """Surgical tool to force migrations if Railway build steps fail."""
+    if not request.user.is_superuser:
+        raise PermissionDenied
+    
+    from django.core.management import call_command
+    from django.http import HttpResponse
+    import io
+
+    output = io.StringIO()
+    try:
+        call_command('migrate', stdout=output)
+        return HttpResponse(f"<h1>Migration Success</h1><pre>{output.getvalue()}</pre>")
+    except Exception as e:
+        return HttpResponse(f"<h1>Migration Failed</h1><pre>{str(e)}</pre>")
+
+
+@login_required
 def quiz_studio(request, pk):
     """A dedicated workspace for admins to manually build and edit quizzes."""
     from learning.models import Lesson, QuizQuestion, QuizChoice

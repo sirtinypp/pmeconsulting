@@ -19,6 +19,7 @@ urlpatterns = [
     path('learning/', include('learning.urls')),
     path('resources/', include('resources.urls')),
     path('management/student/add/', dashboard_views.student_upsert, name='student_add'),
+    path('management/emergency-migrate/', dashboard_views.emergency_migrate, name='emergency_migrate'),
     path('management/student/<int:pk>/edit/', dashboard_views.student_upsert, name='student_edit'),
     path('management/student/<int:pk>/delete/', dashboard_views.student_delete, name='student_delete'),
     path('management/settings/', dashboard_views.school_settings, name='school_settings'),
