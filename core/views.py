@@ -86,10 +86,13 @@ def dashboard(request):
 
     else:
         # Student dashboard
-        enrollments = CourseEnrollment.objects.filter(user=request.user)
-        context['assigned_count'] = enrollments.count()
-        context['completed_count'] = enrollments.filter(status='COMPLETED').count()
-        context['in_progress_count'] = enrollments.filter(status='IN_PROGRESS').count()
+        all_enrollments = CourseEnrollment.objects.filter(user=request.user)
+        
+        # Stat counters
+        context['assigned_count'] = all_enrollments.filter(status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']).count()
+        context['pending_count'] = all_enrollments.filter(status='PENDING').count()
+        context['completed_count'] = all_enrollments.filter(status='COMPLETED').count()
+        context['in_progress_count'] = all_enrollments.filter(status='IN_PROGRESS').count()
 
         progression = getattr(request.user, 'progression', None)
         if not progression:
@@ -98,10 +101,17 @@ def dashboard(request):
         achievement_points = Achievement.objects.filter(user=request.user).aggregate(Sum('points'))['points__sum'] or 0
         context['total_points'] = progression.points + achievement_points
 
-        context['courses'] = Course.objects.for_user(request.user)[:3]
+        # Data Lists
+        context['active_enrollments'] = all_enrollments.filter(
+            status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']
+        ).select_related('course').order_by('-enrolled_at')[:5]
+        
+        context['pending_enrollments'] = all_enrollments.filter(
+            status='PENDING'
+        ).select_related('course').order_by('-enrolled_at')
+        
         context['trainings'] = TrainingEvent.objects.for_user(request.user).order_by('date')[:3]
         context['achievements'] = Achievement.objects.filter(user=request.user).order_by('-earned_at')[:5]
-        context['enrollments'] = enrollments[:5]
         context['recent_resources'] = Post.objects.filter(is_published=True).order_by('-published_at')[:4]
 
         return render(request, 'dashboards/student.html', context)
