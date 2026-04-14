@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Bulk Enrollment: {{ course.title }} | Management{% endblock %}
+{% block page_title %}Bulk Enrollment{% endblock %}
+{% block page_subtitle %}Batch process student access for: <strong>{{ course.title }}</strong>{% endblock %}
+{% block brand_context %}Management{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div class="card" style="padding: 3rem;">
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">👥⚡</div>
+            <h2 style="font-size: 1.75rem; font-weight: 800; color: var(--primary);">Intelligent Batch Processor</h2>
+            <p style="color: var(--text-muted); line-height: 1.6;">
+                Paste a list of student emails or usernames below. The system will automatically resolve them against your school roster and grant immediate access to this course.
+            </p>
+        </div>
+
+        <form method="post" class="sleek-form">
+            {% csrf_token %}
+            
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label for="student_list" class="form-label" style="display: block; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    Student List (Emails or Usernames)
+                </label>
+                <textarea name="student_list" id="student_list" class="form-control" rows="10" 
+                          placeholder="student1@example.com&#10;student2@example.com&#10;username3, username4"
+                          style="width: 100%; padding: 1.25rem; border: 2px solid #E2E8F0; border-radius: 16px; font-family: 'Courier New', monospace; font-size: 0.95rem; background: #F8FAFC; transition: all 0.2s;"></textarea>
+                <div style="margin-top: 1rem; display: flex; gap: 1rem; align-items: flex-start; background: #EFF6FF; padding: 1rem; border-radius: 12px; border: 1px solid #DBEAFE;">
+                    <span style="font-size: 1.25rem;">ℹ️</span>
+                    <p style="font-size: 0.8rem; color: #1E4D8C; margin: 0; line-height: 1.5;">
+                        <strong>Supported Formats:</strong> Separate entries with commas, spaces, or new lines. The system will skip duplicates and existing enrollments automatically.
+                    </p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem;">
+                <button type="submit" class="btn btn-primary lg" style="flex: 2; border-radius: 32px; justify-content: center; font-weight: 800;">
+                    🚀 Execute Bulk Enrollment
+                </button>
+                <a href="{% url 'course_roster' course.pk %}" class="btn lg" style="flex: 1; border-radius: 32px; text-align: center; justify-content: center;">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Security Note -->
+    <div style="margin-top: 2rem; text-align: center; font-size: 0.85rem; color: var(--text-muted);">
+        🛡️ Only users already registered as <strong>Students</strong> in your school can be bulk-enrolled. Guest accounts will be automatically upgraded if found.
+    </div>
+</div>
+
+<style>
+    .form-control:focus {
+        outline: none;
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(30, 77, 140, 0.1);
+    }
+</style>
+{% endblock %}

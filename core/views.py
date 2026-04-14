@@ -808,3 +808,65 @@ def quiz_choice_delete(request, pk):
     lesson_id = choice.question.lesson_id
     choice.delete()
     return redirect('quiz_studio', pk=lesson_id)
+
+
+@login_required
+def bulk_enroll(request, pk):
+    """Enroll multiple students into a course simultaneously."""
+    from django.contrib import messages
+    from django.db.models import Q
+    from users.models import CustomUser
+    from learning.models import Course, CourseEnrollment
+    
+    course = get_object_or_404(Course, pk=pk)
+    
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+
+    if request.method == 'POST':
+        student_data = request.POST.get('student_list', '')
+        # Handle commas, newlines, and spaces
+        import re
+        entries = re.split(r'[,\n\r\s]+', student_data)
+        entries = [e.strip() for e in entries if e.strip()]
+        
+        success_count = 0
+        skipped_count = 0
+        
+        for entry in entries:
+            # Find user by email or username within the same school or if guest
+            student = CustomUser.objects.filter(
+                Q(email__iexact=entry) | Q(username__iexact=entry),
+                role__in=['STUDENT', 'GUEST']
+            ).first()
+            
+            # Auto-assign school if it matches or is null
+            if student:
+                if not student.school:
+                    student.school = course.school
+                    student.role = 'STUDENT' # Upgrade to student if was guest
+                    student.save()
+                
+                if student.school == course.school:
+                    enrollment, created = CourseEnrollment.objects.get_or_create(
+                        user=student,
+                        course=course,
+                        defaults={'status': 'ENROLLED'}
+                    )
+                    if created:
+                        success_count += 1
+                    else:
+                        skipped_count += 1
+                else:
+                    skipped_count += 1
+            else:
+                skipped_count += 1
+        
+        messages.success(request, f"Bulk Enrollment Complete: {success_count} students enrolled, {skipped_count} entries skipped.")
+        return redirect('course_roster', pk=course.pk)
+
+    return render(request, 'management/bulk_enroll.html', {
+        'course': course,
+        'page_title': 'Bulk Enrollment',
+        'brand_context': 'Management'
+    })
