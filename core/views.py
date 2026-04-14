@@ -360,6 +360,7 @@ def student_delete(request, pk):
 @login_required
 def course_upsert(request, pk=None):
     """Create or edit a course (admin only)."""
+    from django.contrib import messages
     if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
         raise PermissionDenied
 
@@ -396,19 +397,27 @@ def course_upsert(request, pk=None):
                 category=category, duration=duration, 
                 description=description, is_active=is_active
             )
-            if thumbnail:
-                course.thumbnail = thumbnail
-                course.save()
         else:
             course.title = title
             course.category = category
             course.duration = duration
             course.description = description
             course.is_active = is_active
-            if thumbnail:
-                course.thumbnail = thumbnail
-            course.save()
-
+            
+        if thumbnail:
+            try:
+                # Basic size validation
+                if thumbnail.size > 2 * 1024 * 1024:
+                    messages.warning(request, "Thumbnail too large (Max 2MB). Resetting to default.")
+                else:
+                    course.thumbnail = thumbnail
+                    course.save()
+                    messages.success(request, "Course metadata and thumbnail updated.")
+            except Exception as e:
+                messages.error(request, f"Error saving thumbnail: {str(e)}")
+        
+        course.save()
+        messages.success(request, f"Course '{course.title}' saved successfully.")
         return redirect('dashboard')
 
     return render(request, 'management/course_form.html', {
@@ -422,6 +431,10 @@ def course_upsert(request, pk=None):
 @login_required
 def lesson_upsert(request, pk=None, course_id=None):
     """Create or edit a lesson (admin only)."""
+    import os
+    from django.contrib import messages
+    from learning.models import Lesson, LessonResource
+    
     if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
         raise PermissionDenied
 
@@ -441,30 +454,55 @@ def lesson_upsert(request, pk=None, course_id=None):
         title = request.POST.get('title')
         lesson_type = request.POST.get('lesson_type')
         description = request.POST.get('description')
+        video_url = request.POST.get('video_url', '')
         order = request.POST.get('order', 0)
 
         if not lesson:
-            Lesson.objects.create(
+            lesson = Lesson.objects.create(
                 course=course, title=title, lesson_type=lesson_type,
-                description=description, order=order
+                description=description, order=order, video_url=video_url
             )
         else:
             lesson.title = title
             lesson.lesson_type = lesson_type
             lesson.description = description
+            lesson.video_url = video_url
             lesson.order = order
             lesson.save()
 
         # Handle Material Upload
         lesson_material = request.FILES.get('lesson_material')
         if lesson_material:
-            from learning.models import LessonResource
-            LessonResource.objects.create(
-                lesson=lesson,
-                title=lesson_material.name,
-                resource_type='DOC',
-                file=lesson_material
-            )
+            try:
+                ext = os.path.splitext(lesson_material.name)[1].lower()
+                
+                # Surgical Type Detection & Mismatch Warning
+                resource_type = 'DOC'
+                is_mismatch = False
+                
+                if ext in ['.mp4', '.mov', '.avi', '.wmv']:
+                    resource_type = 'VID' 
+                    if lesson_type != 'VID':
+                        is_mismatch = True
+                        messages.warning(request, f"Note: You uploaded a video file ({ext}) to a non-video lesson type. It has been processed, but please verify.")
+                elif ext not in ['.pdf', '.doc', '.docx', '.zip', '.txt']:
+                    if lesson_type == 'DOC':
+                        is_mismatch = True
+                        messages.warning(request, f"Warning: Unrecognized file extension ({ext}). Material saved, but may not render correctly for students.")
+
+                # Atomic creation with fault tolerance
+                LessonResource.objects.create(
+                    lesson=lesson,
+                    title=lesson_material.name,
+                    resource_type=resource_type,
+                    file=lesson_material
+                )
+                
+                if not is_mismatch:
+                    messages.success(request, f"Successfully uploaded: {lesson_material.name}")
+
+            except Exception as e:
+                messages.error(request, f"Failed to process material upload: {str(e)}. Lesson saved without material.")
 
         return redirect('course_detail', pk=course.pk)
 

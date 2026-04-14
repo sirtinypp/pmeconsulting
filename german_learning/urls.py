@@ -27,6 +27,7 @@ urlpatterns = [
     path('management/course/add/', dashboard_views.course_upsert, name='course_add'),
     path('management/course/<int:pk>/edit/', dashboard_views.course_upsert, name='course_edit'),
     path('management/course/<int:pk>/roster/', dashboard_views.course_roster, name='course_roster'),
+    path('management/course/<int:pk>/bulk-enroll/', dashboard_views.bulk_enroll, name='bulk_enroll'),
     path('management/course/<int:pk>/delete/', dashboard_views.course_delete, name='course_delete'),
     path('management/course/<int:course_id>/lesson/add/', dashboard_views.lesson_upsert, name='lesson_add'),
     path('management/lesson/<int:pk>/edit/', dashboard_views.lesson_upsert, name='lesson_edit'),

@@ -17,3 +17,6 @@ This protocol serves as the standard operating procedure for beginning any new d
 ## 4. Identify and Execute Next Steps
 - Based on the previous logs and any pending tasks, prioritize the work for the current session.
 - Track progress in the current daily log for tomorrow's review.
+
+## 5. Persistent Workspace Restriction
+- **Context Locking**: Always stick to the `german-learning` workspace. Do not analyze or switch to other folders (e.g., SPMO suite) unless explicitly instructed otherwise for a specific cross-project task. This is a primary protocol directive.

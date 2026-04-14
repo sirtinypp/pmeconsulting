@@ -34,7 +34,7 @@
                 <input type="text" name="title" id="title" class="form-control" value="{{ lesson.title|default:'' }}" placeholder="e.g., Introduction to Clinical German" required>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
                 <!-- Lesson Type -->
                 <div class="form-group">
                     <label for="lesson_type" class="form-label">Lesson Type</label>
@@ -44,9 +44,14 @@
                         {% endfor %}
                     </select>
                 </div>
+                <!-- Video URL -->
+                <div class="form-group">
+                    <label for="video_url" class="form-label">Video URL</label>
+                    <input type="url" name="video_url" id="video_url" class="form-control" value="{{ lesson.video_url|default:'' }}" placeholder="YouTube/Vimeo">
+                </div>
                 <!-- Order -->
                 <div class="form-group">
-                    <label for="order" class="form-label">Sequence (Order #)</label>
+                    <label for="order" class="form-label">Sequence #</label>
                     <input type="number" name="order" id="order" class="form-control" value="{{ lesson.order|default:0 }}" min="0">
                 </div>
             </div>

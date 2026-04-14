@@ -20,62 +20,154 @@
             </div>
 
             {% if lesson.lesson_type == 'QIZ' %}
-            <div id="quiz-container" style="background: #F8FAFC; border: 2px solid var(--primary); border-radius: 16px; padding: 2rem; margin-top:1rem;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; padding-bottom:1rem; border-bottom:1px solid #E2E8F0;">
-                    <h3 style="font-size:1.5rem; font-weight:800; color:var(--primary); margin:0;">📝 {{ lesson.is_final_exam|yesno:"Final Examination,Chapter Quiz" }}</h3>
-                    <div id="quiz-timer" style="background:#FEF2F2; color:#991B1B; padding:0.5rem 1rem; border-radius:8px; font-family:monospace; font-size:1.25rem; font-weight:700; border:1px solid #FEE2E2;">
-                        --:--
+            <!-- Interactive Quiz Engine v2 -->
+            <div id="quiz-container" style="background: white; border: 1px solid #E2E8F0; border-radius: 24px; padding: 2.5rem; margin-top:1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.04); position: relative; overflow: hidden;">
+                
+                <!-- Progress Header -->
+                <div style="margin-bottom: 2.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                        <h3 style="font-size:1.25rem; font-weight:800; color:var(--primary); margin:0; display:flex; align-items:center; gap:0.75rem;">
+                            <span>📝</span> {{ lesson.is_final_exam|yesno:"Final Examination,Chapter Quiz" }}
+                        </h3>
+                        <div id="quiz-timer" style="background:#FEF2F2; color:#991B1B; padding:0.5rem 1.25rem; border-radius:12px; font-family:'Courier New', monospace; font-size:1.5rem; font-weight:800; border:2px solid #FEE2E2;">
+                            --:--
+                        </div>
+                    </div>
+                    
+                    <!-- Progress Bar -->
+                    <div style="height: 6px; background: #F1F5F9; border-radius: 10px; overflow: hidden;">
+                        <div id="quiz-progress-fill" style="width: 0%; height: 100%; background: var(--primary); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);"></div>
+                    </div>
+                    <div id="quiz-progress-text" style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; margin-top: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                        Question 1 of {{ questions|length }}
                     </div>
                 </div>
 
                 {% if previous_attempt %}
                 <div style="background:{% if previous_attempt.passed %}#F0FDF4{% else %}#FEF2F2{% endif %}; border:1px solid {% if previous_attempt.passed %}#BBF7D0{% else %}#FEE2E2{% endif %}; padding:1rem; border-radius:12px; margin-bottom:2rem; text-align:center;">
                     <div style="font-weight:700; color:{% if previous_attempt.passed %}#166534{% else %}#991B1B{% endif %};">
-                        {% if previous_attempt.passed %}✅ You passed this exam!{% else %}❌ You did not pass your previous attempt.{% endif %}
+                        {% if previous_attempt.passed %}✅ Previous: PASSED{% else %}❌ Previous: NOT PASSED{% endif %}
                     </div>
-                    <div style="font-size:0.9rem; margin-top:0.25rem;">Score: {{ previous_attempt.score }}/{{ previous_attempt.total_questions }} ({{ previous_attempt.attempted_at|date:"M d, Y" }})</div>
+                    <div style="font-size:0.8rem;">Score: {{ previous_attempt.score }}/{{ previous_attempt.total_questions }}</div>
                 </div>
                 {% endif %}
 
                 <form id="quiz-form" method="post" action="{% url 'submit_quiz' lesson.pk %}">
                     {% csrf_token %}
-                    {% for q in questions %}
-                    <div style="margin-bottom:2.5rem; background:white; padding:1.5rem; border-radius:12px; border:1px solid #E2E8F0;">
-                        <div style="font-weight:700; font-size:1.1rem; margin-bottom:1.25rem; display:flex; gap:0.75rem;">
-                            <span style="opacity:0.3;">{{ forloop.counter }}.</span>
-                            <span>{{ q.text }}</span>
+                    <div id="quiz-slides">
+                        {% for q in questions %}
+                        <div class="quiz-slide" style="display: {% if forloop.first %}block{% else %}none{% endif %};" data-index="{{ forloop.counter0 }}">
+                            <div style="margin-bottom:2rem;">
+                                <div style="font-weight:800; font-size:1.35rem; line-height:1.4; color:var(--text-dark); margin-bottom:1.5rem;">
+                                    {{ q.text }}
+                                </div>
+                                <div style="display:grid; gap:1rem;">
+                                    {% for choice in q.choices.all %}
+                                    <label class="quiz-choice-label" style="display:flex; align-items:center; gap:1rem; padding:1.25rem; border:2px solid #F1F5F9; border-radius:16px; cursor:pointer; transition:all 0.2s; position:relative;">
+                                        <input type="radio" name="question_{{ q.id }}" value="{{ choice.id }}" required style="width:1.25rem; height:1.25rem; accent-color:var(--primary);">
+                                        <span style="font-size:1rem; font-weight:500;">{{ choice.text }}</span>
+                                    </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         </div>
-                        <div style="display:grid; gap:0.75rem;">
-                            {% for choice in q.choices.all %}
-                            <label style="display:flex; align-items:center; gap:0.75rem; padding:1rem; border:1px solid #F1F5F9; border-radius:10px; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.borderColor='var(--primary)'; this.style.background='#F8FAFC'" onmouseout="this.style.borderColor='#F1F5F9'; this.style.background='white'">
-                                <input type="radio" name="question_{{ q.id }}" value="{{ choice.id }}" required style="width:1.2rem; height:1.2rem; accent-color:var(--primary);">
-                                <span style="font-size:0.95rem;">{{ choice.text }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
 
-                    <button type="submit" class="btn btn-primary" style="width:100%; justify-content:center; padding:1.25rem; font-size:1.1rem; font-weight:700; border-radius:12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        🚀 Submit My Answers
-                    </button>
+                    <!-- Navigation Controls -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:3rem; padding-top:2rem; border-top:1px solid #F1F5F9;">
+                        <button type="button" id="prev-btn" class="btn lg" style="background:white; border:1px solid #E2E8F0; opacity:0; pointer-events:none;">← Previous</button>
+                        <button type="button" id="next-btn" class="btn btn-primary lg" style="min-width: 140px; justify-content: center;">Next Question →</button>
+                        <button type="submit" id="submit-btn" class="btn btn-primary lg" style="display:none; min-width: 160px; justify-content: center; background:#16A34A; border-color:#16A34A;">🚀 Submit Exam</button>
+                    </div>
                 </form>
             </div>
+
+            <style>
+                .quiz-choice-label:hover {
+                    border-color: var(--primary);
+                    background: #F8FAFC;
+                    transform: translateX(4px);
+                }
+                .quiz-choice-label:has(input:checked) {
+                    border-color: var(--primary);
+                    background: #EFF6FF;
+                    box-shadow: 0 4px 12px rgba(30, 77, 140, 0.08);
+                }
+                .quiz-slide {
+                    animation: fadeIn 0.4s ease-out;
+                }
+                @keyframes fadeIn {
+                    from { opacity: 0; transform: translateY(10px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+            </style>
 
             <script>
                 (function() {
                     let timeLeft = {{ lesson.duration_minutes }} * 60;
                     const timerDisplay = document.getElementById('quiz-timer');
                     const quizForm = document.getElementById('quiz-form');
+                    const slides = document.querySelectorAll('.quiz-slide');
+                    const progressFill = document.getElementById('quiz-progress-fill');
+                    const progressText = document.getElementById('quiz-progress-text');
+                    const nextBtn = document.getElementById('next-btn');
+                    const prevBtn = document.getElementById('prev-btn');
+                    const submitBtn = document.getElementById('submit-btn');
+                    
+                    let currentIndex = 0;
+                    const totalSlides = slides.length;
+
+                    function updateDisplay() {
+                        slides.forEach((s, i) => s.style.display = (i === currentIndex) ? 'block' : 'none');
+                        
+                        // Update Progress
+                        const progress = ((currentIndex + 1) / totalSlides) * 100;
+                        progressFill.style.width = `${progress}%`;
+                        progressText.innerText = `Question ${currentIndex + 1} of ${totalSlides}`;
+
+                        // Update Buttons
+                        prevBtn.style.opacity = currentIndex === 0 ? '0' : '1';
+                        prevBtn.style.pointerEvents = currentIndex === 0 ? 'none' : 'auto';
+
+                        if (currentIndex === totalSlides - 1) {
+                            nextBtn.style.display = 'none';
+                            submitBtn.style.display = 'flex';
+                        } else {
+                            nextBtn.style.display = 'flex';
+                            submitBtn.style.display = 'none';
+                        }
+                    }
+
+                    nextBtn.addEventListener('click', () => {
+                        // Basic validation: Check if current question is answered
+                        const currentInput = slides[currentIndex].querySelector('input:checked');
+                        if (!currentInput) {
+                            alert("Please select an answer before moving forward.");
+                            return;
+                        }
+                        if (currentIndex < totalSlides - 1) {
+                            currentIndex++;
+                            updateDisplay();
+                        }
+                    });
+
+                    prevBtn.addEventListener('click', () => {
+                        if (currentIndex > 0) {
+                            currentIndex--;
+                            updateDisplay();
+                        }
+                    });
 
                     function updateTimer() {
                         const minutes = Math.floor(timeLeft / 60);
                         const seconds = timeLeft % 60;
                         timerDisplay.innerText = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
                         
-                        if (timeLeft <= 30) {
+                        if (timeLeft <= 60) {
                             timerDisplay.style.background = '#FEE2E2';
                             timerDisplay.style.color = '#B91C1C';
+                            timerDisplay.style.borderColor = '#EF4444';
                         }
 
                         if (timeLeft <= 0) {
@@ -88,6 +180,7 @@
 
                     const timerInterval = setInterval(updateTimer, 1000);
                     updateTimer();
+                    updateDisplay();
                 })();
             </script>
             {% else %}

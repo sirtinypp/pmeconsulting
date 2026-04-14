@@ -214,24 +214,35 @@ def submit_activity(request, pk):
         raise PermissionDenied
 
     if request.method == 'POST':
-        submission_text = request.POST.get('submission_text', '')
-        submission_url = request.POST.get('submission_url', '')
-        submission_file = request.FILES.get('submission_file')
+        from django.contrib import messages
+        try:
+            submission_text = request.POST.get('submission_text', '')
+            submission_url = request.POST.get('submission_url', '')
+            submission_file = request.FILES.get('submission_file')
 
-        # Create or update submission logic
-        defaults = {
-            'submission_text': submission_text,
-            'submission_url': submission_url,
-            'status': 'PENDING'
-        }
-        if submission_file:
-            defaults['submission_file'] = submission_file
+            # Create or update submission logic
+            defaults = {
+                'submission_text': submission_text,
+                'submission_url': submission_url,
+                'status': 'PENDING'
+            }
+            if submission_file:
+                # Validation: Prevent massive file uploads that might crash the ephemeral worker
+                if submission_file.size > 10 * 1024 * 1024: # 10MB limit
+                    messages.error(request, "File too large (Max 10MB). Please use a Google Drive link for larger files.")
+                    return redirect('lesson_detail', pk=activity.lesson.pk)
+                
+                defaults['submission_file'] = submission_file
 
-        ActivitySubmission.objects.update_or_create(
-            user=request.user,
-            activity=activity,
-            defaults=defaults
-        )
+            ActivitySubmission.objects.update_or_create(
+                user=request.user,
+                activity=activity,
+                defaults=defaults
+            )
+            messages.success(request, f"Task '{activity.title}' submitted successfully!")
+            
+        except Exception as e:
+            messages.error(request, f"Error submitting work: {str(e)}")
 
     return redirect('lesson_detail', pk=activity.lesson.pk)
 

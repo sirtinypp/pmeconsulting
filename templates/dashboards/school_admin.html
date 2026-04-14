@@ -253,6 +253,7 @@
                         <td>
                             <div style="display:flex; gap:0.5rem; align-items:center;">
                                 <a href="{% url 'course_detail' course.pk %}" class="btn btn-sm" style="background:#F1F5F9; border:1px solid #E2E8F0; color:#475569;" title="Manage Curriculum">📚 Lessons</a>
+                                <a href="{% url 'course_roster' course.pk %}" class="btn btn-sm" style="background:#F1F5F9; border:1px solid #E2E8F0; color:#475569;" title="View Student Roster">👨‍🎓 Roster</a>
                                 <a href="{% url 'course_edit' course.pk %}" class="btn btn-sm" title="Edit Metadata">Edit</a>
                                 <form method="post" action="{% url 'course_delete' course.pk %}" style="display:inline;" onsubmit="return confirm('Archive this course?')">
                                     {% csrf_token %}
