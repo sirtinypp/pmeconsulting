@@ -260,7 +260,7 @@ def submit_quiz(request, pk):
     correct_count = 0
 
     if total_questions == 0:
-        return redirect('lesson_detail', pk=pk)
+        return redirect('course_detail', pk=lesson.course.pk)
 
     for q in questions:
         selected_choice_id = request.POST.get(f'question_{q.id}')
@@ -313,4 +313,4 @@ def submit_quiz(request, pk):
             
             enrollment.save()
 
-    return redirect('lesson_detail', pk=pk)
+    return redirect('course_detail', pk=lesson.course.pk)
