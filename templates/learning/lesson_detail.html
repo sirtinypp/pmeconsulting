@@ -15,6 +15,16 @@
                 <a href="{% url 'course_detail' course.pk %}" style="font-size:0.875rem; color:var(--primary); text-decoration:none; font-weight:600;">← Back to Course</a>
             </div>
             
+            {% if lesson.video_url %}
+            <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 16px; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.06); border: 1px solid #E2E8F0;">
+                <iframe src="{{ lesson.video_url|youtube_embed_url }}" 
+                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen>
+                </iframe>
+            </div>
+            {% endif %}
+
             <div style="font-size:1.1rem; line-height:1.7; color:#334155; margin-bottom:2rem;">
                 {{ lesson.description|linebreaks }}
             </div>

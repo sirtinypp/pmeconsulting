@@ -9,6 +9,7 @@
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
         <h3 style="font-size:1.25rem; font-weight:800;">👨‍🎓 Enrolled Students</h3>
         <div style="display:flex; gap:0.5rem;">
+            <a href="{% url 'bulk_enroll' course.pk %}" class="btn btn-primary" style="font-size:0.8rem;">⚡ Bulk Enroll Students</a>
             <span class="badge badge-primary">{{ enrollments|length }} Enrolled</span>
         </div>
     </div>
