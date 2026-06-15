@@ -6,7 +6,20 @@
 {% block brand_context %}Learning{% endblock %}
 
 {% block content %}
-<div style="display:grid; grid-template-columns: 1fr 320px; gap:2rem;">
+<style>
+    .lesson-layout {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 2rem;
+    }
+    @media (max-width: 768px) {
+        .lesson-layout {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+    }
+</style>
+<div class="lesson-layout">
     <!-- Main Content Area -->
     <div>
         <div class="card" style="margin-bottom:1.5rem;">
