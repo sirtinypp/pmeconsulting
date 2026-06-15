@@ -16,6 +16,6 @@ def youtube_embed_url(value):
     match = re.search(regex, value)
     if match:
         video_id = match.group(1)
-        return f"https://www.youtube.com/embed/{video_id}"
+        return f"https://www.youtube-nocookie.com/embed/{video_id}"
     return value
 
