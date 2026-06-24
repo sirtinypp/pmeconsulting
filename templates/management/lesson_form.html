@@ -25,13 +25,23 @@
         </div>
         {% endif %}
 
+        {% if messages %}
+        <div style="margin-bottom: 2rem;">
+            {% for message in messages %}
+            <div style="padding: 1rem; border-radius: 12px; margin-bottom: 0.5rem; font-size: 0.9rem; {% if message.tags == 'error' %}background: #FEE2E2; border: 1px solid #FCA5A5; color: #991B1B;{% elif message.tags == 'warning' %}background: #FEF3C7; border: 1px solid #FCD34D; color: #92400E;{% else %}background: #ECFDF5; border: 1px solid #A7F3D0; color: #065F46;{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         <form method="post" class="sleek-form" enctype="multipart/form-data">
             {% csrf_token %}
             
             <!-- Lesson Title -->
             <div class="form-group">
                 <label for="title" class="form-label">Lesson Title</label>
-                <input type="text" name="title" id="title" class="form-control" value="{{ lesson.title|default:'' }}" placeholder="e.g., Introduction to Clinical German" required>
+                <input type="text" name="title" id="title" class="form-control" value="{{ lesson.title|default:'' }}" placeholder="e.g., Introduction to Clinical German" maxlength="255" required>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
@@ -47,7 +57,7 @@
                 <!-- Video URL -->
                 <div class="form-group">
                     <label for="video_url" class="form-label">Video URL</label>
-                    <input type="url" name="video_url" id="video_url" class="form-control" value="{{ lesson.video_url|default:'' }}" placeholder="YouTube/Vimeo">
+                    <input type="url" name="video_url" id="video_url" class="form-control" value="{{ lesson.video_url|default:'' }}" placeholder="YouTube/Vimeo" maxlength="500">
                 </div>
                 <!-- Order -->
                 <div class="form-group">
@@ -116,31 +126,48 @@
         </form>
     </div>
 
-    <!-- Sequence Sidebar -->
-    <div class="card" style="position: sticky; top: 1.5rem; background: #F8FAFC;">
-        <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
-            <span>📋 Current Sequence</span>
-            <span style="font-size: 0.7rem; background: var(--primary); color: white; padding: 2px 6px; border-radius: 6px;">{{ course.lessons.count }}</span>
-        </h3>
+    <!-- Sidebar Wrapper -->
+    <div style="position: sticky; top: 1.5rem; display: grid; gap: 1.5rem;">
         
-        <div style="font-size: 0.875rem;">
-            {% for cl in course.lessons.all|dictsort:"order" %}
-            <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid #E2E8F0; {% if cl.pk == lesson.pk %}background: #EFF6FF; margin: 0 -1rem; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; color: var(--primary);{% endif %}">
-                <span style="font-weight: 900; color: #94A3B8; min-width: 20px;">{{ cl.order }}</span>
-                <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ cl.title }}">
-                    {% if cl.pk == lesson.pk %}→ {% endif %}{{ cl.title }}
-                </span>
-                <span style="opacity: 0.6; font-size: 0.75rem;">
-                    {% if cl.lesson_type == 'VID' %}🎬{% elif cl.lesson_type == 'QIZ' %}❓{% else %}📄{% endif %}
-                </span>
-            </div>
-            {% empty %}
-            <p style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No lessons yet.</p>
-            {% endfor %}
+        <!-- Form Guidelines Panel -->
+        <div class="card" style="background: #FFFBEB; border: 1px solid #FCD34D; padding: 1.5rem; border-radius: 16px;">
+            <h3 style="font-size: 1rem; font-weight: 800; color: #92400E; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 8px; margin-top: 0;">
+                <span>⚠️ Form Guidelines</span>
+            </h3>
+            <ul style="font-size: 0.8rem; color: #78350F; padding-left: 1.25rem; margin: 0; line-height: 1.5;">
+                <li style="margin-bottom: 0.5rem;"><strong>Title limit:</strong> Max 255 characters.</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Video URL limit:</strong> Max 500 characters (e.g. YouTube/Vimeo).</li>
+                <li style="margin-bottom: 0.5rem;"><strong>Sequence #:</strong> Must be 0 or a positive integer (negative values are invalid).</li>
+                <li style="margin-bottom: 0.5rem;"><strong>File Uploads:</strong> PDF, DOC, ZIP, or video files are permitted up to 10MB.</li>
+            </ul>
         </div>
-        
-        <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px dashed #E2E8F0; font-size: 0.8rem; color: #64748B;">
-            <strong>Tip:</strong> Matching two lessons with the same sequence number will sort them alphabetically.
+
+        <!-- Sequence Sidebar -->
+        <div class="card" style="background: #F8FAFC;">
+            <h3 style="font-size: 1rem; font-weight: 800; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 8px;">
+                <span>📋 Current Sequence</span>
+                <span style="font-size: 0.7rem; background: var(--primary); color: white; padding: 2px 6px; border-radius: 6px;">{{ course.lessons.count }}</span>
+            </h3>
+            
+            <div style="font-size: 0.875rem;">
+                {% for cl in course.lessons.all|dictsort:"order" %}
+                <div style="display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid #E2E8F0; {% if cl.pk == lesson.pk %}background: #EFF6FF; margin: 0 -1rem; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; color: var(--primary);{% endif %}">
+                    <span style="font-weight: 900; color: #94A3B8; min-width: 20px;">{{ cl.order }}</span>
+                    <span style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ cl.title }}">
+                        {% if cl.pk == lesson.pk %}→ {% endif %}{{ cl.title }}
+                    </span>
+                    <span style="opacity: 0.6; font-size: 0.75rem;">
+                        {% if cl.lesson_type == 'VID' %}🎬{% elif cl.lesson_type == 'QIZ' %}❓{% else %}📄{% endif %}
+                    </span>
+                </div>
+                {% empty %}
+                <p style="color: var(--text-muted); text-align: center; padding: 1.5rem 0;">No lessons yet.</p>
+                {% endfor %}
+            </div>
+            
+            <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 2px dashed #E2E8F0; font-size: 0.8rem; color: #64748B;">
+                <strong>Tip:</strong> Matching two lessons with the same sequence number will sort them alphabetically.
+            </div>
         </div>
     </div>
 </div>

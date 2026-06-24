@@ -457,18 +457,76 @@ def lesson_upsert(request, pk=None, course_id=None):
         video_url = request.POST.get('video_url', '')
         order = request.POST.get('order', 0)
 
-        if not lesson:
-            lesson = Lesson.objects.create(
-                course=course, title=title, lesson_type=lesson_type,
-                description=description, order=order, video_url=video_url
-            )
-        else:
-            lesson.title = title
-            lesson.lesson_type = lesson_type
-            lesson.description = description
-            lesson.video_url = video_url
-            lesson.order = order
-            lesson.save()
+        # Backend validations
+        errors = []
+        if not title:
+            errors.append("Title is required.")
+        elif len(title) > 255:
+            errors.append(f"Title is too long ({len(title)} characters). Max limit is 255 characters.")
+        
+        if len(video_url) > 500:
+            errors.append(f"Video URL is too long ({len(video_url)} characters). Max limit is 500 characters.")
+        
+        try:
+            order_int = int(order)
+            if order_int < 0:
+                errors.append("Sequence number cannot be negative.")
+        except (ValueError, TypeError):
+            errors.append("Sequence number must be a valid integer.")
+
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            temp_lesson = lesson or Lesson(course=course)
+            temp_lesson.title = title
+            temp_lesson.lesson_type = lesson_type
+            temp_lesson.description = description
+            temp_lesson.video_url = video_url
+            try:
+                temp_lesson.order = int(order)
+            except Exception:
+                temp_lesson.order = 0
+            
+            return render(request, 'management/lesson_form.html', {
+                'lesson': temp_lesson,
+                'course': course,
+                'lesson_types': Lesson.LessonType.choices,
+                'page_title': 'Edit Lesson' if pk else 'Add Lesson',
+                'brand_context': 'Management',
+            })
+
+        try:
+            if not lesson:
+                lesson = Lesson.objects.create(
+                    course=course, title=title, lesson_type=lesson_type,
+                    description=description, order=order, video_url=video_url
+                )
+            else:
+                lesson.title = title
+                lesson.lesson_type = lesson_type
+                lesson.description = description
+                lesson.video_url = video_url
+                lesson.order = order
+                lesson.save()
+        except Exception as e:
+            messages.error(request, f"Database error when saving lesson: {str(e)}")
+            temp_lesson = lesson or Lesson(course=course)
+            temp_lesson.title = title
+            temp_lesson.lesson_type = lesson_type
+            temp_lesson.description = description
+            temp_lesson.video_url = video_url
+            try:
+                temp_lesson.order = int(order)
+            except Exception:
+                temp_lesson.order = 0
+            
+            return render(request, 'management/lesson_form.html', {
+                'lesson': temp_lesson,
+                'course': course,
+                'lesson_types': Lesson.LessonType.choices,
+                'page_title': 'Edit Lesson' if pk else 'Add Lesson',
+                'brand_context': 'Management',
+            })
 
         # Handle Material Upload
         lesson_material = request.FILES.get('lesson_material')

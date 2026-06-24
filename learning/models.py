@@ -49,7 +49,7 @@ class Lesson(models.Model):
     lesson_type = models.CharField(max_length=3, choices=LessonType.choices, default=LessonType.READING)
     is_required = models.BooleanField(default=True)
     order = models.PositiveIntegerField(default=0)
-    video_url = models.URLField(blank=True, null=True)
+    video_url = models.URLField(max_length=500, blank=True, null=True)
     is_final_exam = models.BooleanField(default=False, help_text="If true, this quiz acts as the course completion exam.")
     duration_minutes = models.PositiveIntegerField(default=30, help_text="Time limit in minutes (for quizzes/exams).")
 
