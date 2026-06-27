@@ -143,10 +143,9 @@
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
                             <a href="{% url 'activity_edit' activity.pk %}" class="btn btn-sm" style="background: white; border: 1px solid #E2E8F0;">✏️ Edit</a>
-                            <form method="post" action="{% url 'activity_delete' activity.pk %}" onsubmit="return confirm('Delete this activity?')">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-sm" style="background: white; border: 1px solid #E2E8F0; color: #EF4444;">🗑️</button>
-                            </form>
+                            <button type="button" class="btn btn-sm" style="background: white; border: 1px solid #E2E8F0; color: #EF4444;" onclick="if(confirm('Delete this activity?')) { document.getElementById('delete-activity-form-{{ activity.pk }}').submit(); }">
+                                🗑️
+                            </button>
                         </div>
                     </div>
                     {% empty %}
@@ -164,6 +163,15 @@
             </div>
         </form>
     </div>
+
+    <!-- Hidden forms for delete actions to prevent nested forms -->
+    {% if lesson.pk %}
+        {% for activity in lesson.activities.all %}
+        <form id="delete-activity-form-{{ activity.pk }}" method="post" action="{% url 'activity_delete' activity.pk %}" style="display:none;">
+            {% csrf_token %}
+        </form>
+        {% endfor %}
+    {% endif %}
 
     <!-- Sidebar Wrapper -->
     <div style="position: sticky; top: 1.5rem; display: grid; gap: 1.5rem;">
