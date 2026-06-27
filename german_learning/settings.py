@@ -135,16 +135,25 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 USE_SUPABASE = config('USE_SUPABASE', default=False, cast=bool)
 
 if USE_SUPABASE:
+    # Extract project ID dynamically from endpoint: e.g. "https://ouyaezjzawdogswgkoks.storage.supabase.co/storage/v1/s3"
+    endpoint_url = config('SUPABASE_AWS_S3_ENDPOINT_URL')
+    try:
+        project_id = endpoint_url.split('://')[1].split('.')[0]
+    except Exception:
+        project_id = ''
+    bucket_name = config('SUPABASE_AWS_STORAGE_BUCKET_NAME')
+    
     STORAGES = {
         "default": {
             "BACKEND": "storages.backends.s3.S3Storage",
             "OPTIONS": {
                 "access_key": config('SUPABASE_AWS_ACCESS_KEY_ID'),
                 "secret_key": config('SUPABASE_AWS_SECRET_ACCESS_KEY'),
-                "bucket_name": config('SUPABASE_AWS_STORAGE_BUCKET_NAME'),
-                "endpoint_url": config('SUPABASE_AWS_S3_ENDPOINT_URL'),
+                "bucket_name": bucket_name,
+                "endpoint_url": endpoint_url,
                 "region_name": config('SUPABASE_AWS_S3_REGION_NAME', default='us-east-1'),
                 "querystring_auth": False,
+                "custom_domain": f"{project_id}.supabase.co/storage/v1/object/public/{bucket_name}" if project_id else None,
             },
         },
         "staticfiles": {
