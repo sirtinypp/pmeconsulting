@@ -131,17 +131,42 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise storage for compression and manifest
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Storage Settings (Local vs Supabase Storage)
+USE_SUPABASE = config('USE_SUPABASE', default=False, cast=bool)
+
+if USE_SUPABASE:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3.S3Storage",
+            "OPTIONS": {
+                "access_key": config('SUPABASE_AWS_ACCESS_KEY_ID'),
+                "secret_key": config('SUPABASE_AWS_SECRET_ACCESS_KEY'),
+                "bucket_name": config('SUPABASE_AWS_STORAGE_BUCKET_NAME'),
+                "endpoint_url": config('SUPABASE_AWS_S3_ENDPOINT_URL'),
+                "region_name": config('SUPABASE_AWS_S3_REGION_NAME', default='us-east-1'),
+                "querystring_auth": False,
+            },
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Custom User
 AUTH_USER_MODEL = 'users.CustomUser'
-
-# Media Settings
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'public_index'

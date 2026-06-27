@@ -66,11 +66,50 @@
                 </div>
             </div>
 
-            <!-- Material Upload -->
-            <div class="form-group">
-                <label for="lesson_material" class="form-label">Upload Study Material (PDF/DOC/ZIP)</label>
-                <input type="file" name="lesson_material" id="lesson_material" class="form-control" style="padding:0.6rem;">
-                <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Automatically added to student resources sidebar.</p>
+            <!-- Lesson Materials (File Upload or External Link) -->
+            <div class="form-group" style="margin-bottom: 2rem;">
+                <label class="form-label">Lesson Materials</label>
+                <div style="background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: 20px; padding: 1.5rem; display: grid; gap: 1.5rem;">
+                    
+                    <!-- Existing Resources (if any) -->
+                    {% if lesson.pk and lesson.resources.all %}
+                    <div>
+                        <label class="form-label" style="font-size: 0.75rem; margin-bottom: 0.5rem; color: var(--primary);">Current Resources</label>
+                        <div style="display: grid; gap: 0.75rem;">
+                            {% for resource in lesson.resources.all %}
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; background: white; border: 1px solid #E2E8F0; border-radius: 12px; font-size: 0.875rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; overflow: hidden;">
+                                    <span>{% if resource.resource_type == 'DOC' %}📄{% elif resource.resource_type == 'VID' %}🎬{% else %}🔗{% endif %}</span>
+                                    <span style="font-weight: 600; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;">{{ resource.title }}</span>
+                                    <span style="color: var(--text-muted); font-size: 0.75rem;">({{ resource.get_resource_type_display }})</span>
+                                </div>
+                                <button type="submit" name="delete_resource" value="{{ resource.id }}" class="btn btn-sm" style="background: none; border: 1px solid #FCA5A5; color: #EF4444; padding: 0.25rem 0.5rem; font-size: 0.75rem;" onclick="return confirm('Remove this resource?')">
+                                    🗑️ Remove
+                                </button>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Add New Resource Options -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; {% if lesson.pk and lesson.resources.all %}border-top: 1px dashed #E2E8F0; padding-top: 1.25rem;{% endif %}">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="lesson_material" class="form-label" style="font-size: 0.75rem;">Upload File (PDF/DOC/ZIP)</label>
+                            <input type="file" name="lesson_material" id="lesson_material" class="form-control" style="padding: 0.65rem; background: white;">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label for="lesson_material_url" class="form-label" style="font-size: 0.75rem;">Or Paste URL (e.g. Google Drive Link)</label>
+                            <input type="url" name="lesson_material_url" id="lesson_material_url" class="form-control" placeholder="https://drive.google.com/..." style="padding: 0.85rem 1.25rem; background: white;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label for="lesson_material_title" class="form-label" style="font-size: 0.75rem;">Resource Display Title (Optional)</label>
+                        <input type="text" name="lesson_material_title" id="lesson_material_title" class="form-control" placeholder="e.g., Module 2 Exercises" style="padding: 0.85rem 1.25rem; background: white;">
+                        <p style="font-size: 0.7rem; color: var(--text-muted); margin-top: 0.25rem;">If left blank, the filename or "Study Material Link" will be used.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Description / Content -->

@@ -451,6 +451,18 @@ def lesson_upsert(request, pk=None, course_id=None):
         raise PermissionDenied
 
     if request.method == 'POST':
+        # Check if we are deleting a resource
+        delete_resource_id = request.POST.get('delete_resource')
+        if delete_resource_id and lesson:
+            try:
+                res = get_object_or_404(LessonResource, pk=delete_resource_id, lesson=lesson)
+                res_title = res.title
+                res.delete()
+                messages.success(request, f"Successfully removed resource: {res_title}")
+            except Exception as e:
+                messages.error(request, f"Failed to delete resource: {str(e)}")
+            return redirect('lesson_edit', pk=lesson.pk)
+
         title = request.POST.get('title')
         lesson_type = request.POST.get('lesson_type')
         description = request.POST.get('description')
@@ -530,6 +542,9 @@ def lesson_upsert(request, pk=None, course_id=None):
 
         # Handle Material Upload
         lesson_material = request.FILES.get('lesson_material')
+        lesson_material_url = request.POST.get('lesson_material_url', '').strip()
+        lesson_material_title = request.POST.get('lesson_material_title', '').strip()
+
         if lesson_material:
             try:
                 ext = os.path.splitext(lesson_material.name)[1].lower()
@@ -551,7 +566,7 @@ def lesson_upsert(request, pk=None, course_id=None):
                 # Atomic creation with fault tolerance
                 LessonResource.objects.create(
                     lesson=lesson,
-                    title=lesson_material.name,
+                    title=lesson_material_title or lesson_material.name,
                     resource_type=resource_type,
                     file=lesson_material
                 )
@@ -561,6 +576,28 @@ def lesson_upsert(request, pk=None, course_id=None):
 
             except Exception as e:
                 messages.error(request, f"Failed to process material upload: {str(e)}. Lesson saved without material.")
+
+        elif lesson_material_url:
+            try:
+                # Default title logic
+                title_val = lesson_material_title or "Study Material Link"
+                
+                # Determine type
+                resource_type = 'URL'
+                if any(x in lesson_material_url.lower() for x in ['.mp4', '.mov', '.avi', 'youtube.com', 'youtu.be', 'vimeo.com']):
+                    resource_type = 'VID'
+                elif any(x in lesson_material_url.lower() for x in ['.pdf', '.doc', '.docx', '.zip']):
+                    resource_type = 'DOC'
+                
+                LessonResource.objects.create(
+                    lesson=lesson,
+                    title=title_val,
+                    resource_type=resource_type,
+                    url=lesson_material_url
+                )
+                messages.success(request, f"Successfully linked resource: {title_val}")
+            except Exception as e:
+                messages.error(request, f"Failed to link material URL: {str(e)}")
 
         return redirect('course_detail', pk=course.pk)
 
