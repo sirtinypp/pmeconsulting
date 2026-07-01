@@ -35,9 +35,36 @@
         {% for q in questions %}
         <div class="card" style="margin-bottom:2rem; border-left: 4px solid var(--primary); transition: transform 0.2s;">
             <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid #F1F5F9;">
-                <div>
+                <div style="flex: 1; min-width: 0;">
                     <span style="font-size:0.7rem; text-transform:uppercase; font-weight:800; color:var(--primary); letter-spacing:0.05em;">QUESTION {{ forloop.counter }}</span>
-                    <h4 style="font-size:1.15rem; font-weight:700; margin:0.25rem 0;">{{ q.text }}</h4>
+                    <h4 style="font-size:1.15rem; font-weight:700; margin:0.25rem 0; word-break: break-word;">{{ q.text }}</h4>
+                    
+                    {% if q.image or q.audio or q.video_url %}
+                    <div style="margin-top:1rem; display:flex; gap:1.5rem; flex-wrap:wrap; align-items: flex-start; background:#F8FAFC; padding:1rem; border-radius:12px; border:1px solid #E2E8F0;">
+                        {% if q.image %}
+                        <div style="flex-shrink:0;">
+                            <span style="display:block; font-size:0.65rem; font-weight:800; color:var(--text-muted); margin-bottom:0.25rem; text-transform:uppercase;">🖼️ Image</span>
+                            <img src="{{ q.image.url }}" alt="Preview" style="max-height:80px; max-width:140px; border-radius:6px; border:1px solid #CBD5E1; object-fit:cover;">
+                        </div>
+                        {% endif %}
+                        
+                        {% if q.audio %}
+                        <div style="flex-grow:1; min-width:180px;">
+                            <span style="display:block; font-size:0.65rem; font-weight:800; color:var(--text-muted); margin-bottom:0.25rem; text-transform:uppercase;">🎵 Audio</span>
+                            <audio controls style="width:100%; height:32px; border-radius:4px;">
+                                <source src="{{ q.audio.url }}">
+                            </audio>
+                        </div>
+                        {% endif %}
+                        
+                        {% if q.video_url %}
+                        <div style="flex-grow:1; min-width:180px;">
+                            <span style="display:block; font-size:0.65rem; font-weight:800; color:var(--text-muted); margin-bottom:0.25rem; text-transform:uppercase;">🎥 Video Link</span>
+                            <a href="{{ q.video_url }}" target="_blank" style="font-size:0.8rem; font-weight:600; color:var(--primary); text-decoration:none; display:inline-block; max-width:200px; text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">{{ q.video_url }}</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
                 <form method="post" action="{% url 'quiz_question_delete' q.pk %}" onsubmit="return confirm('Delete this question and all its answers?')">
                     {% csrf_token %}
@@ -116,12 +143,32 @@
 
 <!-- Add Question Modal (Simple Implementation) -->
 <div id="add-question-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); backdrop-filter:blur(4px); align-items:center; justify-content:center; z-index:1000;">
-    <div class="card" style="width:500px; padding:2rem;">
+    <div class="card" style="width:500px; padding:2rem; max-height: 90vh; overflow-y: auto;">
         <h3 style="margin-bottom:1.5rem; font-weight:800;">Add New Question</h3>
-        <form method="post" action="{% url 'quiz_question_add' lesson.pk %}">
+        <form method="post" action="{% url 'quiz_question_add' lesson.pk %}" enctype="multipart/form-data">
             {% csrf_token %}
-            <textarea name="text" placeholder="e.g., What is the German word for 'Butterfly'?" required 
-                      style="width:100%; height:120px; border:1px solid #E2E8F0; border-radius:12px; padding:1rem; font-family:inherit; margin-bottom:1.5rem;"></textarea>
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem;">Question Text</label>
+                <textarea name="text" placeholder="e.g., What is the German word for 'Butterfly'?" required 
+                          style="width:100%; height:80px; border:1px solid #E2E8F0; border-radius:12px; padding:1rem; font-family:inherit;"></textarea>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem;">🖼️ Question Image (Max 2MB, Optional)</label>
+                <input type="file" name="image" accept="image/*" style="width:100%; padding:0.5rem; border:1px solid #E2E8F0; border-radius:8px; background:white;">
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem;">🎵 Question Audio (Max 5MB, Optional)</label>
+                <input type="file" name="audio" accept="audio/*" style="width:100%; padding:0.5rem; border:1px solid #E2E8F0; border-radius:8px; background:white;">
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:0.5rem;">🎥 Video URL (YouTube/Vimeo, Optional)</label>
+                <input type="url" name="video_url" placeholder="https://www.youtube.com/watch?v=..." 
+                       style="width:100%; padding:0.75rem; border:1px solid #E2E8F0; border-radius:8px;">
+            </div>
+
             <div style="display:flex; justify-content:flex-end; gap:0.75rem;">
                 <button type="button" onclick="document.getElementById('add-question-modal').style.display='none'" class="btn" style="background:none; border:1px solid #CBD5E1;">Cancel</button>
                 <button type="submit" class="btn btn-primary">Add Question</button>

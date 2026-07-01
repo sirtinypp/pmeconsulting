@@ -865,9 +865,32 @@ def quiz_studio(request, pk):
 @require_POST
 def quiz_question_add(request, pk):
     from learning.models import Lesson, QuizQuestion
+    from django.contrib import messages
     lesson = get_object_or_404(Lesson, pk=pk)
     text = request.POST.get('text', 'New Question')
-    QuizQuestion.objects.create(lesson=lesson, text=text, order=lesson.questions.count() + 1)
+    
+    image = request.FILES.get('image')
+    audio = request.FILES.get('audio')
+    video_url = request.POST.get('video_url', '').strip()
+
+    # Size validations
+    if image and image.size > 2 * 1024 * 1024:
+        messages.error(request, "Image size exceeds 2MB limit. Question was not created.")
+        return redirect('quiz_studio', pk=lesson.pk)
+
+    if audio and audio.size > 5 * 1024 * 1024:
+        messages.error(request, "Audio size exceeds 5MB limit. Question was not created.")
+        return redirect('quiz_studio', pk=lesson.pk)
+
+    QuizQuestion.objects.create(
+        lesson=lesson, 
+        text=text, 
+        order=lesson.questions.count() + 1,
+        image=image,
+        audio=audio,
+        video_url=video_url if video_url else None
+    )
+    messages.success(request, "Question added successfully.")
     return redirect('quiz_studio', pk=lesson.pk)
 
 
