@@ -93,8 +93,12 @@
                             </div>
                             <span style="font-size:0.75rem; color:var(--text-muted);">{{ student.completion_rate }}%</span>
                         </td>
-                        <td>
-                            <a href="{% url 'student_edit' student.pk %}" class="btn" style="font-size:0.75rem;">Edit</a>
+                        <td style="display:flex; gap:0.5rem; align-items:center;">
+                            <a href="{% url 'student_edit' student.pk %}" class="btn" style="font-size:0.75rem; padding: 6px 12px; border-radius: 8px;">Edit</a>
+                            <form method="post" action="{% url 'student_delete' student.pk %}" style="margin:0;" onsubmit="return confirm('Are you sure you want to permanently delete student &quot;{{ student.username }}&quot;? This will also remove their progress and enrollments.');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn" style="background:#EF4444; color:white; border:none; font-size:0.75rem; padding: 6px 12px; border-radius: 8px; cursor:pointer;">Delete</button>
+                            </form>
                         </td>
                     </tr>
                     {% endfor %}

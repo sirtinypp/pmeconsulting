@@ -344,7 +344,7 @@ def mark_inquiry_status(request, pk, status):
 
 @login_required
 def student_delete(request, pk):
-    """Deactivate a student."""
+    """Permanently delete a student."""
     if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
         raise PermissionDenied
 
@@ -352,8 +352,14 @@ def student_delete(request, pk):
     if not request.user.is_superuser and student.school != request.user.school:
         raise PermissionDenied
 
-    student.is_active = False
-    student.save()
+    from django.contrib import messages
+    try:
+        username = student.username
+        student.delete()
+        messages.success(request, f"Student '{username}' deleted successfully.")
+    except Exception as e:
+        messages.error(request, f"Error deleting student: {str(e)}")
+        
     return redirect('dashboard')
 
 

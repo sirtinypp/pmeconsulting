@@ -207,10 +207,15 @@ def submit_activity(request, pk):
     
     # Check if student is enrolled in the parent course
     enrollment = CourseEnrollment.objects.filter(
-        user=request.user, course=activity.lesson.course, status='ENROLLED'
+        user=request.user,
+        course=activity.lesson.course,
+        status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']
     ).exists()
     
-    if not enrollment and not request.user.is_superuser:
+    # Allow school admin or superuser
+    is_staff_or_admin = request.user.role in ['SCHOOL_ADMIN', 'SUPERUSER'] or request.user.is_superuser
+    
+    if not enrollment and not is_staff_or_admin:
         raise PermissionDenied
 
     if request.method == 'POST':

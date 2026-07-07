@@ -298,7 +298,7 @@
 
                             <form method="post" action="{% url 'submit_activity' activity.pk %}" enctype="multipart/form-data">
                                 {% csrf_token %}
-                                {% if activity.activity_type == 'ASN' or activity.activity_type == 'REF' %}
+                                {% if activity.activity_type == 'ASN' or activity.activity_type == 'REF' or activity.activity_type == 'INT' %}
                                 <textarea name="submission_text" placeholder="Write your submission here (Optional if using link)..." 
                                           style="width: 100%; border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; margin-bottom: 0.75rem; font-family: inherit;">{{ sub.submission_text|default:'' }}</textarea>
                                 {% endif %}
