@@ -18,7 +18,16 @@
             <input type="text" name="title" id="title" class="form-control" value="{{ course.title|default:'' }}" placeholder="e.g., German A1 For Nurses" required>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem;">
+            <!-- Level -->
+            <div class="form-group">
+                <label for="level" class="form-label">CEFR Level</label>
+                <select name="level" id="level" class="form-control" style="appearance: auto;">
+                    {% for code, label in level_choices %}
+                    <option value="{{ code }}" {% if course.level == code %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <!-- Category -->
             <div class="form-group">
                 <label for="category" class="form-label">Classification / Category</label>

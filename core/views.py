@@ -378,6 +378,7 @@ def course_upsert(request, pk=None):
 
     if request.method == 'POST':
         title = request.POST.get('title')
+        level = request.POST.get('level', 'A1')
         category = request.POST.get('category', 'GEN')
         duration = request.POST.get('duration')
         description = request.POST.get('description')
@@ -395,16 +396,18 @@ def course_upsert(request, pk=None):
                 'error': "No school association found. Please create a school first.",
                 'course': course,
                 'category_choices': Course.CATEGORY_CHOICES,
+                'level_choices': Course.LEVEL_CHOICES,
             })
 
         if not course:
             course = Course.objects.create(
-                title=title, school=school, level='A1', 
+                title=title, school=school, level=level, 
                 category=category, duration=duration, 
                 description=description, is_active=is_active
             )
         else:
             course.title = title
+            course.level = level
             course.category = category
             course.duration = duration
             course.description = description
@@ -429,6 +432,7 @@ def course_upsert(request, pk=None):
     return render(request, 'management/course_form.html', {
         'course': course,
         'category_choices': Course.CATEGORY_CHOICES,
+        'level_choices': Course.LEVEL_CHOICES,
         'page_title': 'Edit Course' if pk else 'Create New Course',
         'brand_context': 'Management',
     })
