@@ -116,6 +116,15 @@
 
             <section class="content-body" id="main-display">
                 <div class="container">
+                    {% if messages %}
+                    <div style="margin-bottom: 1.5rem;">
+                        {% for message in messages %}
+                        <div style="padding: 1rem 1.25rem; border-radius: 14px; font-weight: 700; font-size: 0.95rem; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: space-between; {% if message.tags == 'error' %}background: #FEF2F2; color: #991B1B; border: 1px solid #FEE2E2;{% elif message.tags == 'success' %}background: #F0FDF4; color: #166534; border: 1px solid #BBF7D0;{% else %}background: #EFF6FF; color: #1E40AF; border: 1px solid #DBEAFE;{% endif %}">
+                            <span>{{ message }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
                     {% block content %}{% endblock %}
                 </div>
             </section>

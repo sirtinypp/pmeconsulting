@@ -39,6 +39,16 @@ def course_detail(request, pk):
     regular_lessons = lessons.filter(is_final_exam=False)
     final_exam = lessons.filter(is_final_exam=True).first()
 
+    # Fetch user's quiz attempts for this course
+    from .models import QuizAttempt
+    user_attempts = {
+        qa.lesson_id: qa for qa in QuizAttempt.objects.filter(user=request.user, lesson__course=course)
+    }
+    for l in regular_lessons:
+        l.user_attempt = user_attempts.get(l.id)
+    if final_exam:
+        final_exam.user_attempt = user_attempts.get(final_exam.id)
+
     # Calculate curriculum progress (excluding the exam itself)
     required_lessons = regular_lessons.filter(is_required=True)
     required_count = required_lessons.count()
@@ -149,22 +159,20 @@ def complete_lesson(request, pk):
 
 @login_required
 def lesson_detail(request, pk):
-    """View a single lesson's full content."""
-    try:
-        lesson = Lesson.objects.get(pk=pk)
-        # Force a check for the new column
-        _ = lesson.is_final_exam
-    except Exception:
-        # Fallback for missing columns
-        lesson = get_object_or_404(Lesson.objects.defer('is_final_exam', 'duration_minutes'), pk=pk)
-    
-    # Check if user is enrolled in the course or is admin
+    """View a lesson, its material, activities, and quiz."""
+    lesson = get_object_or_404(Lesson, pk=pk)
+
+    # Check if student is enrolled in the parent course
     enrollment = CourseEnrollment.objects.filter(
-        user=request.user, course=lesson.course
+        user=request.user,
+        course=lesson.course,
+        status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']
     ).first()
+
+    # Staff or Superusers can view any lesson
+    is_staff_or_admin = request.user.role in ['SCHOOL_ADMIN', 'SUPERUSER'] or request.user.is_superuser
     
-    # Allow enrolled students OR admins/superusers
-    if not enrollment and request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+    if not enrollment and not is_staff_or_admin:
         raise PermissionDenied
 
     # Check if approved if student
@@ -257,6 +265,7 @@ def submit_activity(request, pk):
 def submit_quiz(request, pk):
     """Processes quiz submissions, calculates score, and marks course as completed if final exam."""
     from .models import Lesson, QuizQuestion, QuizChoice, QuizAttempt, LessonCompletion, CourseEnrollment
+    from django.contrib import messages
     import datetime
 
     lesson = get_object_or_404(Lesson, pk=pk)
@@ -265,6 +274,7 @@ def submit_quiz(request, pk):
     correct_count = 0
 
     if total_questions == 0:
+        messages.error(request, "This quiz currently has 0 questions.")
         return redirect('course_detail', pk=lesson.course.pk)
 
     for q in questions:
@@ -293,6 +303,10 @@ def submit_quiz(request, pk):
     )
 
     if passed:
+        messages.success(
+            request, 
+            f"🎉 PASSED! You scored {correct_count} out of {total_questions} ({score_percent}%)."
+        )
         # Mark lesson as completed
         LessonCompletion.objects.get_or_create(user=request.user, lesson=lesson)
 
@@ -314,8 +328,20 @@ def submit_quiz(request, pk):
                 enrollment.status = CourseEnrollment.Status.COMPLETED
                 enrollment.completed_at = datetime.datetime.now()
                 enrollment.save()
-                return redirect('dashboard') # Celebrate!
+                messages.success(
+                    request,
+                    f"🏆 Congratulations! You passed the Final Exam with {correct_count}/{total_questions} ({score_percent}%) and completed the course!"
+                )
+                return redirect('course_detail', pk=lesson.course.pk)
             
             enrollment.save()
+    else:
+        messages.error(
+            request, 
+            f"❌ NOT PASSED. You scored {correct_count} out of {total_questions} ({score_percent}%). A minimum score of 80% is required to pass."
+        )
 
-    return redirect('course_detail', pk=lesson.course.pk)
+    if lesson.is_final_exam:
+        return redirect('course_detail', pk=lesson.course.pk)
+    else:
+        return redirect('lesson_detail', pk=lesson.pk)

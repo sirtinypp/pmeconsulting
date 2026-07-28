@@ -81,7 +81,14 @@
                             {{ lesson.title }}
                             {% endif %}
                         </div>
-                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ lesson.get_lesson_type_display }}{% if lesson.is_required %} · Required{% endif %}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-top:0.1rem;">
+                            <span>{{ lesson.get_lesson_type_display }}{% if lesson.is_required %} · Required{% endif %}</span>
+                            {% if lesson.lesson_type == 'QIZ' and lesson.user_attempt %}
+                            <span style="font-size:0.75rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:6px; {% if lesson.user_attempt.passed %}background:#DCFCE7; color:#166534;{% else %}background:#FEE2E2; color:#991B1B;{% endif %}">
+                                Score: {{ lesson.user_attempt.score }}/{{ lesson.user_attempt.total_questions }} ({% widthratio lesson.user_attempt.score lesson.user_attempt.total_questions 100 %}%) {% if lesson.user_attempt.passed %}✅ PASSED{% else %}❌ NOT PASSED{% endif %}
+                            </span>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 <div style="display:flex; align-items:center; gap:1rem;">
@@ -131,6 +138,21 @@
             </div>
 
             {% if final_exam %}
+                {% if final_exam.user_attempt %}
+                <div style="background:{% if final_exam.user_attempt.passed %}#F0FDF4{% else %}#FEF2F2{% endif %}; border:1px solid {% if final_exam.user_attempt.passed %}#BBF7D0{% else %}#FEE2E2{% endif %}; padding:1.25rem; border-radius:12px; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.05em;">Latest Exam Result</div>
+                        <div style="font-size:1.35rem; font-weight:800; color:{% if final_exam.user_attempt.passed %}#166534{% else %}#991B1B{% endif %}; margin-top:0.2rem;">
+                            Score: {{ final_exam.user_attempt.score }} / {{ final_exam.user_attempt.total_questions }} ({% widthratio final_exam.user_attempt.score final_exam.user_attempt.total_questions 100 %}%)
+                        </div>
+                    </div>
+                    <div>
+                        <span style="font-size:0.9rem; font-weight:800; padding:0.5rem 1.25rem; border-radius:20px; {% if final_exam.user_attempt.passed %}background:#DCFCE7; color:#166534;{% else %}background:#FEE2E2; color:#991B1B;{% endif %}">
+                            {% if final_exam.user_attempt.passed %}✅ PASSED{% else %}❌ NOT PASSED{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endif %}
                 <div style="padding:1.5rem; border:1px dashed #CBD5E1; border-radius:12px; margin-bottom:1.5rem;">
                     <div style="font-weight:700; margin-bottom:0.5rem;">Exam Details:</div>
                     <ul style="font-size:0.875rem; color:var(--text-muted); list-style:none; padding:0; display:flex; gap:1.5rem; flex-wrap: wrap;">
