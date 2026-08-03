@@ -45,7 +45,7 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="{% url 'contact' %}?tier=Basic" class="btn btn-secondary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; border: 2px solid #E2E8F0; background: white; text-decoration: none; color: #475569;">Request Enrollment</a>
+                    <a href="{% url 'initiate_checkout' 15 'BASIC' %}" class="btn btn-secondary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; border: 2px solid #E2E8F0; background: white; text-decoration: none; color: #475569;">Pay & Enroll (Basic ₱12,000)</a>
                 </div>
 
                 <!-- STANDARD (Recommended) -->
@@ -73,7 +73,7 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="{% url 'contact' %}?tier=Standard" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); border: none; text-decoration: none; color: white;">Request Enrollment</a>
+                    <a href="{% url 'initiate_checkout' 15 'STANDARD' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); border: none; text-decoration: none; color: white;">Pay & Enroll (Standard ₱15,000)</a>
                 </div>
 
                 <!-- PREMIUM -->
@@ -100,7 +100,7 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="{% url 'contact' %}?tier=Premium" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: white; color: #0F172A; border: none; text-decoration: none;">Request Enrollment</a>
+                    <a href="{% url 'initiate_checkout' 15 'PREMIUM' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: white; color: #0F172A; border: none; text-decoration: none;">Pay & Enroll (Premium ₱20,000)</a>
                 </div>
             </div>
 
