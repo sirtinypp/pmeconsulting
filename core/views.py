@@ -79,11 +79,22 @@ def dashboard(request):
             status=CourseEnrollment.Status.PENDING
         ).order_by('-enrolled_at')
         
-        from learning.models import ActivitySubmission
+        from learning.models import ActivitySubmission, PaymentOrder
         context['pending_submissions'] = ActivitySubmission.objects.filter(
             activity__lesson__course__school=school,
             status='PENDING'
         ).order_by('-submitted_at')
+        
+        # Payment Management Data
+        payment_orders = PaymentOrder.objects.filter(
+            enrollment__course__school=school
+        ).select_related('user', 'enrollment__course', 'tier').order_by('-created_at')
+        
+        context['payment_orders'] = payment_orders
+        context['paid_orders_count'] = payment_orders.filter(status=PaymentOrder.PaymentStatus.PAID).count()
+        context['total_revenue'] = payment_orders.filter(
+            status=PaymentOrder.PaymentStatus.PAID
+        ).aggregate(total=Sum('amount'))['total'] or 0.00
         
         context['brand_context'] = 'Management'
         return render(request, 'dashboards/school_admin.html', context)

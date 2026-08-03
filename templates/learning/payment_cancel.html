@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Payment Cancelled | PME Learning{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center" style="max-width: 650px;">
+    <div class="card shadow-lg p-5 border-0 rounded-4">
+        <div class="mb-4">
+            <div style="font-size: 4rem;">ℹ️</div>
+        </div>
+        
+        <h2 class="fw-bold text-secondary mb-3">Payment Cancelled</h2>
+        
+        <p class="text-muted mb-4">
+            Your payment attempt was cancelled or not completed. No charges were made to your account.
+        </p>
+
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'public_courses' %}" class="btn btn-primary rounded-pill px-4">
+                View Pricing & Retry
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

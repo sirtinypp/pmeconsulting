@@ -345,3 +345,140 @@ def submit_quiz(request, pk):
         return redirect('course_detail', pk=lesson.course.pk)
     else:
         return redirect('lesson_detail', pk=lesson.pk)
+
+
+import json
+from django.views.decorators.csrf import csrf_exempt
+from django.http import HttpResponse, JsonResponse
+from django.contrib import messages
+from .models import CourseTier, PaymentOrder
+from .payment_service import create_paymongo_checkout_session, verify_paymongo_webhook
+
+
+@login_required
+def initiate_checkout(request, course_id, tier_type='BASIC'):
+    """Initiates PayMongo checkout session for a course level and tier."""
+    course = get_object_or_404(Course, pk=course_id)
+    tier = CourseTier.objects.filter(course=course, tier_type=tier_type.upper()).first()
+    
+    # Default prices if CourseTier object doesn't exist yet
+    default_prices = {
+        'A1': {'BASIC': 12000, 'STANDARD': 15000, 'PREMIUM': 20000},
+        'A2': {'BASIC': 15000, 'STANDARD': 18000, 'PREMIUM': 22000},
+        'B1': {'BASIC': 18000, 'STANDARD': 21000, 'PREMIUM': 25000},
+        'B2': {'BASIC': 20000, 'STANDARD': 24000, 'PREMIUM': 28000},
+        'C1': {'BASIC': 25000, 'STANDARD': 30000, 'PREMIUM': 35000},
+    }
+
+    price_amount = tier.price if tier else default_prices.get(course.level, {}).get(tier_type.upper(), 15000)
+
+    # 1. Create or get enrollment in PENDING status
+    enrollment, _ = CourseEnrollment.objects.get_or_create(
+        user=request.user,
+        course=course,
+        defaults={'status': CourseEnrollment.Status.PENDING}
+    )
+
+    if enrollment.status == CourseEnrollment.Status.ENROLLED:
+        messages.info(request, f"You are already enrolled in {course.title}!")
+        return redirect('course_detail', pk=course.pk)
+
+    # 2. Build Callback URLs
+    domain = request.build_absolute_uri('/')[:-1]
+    success_url = f"{domain}/learning/payment/success/?course_id={course.id}"
+    cancel_url = f"{domain}/learning/payment/cancel/?course_id={course.id}"
+
+    # 3. Request PayMongo Checkout Session
+    session_result = create_paymongo_checkout_session(
+        user=request.user,
+        course_title=f"{course.title} ({course.level})",
+        tier_name=tier_type.capitalize(),
+        price_php=price_amount,
+        success_url=success_url,
+        cancel_url=cancel_url
+    )
+
+    if session_result.get('success'):
+        # Save Payment Order record
+        PaymentOrder.objects.create(
+            user=request.user,
+            enrollment=enrollment,
+            tier=tier,
+            amount=price_amount,
+            checkout_session_id=session_result['checkout_session_id'],
+            checkout_url=session_result['checkout_url'],
+            status=PaymentOrder.PaymentStatus.PENDING
+        )
+        return redirect(session_result['checkout_url'])
+    else:
+        messages.error(request, f"Could not initiate checkout: {session_result.get('error')}")
+        return redirect('public_courses')
+
+
+@login_required
+def payment_success(request):
+    """View shown after successful payment completion."""
+    course_id = request.GET.get('course_id')
+    course = Course.objects.filter(pk=course_id).first() if course_id else None
+    
+    return render(request, 'learning/payment_success.html', {
+        'course': course,
+        'page_title': 'Enrollment Successful',
+        'brand_context': 'Learning',
+    })
+
+
+@login_required
+def payment_cancel(request):
+    """View shown if user cancels payment checkout."""
+    course_id = request.GET.get('course_id')
+    course = Course.objects.filter(pk=course_id).first() if course_id else None
+
+    return render(request, 'learning/payment_cancel.html', {
+        'course': course,
+        'page_title': 'Payment Cancelled',
+        'brand_context': 'Learning',
+    })
+
+
+@csrf_exempt
+def paymongo_webhook(request):
+    """
+    PayMongo Webhook Receiver.
+    Listens for `checkout_session.payment.paid` events and automatically converts
+    CourseEnrollment status from PENDING -> ENROLLED.
+    """
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    signature_header = request.headers.get('Paymongo-Signature', '')
+    raw_body = request.body
+
+    # Validate webhook signature in production if secret is set
+    from django.conf import settings
+    if getattr(settings, 'PAYMONGO_WEBHOOK_SECRET', '') and getattr(settings, 'PAYMONGO_WEBHOOK_SECRET') != 'whsec_placeholder':
+        if not verify_paymongo_webhook(raw_body, signature_header):
+            return HttpResponse("Invalid Signature", status=400)
+
+    try:
+        event = json.loads(raw_body.decode('utf-8'))
+        event_type = event.get('data', {}).get('attributes', {}).get('type')
+
+        if event_type == 'checkout_session.payment.paid':
+            session_data = event.get('data', {}).get('attributes', {}).get('data', {})
+            checkout_session_id = session_data.get('id')
+
+            if checkout_session_id:
+                order = PaymentOrder.objects.filter(checkout_session_id=checkout_session_id).first()
+                if order:
+                    order.status = PaymentOrder.PaymentStatus.PAID
+                    order.save()
+
+                    # Unlock Enrollment immediately
+                    enrollment = order.enrollment
+                    enrollment.status = CourseEnrollment.Status.ENROLLED
+                    enrollment.save()
+
+        return JsonResponse({'status': 'success'}, status=200)
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

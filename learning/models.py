@@ -156,6 +156,54 @@ class CourseEnrollment(models.Model):
         return f"{self.user.username} — {self.course.title} ({self.status})"
 
 
+class CourseTier(models.Model):
+    """Pricing Tier for a German language course level (Basic, Standard, Premium)."""
+    TIER_CHOICES = [
+        ('BASIC', 'Basic'),
+        ('STANDARD', 'Standard'),
+        ('PREMIUM', 'Premium'),
+    ]
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='tiers')
+    tier_type = models.CharField(max_length=10, choices=TIER_CHOICES, default='BASIC')
+    price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price in PHP")
+    description = models.TextField(blank=True)
+
+    class Meta:
+        unique_together = ('course', 'tier_type')
+
+    def __str__(self):
+        return f"{self.course.title} [{self.tier_type}] — ₱{self.price:,.2f}"
+
+
+class PaymentOrder(models.Model):
+    """Tracks payment transaction for course enrollment via PayMongo."""
+    class PaymentStatus(models.TextChoices):
+        PENDING   = 'PENDING',  'Pending Payment'
+        PAID      = 'PAID',     'Paid'
+        FAILED    = 'FAILED',   'Failed'
+        REFUNDED  = 'REFUNDED', 'Refunded'
+
+    user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='payment_orders')
+    enrollment = models.ForeignKey(CourseEnrollment, on_delete=models.CASCADE, related_name='payment_orders')
+    tier = models.ForeignKey(CourseTier, on_delete=models.SET_NULL, null=True, blank=True)
+    
+    amount = models.DecimalField(max_digits=10, decimal_places=2, help_text="Amount in PHP")
+    currency = models.CharField(max_length=3, default='PHP')
+    
+    provider = models.CharField(max_length=20, default='paymongo')
+    checkout_session_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    checkout_url = models.URLField(max_length=500, blank=True, null=True)
+    payment_intent_id = models.CharField(max_length=255, blank=True, null=True)
+    
+    status = models.CharField(max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Order #{self.id} — {self.user.username} — {self.amount} {self.currency} ({self.status})"
+
+
+
 class LessonCompletion(models.Model):
     user = models.ForeignKey('users.CustomUser', on_delete=models.CASCADE, related_name='lesson_completions')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
