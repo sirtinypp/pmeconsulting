@@ -16,9 +16,24 @@
     <div style="min-height: 100vh; background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1526772662000-3f88f10405ff?q=80&w=2574&auto=format&fit=crop'); background-size: cover; background-attachment: fixed; padding: 4rem 2rem; display: flex; flex-direction: column; align-items: center;">
         
         <div style="width: 100%; max-width: 1200px; text-align: center;">
-            <div style="margin-bottom: 4rem;">
-                <h2 style="font-size: 3rem; font-weight: 800; color: white; margin-bottom: 1rem; letter-spacing: -0.02em;">Choose Your Path to Europe</h2>
-                <p style="font-size: 1.25rem; color: #94A3B8; max-width: 700px; margin: 0 auto;">Enroll as a Full Student to unlock the premium German Career & Language curriculum and start your journey today.</p>
+            <div style="margin-bottom: 2rem;">
+                <h2 style="font-size: 3rem; font-weight: 800; color: white; margin-bottom: 1rem; letter-spacing: -0.02em;">Choose Your CEFR Level & Tier</h2>
+                <p style="font-size: 1.25rem; color: #94A3B8; max-width: 750px; margin: 0 auto 1.5rem;">Select your target German CEFR level below. Higher levels automatically include full review access to preceding levels.</p>
+
+                <!-- Level Selector Tabs -->
+                <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; margin-bottom: 2rem;">
+                    <button onclick="selectLevel('A1')" id="tab-A1" class="level-tab active-level-tab" style="padding: 0.6rem 1.5rem; border-radius: 100px; font-weight: 700; border: none; cursor: pointer;">Level A1</button>
+                    <button onclick="selectLevel('A2')" id="tab-A2" class="level-tab" style="padding: 0.6rem 1.5rem; border-radius: 100px; font-weight: 700; border: none; cursor: pointer; background: rgba(255,255,255,0.15); color: white;">Level A2</button>
+                    <button onclick="selectLevel('B1')" id="tab-B1" class="level-tab" style="padding: 0.6rem 1.5rem; border-radius: 100px; font-weight: 700; border: none; cursor: pointer; background: rgba(255,255,255,0.15); color: white;">Level B1</button>
+                    <button onclick="selectLevel('B2')" id="tab-B2" class="level-tab" style="padding: 0.6rem 1.5rem; border-radius: 100px; font-weight: 700; border: none; cursor: pointer; background: rgba(255,255,255,0.15); color: white;">Level B2</button>
+                    <button onclick="selectLevel('C1')" id="tab-C1" class="level-tab" style="padding: 0.6rem 1.5rem; border-radius: 100px; font-weight: 700; border: none; cursor: pointer; background: rgba(255,255,255,0.15); color: white;">Level C1</button>
+                </div>
+
+                <!-- Clear Explanatory Notice -->
+                <div id="prereq-notice" style="background: rgba(15, 23, 42, 0.7); border: 1px solid #38BDF8; color: #E2E8F0; padding: 1rem 1.5rem; border-radius: 16px; max-width: 800px; margin: 0 auto; font-size: 0.95rem; text-align: left; backdrop-filter: blur(8px);">
+                    <div style="font-weight: 700; color: #38BDF8; margin-bottom: 0.25rem;">ℹ️ Level Inclusion Policy</div>
+                    <span id="prereq-text">Enrolling in Level A1 gives full access to all A1 German modules, videos, exercises, and quizzes.</span>
+                </div>
             </div>
 
             <!-- Tiered Pricing Grid -->
@@ -31,11 +46,11 @@
                         <h3 style="margin: 0; font-size: 1.75rem; color: #0F172A; font-weight: 800;">Basic</h3>
                         <p style="font-size: 0.9rem; color: #64748B; margin: 0.5rem 0 2rem; line-height: 1.5;">Core essentials to start your German journey independently.</p>
                         <div style="font-size: 2.75rem; font-weight: 800; color: #1E4D8C; margin-bottom: 2rem; display: flex; align-items: baseline; gap: 0.25rem;">
-                            <span style="font-size: 1.5rem;">₱</span>12,000
+                            <span style="font-size: 1.5rem;">₱</span><span id="price-basic">12,000</span>
                         </div>
                         <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem 0; font-size: 1rem; color: #475569;">
                             <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
-                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Full LMS access (A1 Modules)</span>
+                                <span style="color: #10B981; font-weight: bold;">✓</span> <span>Full LMS access</span>
                             </li>
                             <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
                                 <span style="color: #10B981; font-weight: bold;">✓</span> <span>Professional video lessons</span>
@@ -45,7 +60,7 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="{% url 'initiate_checkout' 15 'BASIC' %}" class="btn btn-secondary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; border: 2px solid #E2E8F0; background: white; text-decoration: none; color: #475569;">Pay & Enroll (Basic ₱12,000)</a>
+                    <a id="btn-basic" href="{% url 'initiate_checkout' 15 'BASIC' %}" class="btn btn-secondary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; border: 2px solid #E2E8F0; background: white; text-decoration: none; color: #475569;">Pay & Enroll Level A1 (Basic ₱12,000)</a>
                 </div>
 
                 <!-- STANDARD (Recommended) -->
@@ -56,7 +71,7 @@
                         <h3 style="margin: 0; font-size: 1.75rem; color: #0F172A; font-weight: 800;">Standard</h3>
                         <p style="font-size: 0.9rem; color: #64748B; margin: 0.5rem 0 2rem; line-height: 1.5;">Accelerate your path with native teacher support and mock exams.</p>
                         <div style="font-size: 3rem; font-weight: 800; color: #1E4D8C; margin-bottom: 2rem; display: flex; align-items: baseline; gap: 0.25rem;">
-                            <span style="font-size: 1.5rem;">₱</span>15,000
+                            <span style="font-size: 1.5rem;">₱</span><span id="price-standard">15,000</span>
                         </div>
                         <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem 0; font-size: 1rem; color: #475569;">
                             <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start; font-weight: 600;">
@@ -73,7 +88,7 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="{% url 'initiate_checkout' 15 'STANDARD' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); border: none; text-decoration: none; color: white;">Pay & Enroll (Standard ₱15,000)</a>
+                    <a id="btn-standard" href="{% url 'initiate_checkout' 15 'STANDARD' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); border: none; text-decoration: none; color: white;">Pay & Enroll Level A1 (Standard ₱15,000)</a>
                 </div>
 
                 <!-- PREMIUM -->
@@ -83,7 +98,7 @@
                         <h3 style="margin: 0; font-size: 1.75rem; color: white; font-weight: 800;">Premium</h3>
                         <p style="font-size: 0.9rem; color: #94A3B8; margin: 0.5rem 0 2rem; line-height: 1.5;">The complete 1-on-1 solution for rapid career placement.</p>
                         <div style="font-size: 2.75rem; font-weight: 800; color: #38BDF8; margin-bottom: 2rem; display: flex; align-items: baseline; gap: 0.25rem;">
-                            <span style="font-size: 1.5rem;">₱</span>20,000
+                            <span style="font-size: 1.5rem;">₱</span><span id="price-premium">20,000</span>
                         </div>
                         <ul style="list-style: none; padding: 0; margin: 0 0 2.5rem 0; font-size: 1rem; color: #94A3B8;">
                             <li style="margin-bottom: 1rem; display: flex; gap: 12px; align-items: flex-start;">
@@ -100,7 +115,7 @@
                             </li>
                         </ul>
                     </div>
-                    <a href="{% url 'initiate_checkout' 15 'PREMIUM' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: white; color: #0F172A; border: none; text-decoration: none;">Pay & Enroll (Premium ₱20,000)</a>
+                    <a id="btn-premium" href="{% url 'initiate_checkout' 15 'PREMIUM' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: white; color: #0F172A; border: none; text-decoration: none;">Pay & Enroll Level A1 (Premium ₱20,000)</a>
                 </div>
             </div>
 
@@ -113,8 +128,82 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const levelData = {
+            'A1': {
+                courseId: 15,
+                basicPrice: '12,000',
+                standardPrice: '15,000',
+                premiumPrice: '20,000',
+                prereqText: 'Enrolling in <strong>Level A1</strong> gives full access to all A1 German modules, video lessons, exercises, and chapter quizzes.'
+            },
+            'A2': {
+                courseId: 16,
+                basicPrice: '15,000',
+                standardPrice: '18,000',
+                premiumPrice: '22,000',
+                prereqText: 'Enrolling in <strong>Level A2</strong> includes full A2 curriculum access PLUS full review access to preceding Level A1 materials.'
+            },
+            'B1': {
+                courseId: 12,
+                basicPrice: '18,000',
+                standardPrice: '21,000',
+                premiumPrice: '25,000',
+                prereqText: 'Enrolling in <strong>Level B1</strong> includes full B1 medical German access PLUS full review access to preceding A1 & A2 materials.'
+            },
+            'B2': {
+                courseId: 11,
+                basicPrice: '20,000',
+                standardPrice: '24,000',
+                premiumPrice: '28,000',
+                prereqText: 'Enrolling in <strong>Level B2</strong> includes full B2 advanced clinical German access PLUS review access to all preceding levels (A1, A2, B1).'
+            },
+            'C1': {
+                courseId: 14,
+                basicPrice: '25,000',
+                standardPrice: '30,000',
+                premiumPrice: '35,000',
+                prereqText: 'Enrolling in <strong>Level C1</strong> includes full C1 mastery curriculum access PLUS full review access to all lower level materials.'
+            }
+        };
+
+        function selectLevel(level) {
+            const data = levelData[level];
+            if (!data) return;
+
+            // Update Active Tab styles
+            document.querySelectorAll('.level-tab').forEach(tab => {
+                tab.style.background = 'rgba(255,255,255,0.15)';
+                tab.style.color = 'white';
+            });
+            const activeTab = document.getElementById('tab-' + level);
+            if (activeTab) {
+                activeTab.style.background = '#38BDF8';
+                activeTab.style.color = '#0F172A';
+            }
+
+            // Update explanatory text
+            document.getElementById('prereq-text').innerHTML = data.prereqText;
+
+            // Update Prices & Checkout Links
+            document.getElementById('price-basic').textContent = data.basicPrice;
+            document.getElementById('price-standard').textContent = data.standardPrice;
+            document.getElementById('price-premium').textContent = data.premiumPrice;
+
+            document.getElementById('btn-basic').href = `/learning/checkout/${data.courseId}/BASIC/`;
+            document.getElementById('btn-basic').textContent = `Pay & Enroll Level ${level} (Basic ₱${data.basicPrice})`;
+
+            document.getElementById('btn-standard').href = `/learning/checkout/${data.courseId}/STANDARD/`;
+            document.getElementById('btn-standard').textContent = `Pay & Enroll Level ${level} (Standard ₱${data.standardPrice})`;
+
+            document.getElementById('btn-premium').href = `/learning/checkout/${data.courseId}/PREMIUM/`;
+            document.getElementById('btn-premium').textContent = `Pay & Enroll Level ${level} (Premium ₱${data.premiumPrice})`;
+        }
+    </script>
 </body>
 </html>
+
 
 </html>
 
