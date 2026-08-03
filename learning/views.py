@@ -421,11 +421,47 @@ def payment_success(request):
     course_id = request.GET.get('course_id')
     course = Course.objects.filter(pk=course_id).first() if course_id else None
     
+    # Fallback sync: Check latest pending order for this user & mark as PAID if completed in PayMongo
+    latest_order = PaymentOrder.objects.filter(
+        user=request.user, 
+        status=PaymentOrder.PaymentStatus.PENDING
+    ).order_by('-created_at').first()
+
+    if latest_order and latest_order.checkout_session_id:
+        import requests
+        from .payment_service import get_paymongo_headers
+        try:
+            url = f"https://api.paymongo.com/v1/checkout_sessions/{latest_order.checkout_session_id}"
+            res = requests.get(url, headers=get_paymongo_headers(), timeout=10)
+            if res.status_code == 200:
+                attributes = res.json().get('data', {}).get('attributes', {})
+                payments = attributes.get('payments', [])
+                payment_intent = attributes.get('payment_intent', {})
+                
+                # Check if payment is paid or has successful payments array
+                is_paid = len(payments) > 0 or (isinstance(payment_intent, dict) and payment_intent.get('attributes', {}).get('status') == 'succeeded')
+                
+                if is_paid:
+                    latest_order.status = PaymentOrder.PaymentStatus.PAID
+                    latest_order.save()
+                    
+                    enrollment = latest_order.enrollment
+                    enrollment.status = CourseEnrollment.Status.ENROLLED
+                    enrollment.save()
+
+                    # Upgrade User Role to STUDENT if guest
+                    if request.user.role == 'GUEST':
+                        request.user.role = 'STUDENT'
+                        request.user.save()
+        except Exception:
+            pass
+
     return render(request, 'learning/payment_success.html', {
         'course': course,
         'page_title': 'Enrollment Successful',
         'brand_context': 'Learning',
     })
+
 
 
 @login_required
