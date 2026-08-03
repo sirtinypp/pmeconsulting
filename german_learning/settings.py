@@ -174,6 +174,12 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# PayMongo Gateway Settings
+PAYMONGO_PUBLIC_KEY = config('PAYMONGO_PUBLIC_KEY', default='')
+PAYMONGO_SECRET_KEY = config('PAYMONGO_SECRET_KEY', default='')
+PAYMONGO_WEBHOOK_SECRET = config('PAYMONGO_WEBHOOK_SECRET', default='')
+
+
 # Custom User
 AUTH_USER_MODEL = 'users.CustomUser'
 
