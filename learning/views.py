@@ -576,6 +576,13 @@ def wise_checkout(request, course_id):
             status=PaymentOrder.PaymentStatus.PENDING
         )
 
+    # Ensure active courses have default tiers if missing
+    for c in Course.objects.filter(is_active=True):
+        if not c.tiers.exists():
+            CourseTier.objects.create(course=c, tier_type='BASIC', price=5000.00, description='Basic Curriculum Access')
+            CourseTier.objects.create(course=c, tier_type='STANDARD', price=8500.00, description='Standard Access + Labs')
+            CourseTier.objects.create(course=c, tier_type='PREMIUM', price=15000.00, description='Premium Full Access + Tutoring')
+
     # Fetch all active course tiers for the program/tier dropdown
     all_tiers = CourseTier.objects.select_related('course').filter(course__is_active=True).order_by('course__title', 'price')
 
