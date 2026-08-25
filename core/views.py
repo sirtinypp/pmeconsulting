@@ -1017,3 +1017,87 @@ def bulk_enroll(request, pk):
         'page_title': 'Bulk Enrollment',
         'brand_context': 'Management'
     })
+
+
+@login_required
+def student_detail_api(request, pk):
+    from django.http import JsonResponse
+    if not (request.user.is_superuser or request.user.role in ['SUPERUSER', 'SCHOOL_ADMIN']):
+        raise PermissionDenied("Only admins can access student detail metrics.")
+
+    student = get_object_or_404(CustomUser, pk=pk)
+    
+    from learning.models import CourseEnrollment, LessonCompletion, Lesson, ActivitySubmission
+    from quiz.models import QuizAttempt
+
+    enrollments = CourseEnrollment.objects.filter(user=student).select_related('course').order_by('-enrolled_at')
+    
+    enrollment_data = []
+    for en in enrollments:
+        total_lessons = Lesson.objects.filter(course=en.course).count()
+        completed_completions = LessonCompletion.objects.filter(user=student, lesson__course=en.course).select_related('lesson').order_by('completed_at')
+        completed_count = completed_completions.count()
+        progress_pct = int((completed_count / total_lessons * 100)) if total_lessons > 0 else 0
+
+        lesson_history = []
+        for comp in completed_completions:
+            lesson_history.append({
+                'title': comp.lesson.title,
+                'completed_at': comp.completed_at.strftime('%d %b %Y, %H:%M') if comp.completed_at else 'Completed'
+            })
+
+        enrollment_data.append({
+            'course_id': en.course.id,
+            'course_title': en.course.title,
+            'course_level': en.course.get_level_display(),
+            'status': en.status,
+            'status_display': en.get_status_display(),
+            'admin_note': en.admin_note or '',
+            'enrolled_at': en.enrolled_at.strftime('%d %b %Y, %H:%M') if en.enrolled_at else '',
+            'total_lessons': total_lessons,
+            'completed_lessons_count': completed_count,
+            'progress_pct': progress_pct,
+            'completed_lessons': lesson_history,
+        })
+
+    # Quiz Attempts
+    attempts = QuizAttempt.objects.filter(user=student).select_related('quiz').order_by('-completed_at')[:10]
+    quiz_data = []
+    for att in attempts:
+        quiz_data.append({
+            'quiz_title': att.quiz.title if att.quiz else 'Quiz',
+            'score': att.score,
+            'total_possible': att.total_possible,
+            'percentage': round((att.score / att.total_possible * 100), 1) if att.total_possible else 0,
+            'completed_at': att.completed_at.strftime('%d %b %Y, %H:%M') if att.completed_at else ''
+        })
+
+    # Activity Submissions
+    submissions = ActivitySubmission.objects.filter(user=student).select_related('activity').order_by('-submitted_at')[:10]
+    submission_data = []
+    for sub in submissions:
+        submission_data.append({
+            'activity_title': sub.activity.title,
+            'status': sub.status,
+            'status_display': sub.get_status_display(),
+            'grade': sub.grade or '',
+            'submitted_at': sub.submitted_at.strftime('%d %b %Y, %H:%M') if sub.submitted_at else ''
+        })
+
+    return JsonResponse({
+        'success': True,
+        'student': {
+            'id': student.id,
+            'username': student.username,
+            'email': student.email,
+            'first_name': student.first_name,
+            'last_name': student.last_name,
+            'date_joined': student.date_joined.strftime('%d %b %Y'),
+            'role': student.role,
+            'is_active': student.is_active,
+        },
+        'enrollments': enrollment_data,
+        'quizzes': quiz_data,
+        'submissions': submission_data,
+    })
+

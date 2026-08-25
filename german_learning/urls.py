@@ -21,6 +21,7 @@ urlpatterns = [
     path('management/student/add/', dashboard_views.student_upsert, name='student_add'),
     path('management/student/<int:pk>/edit/', dashboard_views.student_upsert, name='student_edit'),
     path('management/student/<int:pk>/delete/', dashboard_views.student_delete, name='student_delete'),
+    path('management/student/<int:pk>/detail-api/', dashboard_views.student_detail_api, name='student_detail_api'),
     path('management/settings/', dashboard_views.school_settings, name='school_settings'),
     path('management/inquiry/<int:pk>/pay/', dashboard_views.mark_inquiry_paid, name='inquiry_pay'),
     path('management/inquiry/<int:pk>/status/<str:status>/', dashboard_views.mark_inquiry_status, name='inquiry_status'),
