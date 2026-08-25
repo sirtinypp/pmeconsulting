@@ -192,10 +192,11 @@ class PaymentOrder(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2, help_text="Amount in PHP")
     currency = models.CharField(max_length=3, default='PHP')
     
-    provider = models.CharField(max_length=20, default='paymongo')
-    checkout_session_id = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    provider = models.CharField(max_length=20, default='wise')
+    checkout_session_id = models.CharField(max_length=255, blank=True, null=True)
     checkout_url = models.URLField(max_length=500, blank=True, null=True)
     payment_intent_id = models.CharField(max_length=255, blank=True, null=True)
+    proof_note = models.TextField(blank=True, help_text="Wise transaction reference code or student note")
     
     status = models.CharField(max_length=10, choices=PaymentStatus.choices, default=PaymentStatus.PENDING)
     created_at = models.DateTimeField(auto_now_add=True)

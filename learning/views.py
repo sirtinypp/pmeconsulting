@@ -85,18 +85,20 @@ def course_detail(request, pk):
 
 @login_required
 def enroll_course(request, pk):
-    """Student requests to enroll in a course (sets status to PENDING)."""
+    """Student requests to enroll in a course (sets status to PENDING and redirects to Wise Checkout)."""
     # GUEST users must upgrade before enrolling
     if request.user.role == 'GUEST':
         return redirect('upgrade')
 
     course = get_object_or_404(Course, pk=pk)
+    tier_type = request.POST.get('tier', 'BASIC')
     if request.method == 'POST':
         CourseEnrollment.objects.get_or_create(
             user=request.user, course=course,
             defaults={'status': CourseEnrollment.Status.PENDING}
         )
-    return redirect('course_detail', pk=pk)
+        return redirect(f"/learning/wise-checkout/{course.pk}/?tier={tier_type}")
+    return redirect('wise_checkout', course_id=course.pk)
 
 
 @login_required
@@ -533,3 +535,94 @@ def paymongo_webhook(request):
         return JsonResponse({'status': 'success'}, status=200)
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=400)
+
+
+@login_required
+def wise_checkout(request, course_id):
+    """
+    Renders Wise payment details and handles reference code submission.
+    """
+    course = get_object_or_404(Course, pk=course_id)
+    tier_type = request.GET.get('tier', 'BASIC').upper()
+    tier = CourseTier.objects.filter(course=course, tier_type=tier_type).first()
+    if not tier:
+        tier = CourseTier.objects.filter(course=course).first()
+    
+    price_php = tier.price if tier else 0.00
+    
+    enrollment, _ = CourseEnrollment.objects.get_or_create(
+        user=request.user,
+        course=course,
+        defaults={'status': CourseEnrollment.Status.PENDING}
+    )
+    
+    order = PaymentOrder.objects.filter(
+        user=request.user,
+        enrollment=enrollment,
+        status=PaymentOrder.PaymentStatus.PENDING,
+        provider='wise'
+    ).first()
+
+    if not order:
+        ref_code = f"PME-WISE-{enrollment.id}-{CourseEnrollment.objects.count() + 100}"
+        order = PaymentOrder.objects.create(
+            user=request.user,
+            enrollment=enrollment,
+            tier=tier,
+            amount=price_php,
+            currency='PHP',
+            provider='wise',
+            checkout_session_id=ref_code,
+            status=PaymentOrder.PaymentStatus.PENDING
+        )
+
+    if request.method == 'POST':
+        proof_note = request.POST.get('proof_note', '').strip()
+        if proof_note:
+            order.proof_note = proof_note
+            order.save()
+            
+            # Ensure enrollment is pending for admin review
+            enrollment.status = CourseEnrollment.Status.PENDING
+            enrollment.admin_note = f"Wise Payment Submitted: {proof_note}"
+            enrollment.save()
+            
+            from django.contrib import messages
+            messages.success(request, f"Wise payment reference '{proof_note}' submitted! Your enrollment is pending administrator verification.")
+            return redirect('course_detail', pk=course.pk)
+
+    return render(request, 'learning/wise_checkout.html', {
+        'course': course,
+        'tier': tier,
+        'order': order,
+        'page_title': 'Wise Payment',
+        'brand_context': 'Learning'
+    })
+
+
+@login_required
+def confirm_wise_payment(request, order_id):
+    """School Admin confirms a Wise payment order."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+    
+    order = get_object_or_404(PaymentOrder, pk=order_id)
+    if request.method == 'POST':
+        order.status = PaymentOrder.PaymentStatus.PAID
+        order.save()
+        
+        enrollment = order.enrollment
+        enrollment.status = CourseEnrollment.Status.ENROLLED
+        enrollment.admin_note = f"Wise Payment Confirmed ({order.proof_note or order.checkout_session_id})"
+        enrollment.save()
+
+        # Upgrade User Role to STUDENT if guest
+        if enrollment.user.role == 'GUEST':
+            enrollment.user.role = 'STUDENT'
+            enrollment.user.save()
+
+        from django.contrib import messages
+        messages.success(request, f"Wise payment for student '{enrollment.user.username}' confirmed! Course access unlocked.")
+
+    return redirect('dashboard')
+

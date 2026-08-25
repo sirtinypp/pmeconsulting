@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Wise Direct Payment | {{ course.title }}{% endblock %}
+{% block page_title %}Direct Transfer via Wise{% endblock %}
+{% block page_subtitle %}{{ course.title }} ({{ course.get_level_display }}){% endblock %}
+{% block brand_context %}Learning{% endblock %}
+
+{% block content %}
+<div style="max-width: 680px; margin: 0 auto;">
+    <!-- Course Summary Header -->
+    <div class="card" style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); color: white; border: none; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <span class="badge badge-yellow" style="font-size: 0.75rem;">{{ course.get_level_display }}</span>
+                <h3 style="color: white; margin: 0.5rem 0 0.25rem 0; font-size: 1.3rem;">{{ course.title }}</h3>
+                <p style="color: #94A3B8; font-size: 0.85rem; margin: 0;">Selected Tier: <strong>{{ tier.tier_type }}</strong></p>
+            </div>
+            <div style="text-align: right;">
+                <span style="font-size: 0.8rem; color: #94A3B8; display: block; text-transform: uppercase;">Amount Due</span>
+                <span style="font-size: 2rem; font-weight: 800; color: #38BDF8;">₱{{ order.amount|floatformat:2 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Wise Bank Transfer Instructions Card -->
+    <div class="card" style="margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <div style="width: 42px; height: 42px; background: #00B9FF; color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem;">
+                🚀
+            </div>
+            <div>
+                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F172A;">Wise Payment Instructions</h4>
+                <p style="margin: 0; font-size: 0.8rem; color: #64748B;">Please transfer the exact amount using your Wise app or bank account.</p>
+            </div>
+        </div>
+
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+            
+            <!-- Recipient Account -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Account Name:</span>
+                <span style="font-size: 0.9rem; font-weight: 700; color: #0F172A;">PME Consulting / MedTech Europe</span>
+            </div>
+
+            <!-- Wise Tag / Email -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-top: 1px dashed #CBD5E1; padding-top: 0.75rem;">
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Wise Tag / Handle:</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <code style="background: white; padding: 4px 10px; border-radius: 8px; border: 1px solid #CBD5E1; font-weight: 700; color: #0369A1;">@pmeconsulting</code>
+                    <button type="button" onclick="navigator.clipboard.writeText('@pmeconsulting'); this.textContent='✓'; setTimeout(()=>this.textContent='Copy', 1500);" 
+                            style="background: white; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+                </div>
+            </div>
+
+            <!-- Payment Reference -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-top: 1px dashed #CBD5E1; padding-top: 0.75rem;">
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Payment Reference Code:</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <code style="background: #FEF3C7; padding: 4px 10px; border-radius: 8px; border: 1px solid #FDE68A; font-weight: 800; color: #92400E;">{{ order.checkout_session_id }}</code>
+                    <button type="button" onclick="navigator.clipboard.writeText('{{ order.checkout_session_id }}'); this.textContent='✓'; setTimeout(()=>this.textContent='Copy', 1500);" 
+                            style="background: white; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #E0F2FE; border-radius: 10px; font-size: 0.8rem; color: #0369A1;">
+            💡 <strong>Note:</strong> Include your <strong>Reference Code</strong> in the message/note field when sending via Wise so our system can automatically match your payment.
+        </div>
+    </div>
+
+    <!-- Proof of Payment Form -->
+    <div class="card" style="padding: 1.5rem; border-radius: 16px;">
+        <h4 style="margin: 0 0 1rem 0; font-size: 1.05rem; font-weight: 700; color: #0F172A;">Submit Transaction Reference</h4>
+        
+        <form method="post" action="{% url 'wise_checkout' course.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="order_id" value="{{ order.id }}">
+            
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: #334155;">
+                    Wise Reference / Transaction ID <span style="color: #DC2626;">*</span>
+                </label>
+                <input type="text" name="proof_note" required placeholder="e.g. #TRANSFER-984210 or Wise Reference Code" 
+                       style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #CBD5E1; border-radius: 10px; font-size: 0.9rem; background: #F8FAFC;">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <a href="{% url 'course_detail' course.pk %}" class="btn btn-sm" style="background: white; border: 1px solid #CBD5E1; color: #64748B;">
+                    ← Back to Course
+                </a>
+                <button type="submit" class="btn btn-primary" style="padding: 0.75rem 1.5rem; font-weight: 700;">
+                    ✅ Submit Wise Payment
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -378,10 +378,10 @@
                 <div style="font-size: 2rem; font-weight: 800; color: #1E4D8C; margin-top: 0.5rem;">{{ paid_orders_count }}</div>
             </div>
             <div class="card" style="padding: 1.5rem; background: white; border: 1px solid #E2E8F0; border-radius: 16px;">
-                <div style="font-size: 0.85rem; font-weight: 600; color: #64748B; text-transform: uppercase;">Gateway Partner</div>
+                <div style="font-size: 0.85rem; font-weight: 600; color: #64748B; text-transform: uppercase;">Active Gateway Partner</div>
                 <div style="font-size: 1.25rem; font-weight: 700; color: #0369A1; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <span>⚡ PayMongo</span>
-                    <span style="font-size: 0.75rem; background: #DBEAFE; color: #1E4D8C; padding: 2px 8px; border-radius: 10px;">QR Ph + Wallets</span>
+                    <span>🚀 Wise Direct Transfer</span>
+                    <span style="font-size: 0.75rem; background: #DBEAFE; color: #1E4D8C; padding: 2px 8px; border-radius: 10px;">Active</span>
                 </div>
             </div>
         </div>
@@ -399,7 +399,7 @@
                         <option value="PAID">PAID</option>
                         <option value="PENDING">PENDING</option>
                     </select>
-                    <span class="badge" style="background: #F1F5F9; color: #475569; padding: 6px 12px; border-radius: 8px;">Real-time Webhook Synced</span>
+                    <span class="badge" style="background: #F1F5F9; color: #475569; padding: 6px 12px; border-radius: 8px;">Wise Transfer Active</span>
                 </div>
             </div>
 
@@ -415,12 +415,13 @@
                             <th>Amount</th>
                             <th>Status</th>
                             <th>Date</th>
-                            <th>Reference ID</th>
+                            <th>Reference & Proof</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for order in payment_orders %}
-                        <tr data-search-text="{{ order.user.username|lower }} {{ order.user.email|lower }} {{ order.enrollment.course.title|lower }} {{ order.checkout_session_id|lower }}" data-status="{{ order.status }}" data-level="{{ order.enrollment.course.level }}">
+                        <tr data-search-text="{{ order.user.username|lower }} {{ order.user.email|lower }} {{ order.enrollment.course.title|lower }} {{ order.checkout_session_id|lower }} {{ order.proof_note|lower }}" data-status="{{ order.status }}" data-level="{{ order.enrollment.course.level }}">
                             <td><strong>#{{ order.id }}</strong></td>
                             <td>
                                 <div><strong>{{ order.user.get_full_name|default:order.user.username }}</strong></div>
@@ -456,7 +457,24 @@
                             </td>
                             <td style="font-size: 0.85rem; color: #64748B;">{{ order.created_at|date:"d M Y, H:i" }}</td>
                             <td style="font-family: monospace; font-size: 0.8rem; color: #64748B;">
-                                {{ order.checkout_session_id|default:"-" }}
+                                <div><strong>{{ order.checkout_session_id|default:"-" }}</strong></div>
+                                {% if order.proof_note %}
+                                <div style="font-size: 0.75rem; color: #B45309; background: #FFFBEB; padding: 2px 6px; border-radius: 6px; margin-top: 2px;">
+                                    💬 {{ order.proof_note }}
+                                </div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if order.status == 'PENDING' %}
+                                <form method="post" action="{% url 'confirm_wise_payment' order.pk %}" style="display:inline;" onsubmit="return confirm('Confirm Wise payment for order #{{ order.id }}?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.4rem 0.75rem; font-size: 0.75rem; border-radius: 8px;">
+                                        Confirm Fee
+                                    </button>
+                                </form>
+                                {% else %}
+                                <span style="color:#059669; font-weight:700; font-size:0.8rem;">✓ Verified</span>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
