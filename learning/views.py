@@ -106,12 +106,14 @@ def approve_enrollment(request, pk):
         raise PermissionDenied
     
     enrollment = get_object_or_404(CourseEnrollment, pk=pk)
-    # Security check: Admin can only approve for their own school
     if not request.user.is_superuser and enrollment.course.school != request.user.school:
         raise PermissionDenied
 
     if request.method == 'POST':
         enrollment.status = CourseEnrollment.Status.ENROLLED
+        admin_note = request.POST.get('admin_note')
+        if admin_note:
+            enrollment.admin_note = admin_note
         enrollment.save()
     return redirect('dashboard')
 
@@ -128,6 +130,9 @@ def reject_enrollment(request, pk):
 
     if request.method == 'POST':
         enrollment.status = CourseEnrollment.Status.REJECTED
+        admin_note = request.POST.get('admin_note')
+        if admin_note:
+            enrollment.admin_note = admin_note
         enrollment.save()
     return redirect('dashboard')
 

@@ -114,20 +114,56 @@
         </div>
         
         <div class="card">
-            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">🛰️ Enrollment Requests</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+                <h3 style="font-size:1.1rem; font-weight:700; margin:0;">🛰️ Enrollment Requests</h3>
+                {% if pending_enrollments %}
+                <span class="badge" style="background:#FFFBEB; color:#B45309; border:1px solid #FCD34D;">{{ pending_enrollments|length }} Pending Action</span>
+                {% endif %}
+            </div>
             {% if pending_enrollments %}
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
                 <table>
                 <thead>
-                    <tr><th>Student</th><th>Course</th><th>Actions</th></tr>
+                    <tr>
+                        <th>Student</th>
+                        <th>Course</th>
+                        <th>Requested At</th>
+                        <th>Custom Message & Decision</th>
+                    </tr>
                 </thead>
                 <tbody>
                     {% for req in pending_enrollments %}
                     <tr>
-                        <td>{{ req.user.username }}</td>
-                        <td>{{ req.course.title }}</td>
                         <td>
-                            <form method="post" action="{% url 'approve_enrollment' req.pk %}" style="display:inline;">{% csrf_token %}<button class="btn btn-primary btn-sm">Approve</button></form>
+                            <div style="font-weight:700; color:var(--text);">{{ req.user.username }}</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); display:flex; align-items:center; gap:4px; margin-top:2px;">
+                                <span>{{ req.user.email }}</span>
+                                <button type="button" onclick="navigator.clipboard.writeText('{{ req.user.email }}'); this.textContent='✓'; setTimeout(()=>this.textContent='📧', 1500);" style="background:none; border:none; cursor:pointer; font-size:0.75rem; padding:0;" title="Copy Email">📧</button>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight:600;">{{ req.course.title }}</div>
+                            <span class="badge badge-yellow" style="font-size:0.7rem; margin-top:2px; display:inline-block;">{{ req.course.get_level_display }}</span>
+                        </td>
+                        <td style="font-size:0.85rem; color:var(--text-muted); white-space:nowrap;">
+                            {{ req.enrolled_at|date:"d M Y, H:i" }}
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+                                <input type="text" name="note_{{ req.pk }}" id="note_{{ req.pk }}" placeholder="Optional message for student..." 
+                                       style="padding:0.4rem 0.6rem; border:1px solid #CBD5E1; border-radius:8px; font-size:0.8rem; flex:1; min-width:160px; background:#F8FAFC;">
+                                
+                                <form method="post" action="{% url 'approve_enrollment' req.pk %}" style="display:inline;" onsubmit="this.admin_note.value = document.getElementById('note_{{ req.pk }}').value;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="admin_note" value="">
+                                    <button type="submit" class="btn btn-primary btn-sm" style="padding:0.4rem 0.8rem; font-size:0.75rem; border-radius:8px;">Approve</button>
+                                </form>
+                                <form method="post" action="{% url 'reject_enrollment' req.pk %}" style="display:inline;" onsubmit="this.admin_note.value = document.getElementById('note_{{ req.pk }}').value;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="admin_note" value="">
+                                    <button type="submit" class="btn btn-sm" style="padding:0.4rem 0.8rem; font-size:0.75rem; background:#FEE2E2; color:#991B1B; border-radius:8px;">Reject</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     {% endfor %}
@@ -135,7 +171,7 @@
             </table>
             </div>
             {% else %}
-            <p style="text-align:center; padding:1.5rem;">No pending requests.</p>
+            <p style="text-align:center; padding:2rem; color:var(--text-muted);">No pending enrollment requests at this time.</p>
             {% endif %}
         </div>
     </div>

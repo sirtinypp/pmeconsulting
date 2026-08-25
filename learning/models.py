@@ -147,6 +147,7 @@ class CourseEnrollment(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
     status = models.CharField(max_length=12, choices=Status.choices, default=Status.PENDING)
     progress_percent = models.IntegerField(default=0)
+    admin_note = models.TextField(blank=True, null=True, help_text="Custom message from admin regarding this enrollment status")
     enrolled_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
