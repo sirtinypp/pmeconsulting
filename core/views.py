@@ -1027,8 +1027,7 @@ def student_detail_api(request, pk):
 
     student = get_object_or_404(CustomUser, pk=pk)
     
-    from learning.models import CourseEnrollment, LessonCompletion, Lesson, ActivitySubmission
-    from quiz.models import QuizAttempt
+    from learning.models import CourseEnrollment, LessonCompletion, Lesson, ActivitySubmission, QuizAttempt
 
     enrollments = CourseEnrollment.objects.filter(user=student).select_related('course').order_by('-enrolled_at')
     
@@ -1061,15 +1060,16 @@ def student_detail_api(request, pk):
         })
 
     # Quiz Attempts
-    attempts = QuizAttempt.objects.filter(user=student).select_related('quiz').order_by('-completed_at')[:10]
+    attempts = QuizAttempt.objects.filter(user=student).select_related('lesson').order_by('-attempted_at')[:10]
     quiz_data = []
     for att in attempts:
         quiz_data.append({
-            'quiz_title': att.quiz.title if att.quiz else 'Quiz',
+            'quiz_title': f"{att.lesson.title} Quiz" if att.lesson else 'Quiz',
             'score': att.score,
-            'total_possible': att.total_possible,
-            'percentage': round((att.score / att.total_possible * 100), 1) if att.total_possible else 0,
-            'completed_at': att.completed_at.strftime('%d %b %Y, %H:%M') if att.completed_at else ''
+            'total_possible': att.total_questions,
+            'passed': att.passed,
+            'percentage': round((att.score / att.total_questions * 100), 1) if att.total_questions else 0,
+            'completed_at': att.attempted_at.strftime('%d %b %Y, %H:%M') if att.attempted_at else ''
         })
 
     # Activity Submissions
