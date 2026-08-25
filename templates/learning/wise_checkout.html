@@ -22,8 +22,20 @@
         </div>
     </div>
 
-    <!-- GCash & InstaPay Direct QR Payment Card -->
-    <div class="card" style="margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0;">
+    <!-- Multi-Tab Selector -->
+    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; background: #E2E8F0; padding: 6px; border-radius: 14px;">
+        <button type="button" id="tabBtnGcash" onclick="switchPaymentTab('gcash')" 
+                style="flex: 1; padding: 0.75rem; border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; background: white; color: #007DFF; box-shadow: 0 2px 6px rgba(0,0,0,0.08); transition: all 0.2s;">
+            📱 GCash / InstaPay QR
+        </button>
+        <button type="button" id="tabBtnWise" onclick="switchPaymentTab('wise')" 
+                style="flex: 1; padding: 0.75rem; border: none; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; background: transparent; color: #64748B; transition: all 0.2s;">
+            🚀 Wise (EUR / International)
+        </button>
+    </div>
+
+    <!-- TAB 1: GCash / InstaPay QR -->
+    <div id="paymentTabGcash" class="card" style="margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0;">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
             <div style="width: 42px; height: 42px; background: #007DFF; color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem;">
                 📱
@@ -34,14 +46,18 @@
             </div>
         </div>
 
-        <!-- Embedded QR Code Image -->
-        <div style="text-align: center; margin-bottom: 1.5rem; background: #007DFF; padding: 1rem; border-radius: 16px;">
-            <img src="{% static 'images/pmepayment_gcash_qr.jpg' %}" alt="GCash InstaPay QR Code - PMEPayment" 
-                 style="max-width: 280px; width: 100%; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15);">
+        <!-- Clean, Large, High-Resolution QR Container -->
+        <div style="text-align: center; margin-bottom: 1.5rem; background: #FFFFFF; padding: 1.5rem; border-radius: 20px; border: 2px solid #E2E8F0; box-shadow: 0 8px 24px rgba(0,0,0,0.06);">
+            <div style="display: inline-block; background: #007DFF; padding: 12px; border-radius: 16px;">
+                <img src="{% static 'images/pmepayment_gcash_qr.jpg' %}" alt="GCash InstaPay QR Code - PMEPayment" 
+                     style="width: 100%; max-width: 340px; display: block; border-radius: 10px; filter: contrast(105%);">
+            </div>
+            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: #007DFF; font-weight: 700;">
+                🔍 Align camera or scan directly in GCash / Maya app
+            </div>
         </div>
 
         <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
-            
             <!-- Account Name -->
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
                 <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Account Name:</span>
@@ -70,11 +86,56 @@
         </div>
 
         <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #E0F2FE; border-radius: 10px; font-size: 0.8rem; color: #0369A1;">
-            💡 <strong>Instructions:</strong> Scan the QR code or send to <strong>PMEPayment</strong>. Once paid, enter your GCash or InstaPay Reference No. below for instant verification!
+            💡 <strong>Instructions:</strong> Scan QR or send to <strong>PMEPayment</strong>. Enter your GCash or InstaPay Reference No. below after payment.
         </div>
     </div>
 
-    <!-- Proof of Payment Form -->
+    <!-- TAB 2: Wise Transfer (International) -->
+    <div id="paymentTabWise" class="card" style="display: none; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
+            <div style="width: 42px; height: 42px; background: #00B9FF; color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem;">
+                🚀
+            </div>
+            <div>
+                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F172A;">Wise Transfer Instructions</h4>
+                <p style="margin: 0; font-size: 0.8rem; color: #64748B;">Ideal for European, International, and Multi-currency transfers.</p>
+            </div>
+        </div>
+
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
+            <!-- Account Name -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Account Name:</span>
+                <span style="font-size: 0.9rem; font-weight: 700; color: #0F172A;">PME Consulting / MedTech Europe</span>
+            </div>
+
+            <!-- Wise Tag -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-top: 1px dashed #CBD5E1; padding-top: 0.75rem;">
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Wise Tag / Handle:</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <code style="background: white; padding: 4px 10px; border-radius: 8px; border: 1px solid #CBD5E1; font-weight: 700; color: #0369A1;">@pmeconsulting</code>
+                    <button type="button" onclick="navigator.clipboard.writeText('@pmeconsulting'); this.textContent='✓'; setTimeout(()=>this.textContent='Copy', 1500);" 
+                            style="background: white; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+                </div>
+            </div>
+
+            <!-- Payment Reference -->
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-top: 1px dashed #CBD5E1; padding-top: 0.75rem;">
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Payment Reference Code:</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <code style="background: #FEF3C7; padding: 4px 10px; border-radius: 8px; border: 1px solid #FDE68A; font-weight: 800; color: #92400E;">{{ order.checkout_session_id }}</code>
+                    <button type="button" onclick="navigator.clipboard.writeText('{{ order.checkout_session_id }}'); this.textContent='✓'; setTimeout(()=>this.textContent='Copy', 1500);" 
+                            style="background: white; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #E0F2FE; border-radius: 10px; font-size: 0.8rem; color: #0369A1;">
+            💡 <strong>Note:</strong> Enter <strong>{{ order.checkout_session_id }}</strong> in the Wise transfer note field so we can auto-match your payment.
+        </div>
+    </div>
+
+    <!-- Universal Proof of Payment Form -->
     <div class="card" style="padding: 1.5rem; border-radius: 16px;">
         <h4 style="margin: 0 0 1rem 0; font-size: 1.05rem; font-weight: 700; color: #0F172A;">Submit Transaction Reference</h4>
         
@@ -84,9 +145,9 @@
             
             <div style="margin-bottom: 1.25rem;">
                 <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: #334155;">
-                    GCash / InstaPay / Wise Reference No. <span style="color: #DC2626;">*</span>
+                    Reference No. / Transaction ID <span style="color: #DC2626;">*</span>
                 </label>
-                <input type="text" name="proof_note" required placeholder="e.g. GCash Ref No. 100293847561 or Bank Ref" 
+                <input type="text" name="proof_note" required placeholder="e.g. GCash Ref No. 100293847561 or Wise Ref ID" 
                        style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #CBD5E1; border-radius: 10px; font-size: 0.9rem; background: #F8FAFC;">
             </div>
 
@@ -101,4 +162,37 @@
         </form>
     </div>
 </div>
+
+<script>
+    function switchPaymentTab(tabName) {
+        let gcashTab = document.getElementById('paymentTabGcash');
+        let wiseTab = document.getElementById('paymentTabWise');
+        let btnGcash = document.getElementById('tabBtnGcash');
+        let btnWise = document.getElementById('tabBtnWise');
+
+        if (tabName === 'wise') {
+            gcashTab.style.display = 'none';
+            wiseTab.style.display = 'block';
+            
+            btnWise.style.background = 'white';
+            btnWise.style.color = '#00B9FF';
+            btnWise.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)';
+
+            btnGcash.style.background = 'transparent';
+            btnGcash.style.color = '#64748B';
+            btnGcash.style.boxShadow = 'none';
+        } else {
+            wiseTab.style.display = 'none';
+            gcashTab.style.display = 'block';
+
+            btnGcash.style.background = 'white';
+            btnGcash.style.color = '#007DFF';
+            btnGcash.style.boxShadow = '0 2px 6px rgba(0,0,0,0.08)';
+
+            btnWise.style.background = 'transparent';
+            btnWise.style.color = '#64748B';
+            btnWise.style.boxShadow = 'none';
+        }
+    }
+</script>
 {% endblock %}
