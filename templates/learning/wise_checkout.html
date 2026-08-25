@@ -93,35 +93,46 @@
     <!-- TAB 2: Wise Transfer (International) -->
     <div id="paymentTabWise" class="card" style="display: none; margin-bottom: 1.5rem; padding: 1.5rem; border-radius: 16px; border: 1px solid #E2E8F0;">
         <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem;">
-            <div style="width: 42px; height: 42px; background: #00B9FF; color: white; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem;">
+            <div style="width: 42px; height: 42px; background: #9FE870; color: #163300; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem;">
                 🚀
             </div>
             <div>
-                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F172A;">Wise Transfer Instructions</h4>
-                <p style="margin: 0; font-size: 0.8rem; color: #64748B;">Ideal for European, International, and Multi-currency transfers.</p>
+                <h4 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: #0F172A;">Wise Payment & Transfer</h4>
+                <p style="margin: 0; font-size: 0.8rem; color: #64748B;">Scan Wise QR or click the payment link below to send money via Wise.</p>
+            </div>
+        </div>
+
+        <!-- Clean Wise QR Image Container (Name Hidden for Privacy) -->
+        <div style="text-align: center; margin-bottom: 1.5rem; background: #0E0F0E; padding: 1.5rem; border-radius: 20px; border: 2px solid #1E293B; box-shadow: 0 8px 24px rgba(0,0,0,0.12);">
+            <div style="display: inline-block; background: #163300; padding: 12px; border-radius: 16px;">
+                <img src="{% static 'images/pme_wise_qr.png' %}" alt="Wise QR Code - PME Consulting" 
+                     style="width: 100%; max-width: 320px; display: block; border-radius: 10px;">
+            </div>
+            <div style="margin-top: 0.75rem; font-size: 0.85rem; color: #9FE870; font-weight: 700;">
+                🔍 Scan with Wise App or phone camera
             </div>
         </div>
 
         <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem;">
-            <!-- Account Name -->
+            
+            <!-- Clickable Wise Pay Link & Copy Button -->
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Account Name:</span>
-                <span style="font-size: 0.9rem; font-weight: 700; color: #0F172A;">PME Consulting / MedTech Europe</span>
-            </div>
-
-            <!-- Wise Tag -->
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-top: 1px dashed #CBD5E1; padding-top: 0.75rem;">
-                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Wise Tag / Handle:</span>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <code style="background: white; padding: 4px 10px; border-radius: 8px; border: 1px solid #CBD5E1; font-weight: 700; color: #0369A1;">@pmeconsulting</code>
-                    <button type="button" onclick="navigator.clipboard.writeText('@pmeconsulting'); this.textContent='✓'; setTimeout(()=>this.textContent='Copy', 1500);" 
-                            style="background: white; border: 1px solid #CBD5E1; border-radius: 6px; padding: 3px 8px; font-size: 0.75rem; cursor: pointer;">Copy</button>
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Wise Payment Link:</span>
+                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                    <a href="https://wise.com/pay/me/christineannebasag" target="_blank" rel="noopener" 
+                       style="background: #163300; color: #9FE870; text-decoration: none; padding: 6px 12px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 0.3rem;">
+                        🌐 Open Wise Link ↗
+                    </a>
+                    <button type="button" onclick="navigator.clipboard.writeText('https://wise.com/pay/me/christineannebasag'); this.textContent='✓ Copied!'; setTimeout(()=>this.textContent='📋 Copy Link', 1500);" 
+                            style="background: white; border: 1px solid #CBD5E1; border-radius: 8px; padding: 6px 12px; font-size: 0.85rem; font-weight: 600; cursor: pointer;">
+                        📋 Copy Link
+                    </button>
                 </div>
             </div>
 
             <!-- Payment Reference -->
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; border-top: 1px dashed #CBD5E1; padding-top: 0.75rem;">
-                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Payment Reference Code:</span>
+                <span style="font-size: 0.85rem; color: #64748B; font-weight: 600;">Your Payment Reference Code:</span>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <code style="background: #FEF3C7; padding: 4px 10px; border-radius: 8px; border: 1px solid #FDE68A; font-weight: 800; color: #92400E;">{{ order.checkout_session_id }}</code>
                     <button type="button" onclick="navigator.clipboard.writeText('{{ order.checkout_session_id }}'); this.textContent='✓'; setTimeout(()=>this.textContent='Copy', 1500);" 
@@ -130,8 +141,8 @@
             </div>
         </div>
 
-        <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #E0F2FE; border-radius: 10px; font-size: 0.8rem; color: #0369A1;">
-            💡 <strong>Note:</strong> Enter <strong>{{ order.checkout_session_id }}</strong> in the Wise transfer note field so we can auto-match your payment.
+        <div style="margin-top: 1rem; padding: 0.75rem 1rem; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 10px; font-size: 0.8rem; color: #065F46;">
+            💡 <strong>Note:</strong> Open the Wise link or scan the QR code to complete your payment, then copy & paste your Wise transaction reference ID below.
         </div>
     </div>
 
