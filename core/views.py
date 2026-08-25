@@ -40,7 +40,7 @@ def dashboard(request):
             school = School.objects.first()
 
         from learning.models import LessonCompletion, Lesson
-        students = CustomUser.objects.filter(school=school, role='STUDENT')
+        students = list(CustomUser.objects.filter(school=school, role='STUDENT').order_by('-date_joined'))
         for student in students:
             enrollments = CourseEnrollment.objects.filter(user=student, status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED'])
             course_ids = enrollments.values_list('course_id', flat=True)
@@ -54,7 +54,7 @@ def dashboard(request):
             student.completion_rate = int((completed_lessons / total_lessons * 100)) if total_lessons > 0 else 0
             student.total_enrollments = enrollments.count()
 
-        context['students'] = students.order_by('-date_joined')
+        context['students'] = students
         # Prefetch inquiries for guests (institutional leads + unassigned leads)
         from django.db.models import Q
         context['guests'] = CustomUser.objects.filter(

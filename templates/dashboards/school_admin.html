@@ -96,12 +96,16 @@
                             </div>
                             <div style="font-size:0.8rem; color:var(--text-muted);">{{ student.email }}</div>
                         </td>
-                        <td>{{ student.total_enrollments }}</td>
+                        <td>
+                            <span class="badge" style="background:#F1F5F9; color:#475569;">
+                                {{ student.total_enrollments|default:0 }} Course{% if student.total_enrollments != 1 %}s{% endif %}
+                            </span>
+                        </td>
                         <td>
                             <div class="progress-bar-wrap">
-                                <div class="progress-bar-fill" style="width:{{ student.completion_rate }}%"></div>
+                                <div class="progress-bar-fill" style="width:{{ student.completion_rate|default:0 }}%"></div>
                             </div>
-                            <span style="font-size:0.75rem; color:var(--text-muted);">{{ student.completion_rate }}%</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">{{ student.completion_rate|default:0 }}%</span>
                         </td>
                         <td style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
                             <button type="button" onclick="openStudentDrawer({{ student.pk }})" class="btn btn-sm" style="font-size:0.75rem; padding: 6px 10px; border-radius: 8px; background:#E0F2FE; color:#0369A1; border:1px solid #BAE6FD; font-weight:600;" title="View Full Progression">
