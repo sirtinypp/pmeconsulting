@@ -61,52 +61,6 @@
     </button>
 </div>
 
-<!-- Admin Real-Time Search & Filter Control Bar -->
-<div class="card" style="margin-bottom: 1.5rem; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 1.25rem; border-radius: 16px;">
-    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
-        <!-- Search Input -->
-        <div style="flex: 2; min-width: 260px; position: relative;">
-            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1rem; opacity: 0.5;">🔍</span>
-            <input type="text" id="adminGlobalSearch" placeholder="Search student name, email, course, status..." 
-                   style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.6rem; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 0.9rem; background: white; transition: all 0.2s;"
-                   onkeyup="applyAdminFilters()" onsearch="applyAdminFilters()">
-        </div>
-
-        <!-- Filter by Status -->
-        <div style="flex: 1; min-width: 160px;">
-            <select id="adminStatusFilter" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 0.85rem; background: white; cursor: pointer; appearance: auto;"
-                    onchange="applyAdminFilters()">
-                <option value="ALL">All Statuses</option>
-                <option value="PENDING">⏳ Pending Action</option>
-                <option value="ACTIVE">✅ Active / Enrolled</option>
-                <option value="PAID">₱ Paid</option>
-                <option value="UNPAID">🔴 Waiting Payment</option>
-            </select>
-        </div>
-
-        <!-- Filter by Level -->
-        <div style="flex: 1; min-width: 150px;">
-            <select id="adminLevelFilter" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 0.85rem; background: white; cursor: pointer; appearance: auto;"
-                    onchange="applyAdminFilters()">
-                <option value="ALL">All CEFR Levels</option>
-                <option value="A1">A1 Level</option>
-                <option value="A2">A2 Level</option>
-                <option value="B1">B1 Level</option>
-                <option value="B2">B2 Level</option>
-                <option value="C1">C1 Level</option>
-                <option value="C2">C2 Level</option>
-            </select>
-        </div>
-
-        <!-- Reset Button & Counter -->
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <button type="button" onclick="resetAdminFilters()" class="btn btn-sm" style="background: white; border: 1px solid #E2E8F0; color: #64748B; border-radius: 10px; padding: 0.65rem 1rem; font-size: 0.8rem; font-weight: 600;" title="Reset filters">
-                ✕ Reset
-            </button>
-            <span id="adminFilterCounter" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); background: #E0F2FE; padding: 0.4rem 0.75rem; border-radius: 20px; white-space: nowrap; display: none;">
-            </span>
-        </div>
-    </div>
 </div>
 
 <!-- Tab Content Panes -->
@@ -115,13 +69,18 @@
     <!-- 1. STUDENT MANAGEMENT -->
     <div id="students" class="tab-pane active">
         <div class="card" style="margin-bottom:1.5rem;">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <h3 style="font-size:1.1rem; font-weight:700;">Student Roster</h3>
-                <a href="{% url 'student_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Add Student</a>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <h3 style="font-size:1.1rem; font-weight:700; margin:0;">Student Roster</h3>
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                    <input type="text" placeholder="🔍 Search student name or email..." 
+                           style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; width:230px; background:#F8FAFC;"
+                           onkeyup="filterTableRows(this, 'studentRosterTable')">
+                    <a href="{% url 'student_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Add Student</a>
+                </div>
             </div>
             {% if students %}
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                <table>
+                <table id="studentRosterTable">
                 <thead>
                     <tr>
                         <th>Student</th>
@@ -162,15 +121,22 @@
         </div>
         
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <h3 style="font-size:1.1rem; font-weight:700; margin:0;">🛰️ Enrollment Requests</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <h3 style="font-size:1.1rem; font-weight:700; margin:0;">🛰️ Enrollment Requests</h3>
+                    {% if pending_enrollments %}
+                    <span class="badge" style="background:#FFFBEB; color:#B45309; border:1px solid #FCD34D;">{{ pending_enrollments|length }} Pending Action</span>
+                    {% endif %}
+                </div>
                 {% if pending_enrollments %}
-                <span class="badge" style="background:#FFFBEB; color:#B45309; border:1px solid #FCD34D;">{{ pending_enrollments|length }} Pending Action</span>
+                <input type="text" placeholder="🔍 Search requests..." 
+                       style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; width:220px; background:#F8FAFC;"
+                       onkeyup="filterTableRows(this, 'enrollmentRequestsTable')">
                 {% endif %}
             </div>
             {% if pending_enrollments %}
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                <table>
+                <table id="enrollmentRequestsTable">
                 <thead>
                     <tr>
                         <th>Student</th>
@@ -227,10 +193,25 @@
     <!-- 2. GUEST MANAGEMENT -->
     <div id="guests" class="tab-pane">
         <div class="card">
-            <h3 style="font-size:1.1rem; font-weight:700; margin-bottom:1.5rem;">✨ Recent Guest Signups (Leads)</h3>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <h3 style="font-size:1.1rem; font-weight:700; margin:0;">✨ Recent Guest Signups (Leads)</h3>
+                {% if guests %}
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                    <input type="text" placeholder="🔍 Search lead name, email, job..." 
+                           style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; width:220px; background:#F8FAFC;"
+                           onkeyup="filterTableRows(this, 'guestLeadsTable')">
+                    <select style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; background:#F8FAFC; cursor:pointer;"
+                            onchange="filterTableByAttribute(this, 'guestLeadsTable', 'data-status')">
+                        <option value="ALL">All Payment Statuses</option>
+                        <option value="PAID">PAID & ACTIVE</option>
+                        <option value="UNPAID">WAITING PAYMENT</option>
+                    </select>
+                </div>
+                {% endif %}
+            </div>
             {% if guests %}
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                <table>
+                <table id="guestLeadsTable">
                 <thead>
                     <tr>
                         <th>Lead Identification</th>
@@ -317,13 +298,28 @@
     <!-- 3. COURSE MANAGEMENT -->
     <div id="courses" class="tab-pane">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <h3 style="font-size:1.1rem; font-weight:700;">Course Catalog</h3>
-                <a href="{% url 'course_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Create New</a>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <h3 style="font-size:1.1rem; font-weight:700; margin:0;">Course Catalog</h3>
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                    <input type="text" placeholder="🔍 Search course title..." 
+                           style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; width:200px; background:#F8FAFC;"
+                           onkeyup="filterTableRows(this, 'courseCatalogTable')">
+                    <select style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; background:#F8FAFC; cursor:pointer;"
+                            onchange="filterTableByAttribute(this, 'courseCatalogTable', 'data-level')">
+                        <option value="ALL">All Levels</option>
+                        <option value="A1">A1 Level</option>
+                        <option value="A2">A2 Level</option>
+                        <option value="B1">B1 Level</option>
+                        <option value="B2">B2 Level</option>
+                        <option value="C1">C1 Level</option>
+                        <option value="C2">C2 Level</option>
+                    </select>
+                    <a href="{% url 'course_add' %}" class="btn btn-primary" style="font-size:0.8rem;">➕ Create New</a>
+                </div>
             </div>
             {% if all_courses %}
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                <table>
+                <table id="courseCatalogTable">
                 <thead>
                     <tr><th>Course</th><th>Level</th><th>Status</th><th>Actions</th></tr>
                 </thead>
@@ -384,14 +380,25 @@
         </div>
 
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <h3 style="font-size:1.1rem; font-weight:700;">Incoming Course Payments</h3>
-                <span class="badge" style="background: #F1F5F9; color: #475569; padding: 6px 12px; border-radius: 8px;">Real-time Webhook Synced</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <h3 style="font-size:1.1rem; font-weight:700; margin:0;">Incoming Course Payments</h3>
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                    <input type="text" placeholder="🔍 Search order ID, student, reference..." 
+                           style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; width:230px; background:#F8FAFC;"
+                           onkeyup="filterTableRows(this, 'paymentsTable')">
+                    <select style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; background:#F8FAFC; cursor:pointer;"
+                            onchange="filterTableByAttribute(this, 'paymentsTable', 'data-status')">
+                        <option value="ALL">All Statuses</option>
+                        <option value="PAID">PAID</option>
+                        <option value="PENDING">PENDING</option>
+                    </select>
+                    <span class="badge" style="background: #F1F5F9; color: #475569; padding: 6px 12px; border-radius: 8px;">Real-time Webhook Synced</span>
+                </div>
             </div>
 
             {% if payment_orders %}
             <div style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-                <table>
+                <table id="paymentsTable">
                     <thead>
                         <tr>
                             <th>Order ID</th>
@@ -497,14 +504,19 @@
     <!-- 5. TASK INBOX (SUBMISSIONS) -->
     <div id="tasks" class="tab-pane">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
-                <h3 style="font-size:1.1rem; font-weight:700;">📥 Pending Student Submissions</h3>
-                <a href="{% url 'activity_review_list' %}" class="btn" style="background:#F1F5F9; font-size:0.8rem;">View All History</a>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                <h3 style="font-size:1.1rem; font-weight:700; margin:0;">📥 Pending Student Submissions</h3>
+                <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+                    <input type="text" placeholder="🔍 Search student or activity..." 
+                           style="padding:0.5rem 0.85rem; border:1.5px solid #CBD5E1; border-radius:10px; font-size:0.85rem; width:200px; background:#F8FAFC;"
+                           onkeyup="filterTableRows(this, 'taskInboxTable')">
+                    <a href="{% url 'activity_review_list' %}" class="btn" style="background:#F1F5F9; font-size:0.8rem;">View All History</a>
+                </div>
             </div>
             
             {% if pending_submissions %}
             <div style="overflow-x: auto;">
-                <table>
+                <table id="taskInboxTable">
                 <thead>
                     <tr><th>Student</th><th>Activity</th><th>Submitted At</th><th>Actions</th></tr>
                 </thead>
@@ -567,54 +579,26 @@
 </div>
 
 <script>
-    function applyAdminFilters() {
-        const searchVal = (document.getElementById('adminGlobalSearch').value || '').toLowerCase().trim();
-        const statusVal = document.getElementById('adminStatusFilter').value;
-        const levelVal = document.getElementById('adminLevelFilter').value;
-        const counter = document.getElementById('adminFilterCounter');
-
-        const activePane = document.querySelector('.tab-pane.active');
-        if (!activePane) return;
-
-        const rows = activePane.querySelectorAll('tbody tr');
-        if (rows.length === 0) {
-            counter.style.display = 'none';
-            return;
-        }
-
-        let visibleCount = 0;
-        let totalCount = rows.length;
-
+    function filterTableRows(inputEl, tableId) {
+        const filter = inputEl.value.toLowerCase().trim();
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const rows = table.querySelectorAll('tbody tr');
         rows.forEach(row => {
             const text = (row.getAttribute('data-search-text') || row.innerText || '').toLowerCase();
-            const status = (row.getAttribute('data-status') || '').toUpperCase();
-            const level = (row.getAttribute('data-level') || '').toUpperCase();
-
-            const matchesSearch = !searchVal || text.includes(searchVal);
-            const matchesStatus = (statusVal === 'ALL') || (status && status.includes(statusVal)) || text.includes(statusVal.toLowerCase());
-            const matchesLevel = (levelVal === 'ALL') || (level && level.includes(levelVal)) || text.includes(levelVal.toLowerCase());
-
-            if (matchesSearch && matchesStatus && matchesLevel) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
+            row.style.display = (!filter || text.includes(filter)) ? '' : 'none';
         });
-
-        if (searchVal || statusVal !== 'ALL' || levelVal !== 'ALL') {
-            counter.style.display = 'inline-block';
-            counter.textContent = `Showing ${visibleCount} of ${totalCount}`;
-        } else {
-            counter.style.display = 'none';
-        }
     }
 
-    function resetAdminFilters() {
-        document.getElementById('adminGlobalSearch').value = '';
-        document.getElementById('adminStatusFilter').value = 'ALL';
-        document.getElementById('adminLevelFilter').value = 'ALL';
-        applyAdminFilters();
+    function filterTableByAttribute(selectEl, tableId, attrName) {
+        const val = selectEl.value.toUpperCase();
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const rows = table.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            const attrVal = (row.getAttribute(attrName) || '').toUpperCase();
+            row.style.display = (val === 'ALL' || attrVal.includes(val)) ? '' : 'none';
+        });
     }
 
     function switchTab(tabId) {
@@ -638,9 +622,6 @@
         
         // Save to local storage for persistence
         localStorage.setItem('admin_last_tab', tabId);
-
-        // Re-apply filters for the newly active tab
-        setTimeout(applyAdminFilters, 50);
     }
 
     // Persistence logic
