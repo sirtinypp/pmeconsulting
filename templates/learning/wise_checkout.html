@@ -17,7 +17,7 @@
             </div>
             <div style="text-align: right;">
                 <span style="font-size: 0.8rem; color: #94A3B8; display: block; text-transform: uppercase;">Amount Due</span>
-                <span style="font-size: 2rem; font-weight: 800; color: #38BDF8;">₱{{ order.amount|floatformat:2 }}</span>
+                <span id="amountDueDisplay" style="font-size: 2rem; font-weight: 800; color: #38BDF8;">₱{{ order.amount|floatformat:2 }}</span>
             </div>
         </div>
     </div>
@@ -154,6 +154,32 @@
             {% csrf_token %}
             <input type="hidden" name="order_id" value="{{ order.id }}">
             
+            <!-- 1. Client Full Name -->
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: #334155;">
+                    Full Name of Client / Payer <span style="color: #DC2626;">*</span>
+                </label>
+                <input type="text" name="client_name" required value="{{ user.get_full_name|default:user.username }}" 
+                       placeholder="e.g. Maria Santos or Payer Name" 
+                       style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #CBD5E1; border-radius: 10px; font-size: 0.9rem; background: #F8FAFC;">
+            </div>
+
+            <!-- 2. Course / Program / Tier Availed -->
+            <div style="margin-bottom: 1.25rem;">
+                <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: #334155;">
+                    Course / Program / Tier Availed <span style="color: #DC2626;">*</span>
+                </label>
+                <select name="tier_id" required onchange="updateTierPrice(this)" 
+                        style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #CBD5E1; border-radius: 10px; font-size: 0.9rem; background: #F8FAFC; cursor: pointer;">
+                    {% for t in all_tiers %}
+                    <option value="{{ t.id }}" data-price="{{ t.price|floatformat:2 }}" {% if tier and t.id == tier.id %}selected{% endif %}>
+                        {{ t.course.title }} — {{ t.tier_type }} (₱{{ t.price|floatformat:2 }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- 3. Reference No / Transaction ID -->
             <div style="margin-bottom: 1.25rem;">
                 <label style="display: block; font-weight: 600; font-size: 0.85rem; margin-bottom: 0.4rem; color: #334155;">
                     Reference No. / Transaction ID <span style="color: #DC2626;">*</span>
@@ -175,6 +201,15 @@
 </div>
 
 <script>
+    function updateTierPrice(selectEl) {
+        let selectedOption = selectEl.options[selectEl.selectedIndex];
+        let price = selectedOption.getAttribute('data-price');
+        let amountDisplay = document.getElementById('amountDueDisplay');
+        if (amountDisplay && price) {
+            amountDisplay.innerText = '₱' + price;
+        }
+    }
+
     function switchPaymentTab(tabName) {
         let gcashTab = document.getElementById('paymentTabGcash');
         let wiseTab = document.getElementById('paymentTabWise');

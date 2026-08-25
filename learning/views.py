@@ -540,7 +540,7 @@ def paymongo_webhook(request):
 @login_required
 def wise_checkout(request, course_id):
     """
-    Renders Wise payment details and handles reference code submission.
+    Renders direct payment details and handles reference submission with client name and program tier dropdown.
     """
     course = get_object_or_404(Course, pk=course_id)
     tier_type = request.GET.get('tier', 'BASIC').upper()
@@ -576,26 +576,47 @@ def wise_checkout(request, course_id):
             status=PaymentOrder.PaymentStatus.PENDING
         )
 
+    # Fetch all active course tiers for the program/tier dropdown
+    all_tiers = CourseTier.objects.select_related('course').filter(course__is_active=True).order_by('course__title', 'price')
+
     if request.method == 'POST':
+        client_name = request.POST.get('client_name', '').strip() or request.user.get_full_name() or request.user.username
         proof_note = request.POST.get('proof_note', '').strip()
+        selected_tier_id = request.POST.get('tier_id')
+        
+        if selected_tier_id:
+            new_tier = CourseTier.objects.filter(pk=selected_tier_id).first()
+            if new_tier:
+                tier = new_tier
+                course = new_tier.course
+                enrollment, _ = CourseEnrollment.objects.get_or_create(
+                    user=request.user,
+                    course=course,
+                    defaults={'status': CourseEnrollment.Status.PENDING}
+                )
+                order.enrollment = enrollment
+                order.tier = new_tier
+                order.amount = new_tier.price
+
         if proof_note:
-            order.proof_note = proof_note
+            order.proof_note = f"Payer: {client_name} | Ref: {proof_note}"
             order.save()
             
             # Ensure enrollment is pending for admin review
             enrollment.status = CourseEnrollment.Status.PENDING
-            enrollment.admin_note = f"Wise Payment Submitted: {proof_note}"
+            enrollment.admin_note = f"Payment Submitted by {client_name} (Ref: {proof_note})"
             enrollment.save()
             
             from django.contrib import messages
-            messages.success(request, f"Wise payment reference '{proof_note}' submitted! Your enrollment is pending administrator verification.")
+            messages.success(request, f"Payment reference '{proof_note}' submitted for {client_name}! Your enrollment is pending administrator verification.")
             return redirect('course_detail', pk=course.pk)
 
     return render(request, 'learning/wise_checkout.html', {
         'course': course,
         'tier': tier,
         'order': order,
-        'page_title': 'Wise Payment',
+        'all_tiers': all_tiers,
+        'page_title': 'Direct Payment Checkout',
         'brand_context': 'Learning'
     })
 
