@@ -28,6 +28,7 @@ class Course(SchoolScopedModel):
     end_date = models.DateField(null=True, blank=True)
     duration = models.CharField(max_length=100, blank=True, help_text="e.g., 8 weeks, 40 hours")
     is_active = models.BooleanField(default=True)
+    show_in_catalog = models.BooleanField(default=True, help_text="Show this course in the public/school course catalog for non-enrolled students")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

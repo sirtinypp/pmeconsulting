@@ -2,20 +2,24 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.core.exceptions import PermissionDenied
+from django.db.models import Q
 from .models import Course, CourseEnrollment, Lesson, LessonCompletion
 
 
 @login_required
 def course_list(request):
     """List courses available to the user's school."""
-    courses = Course.objects.for_user(request.user).filter(is_active=True)
-    enrolled_ids = CourseEnrollment.objects.filter(
+    enrolled_ids = list(CourseEnrollment.objects.filter(
         user=request.user
-    ).values_list('course_id', flat=True)
+    ).values_list('course_id', flat=True))
+
+    courses = Course.objects.for_user(request.user).filter(is_active=True)
+    if request.user.role == 'STUDENT':
+        courses = courses.filter(Q(show_in_catalog=True) | Q(id__in=enrolled_ids))
 
     return render(request, 'learning/course_list.html', {
         'courses': courses,
-        'enrolled_ids': list(enrolled_ids),
+        'enrolled_ids': enrolled_ids,
         'page_title': 'Course Catalog',
         'brand_context': 'Learning',
     })
@@ -133,6 +137,16 @@ def complete_lesson(request, pk):
     """Mark a lesson as completed."""
     lesson = get_object_or_404(Lesson, pk=pk)
     if request.method == 'POST':
+        enrollment = CourseEnrollment.objects.filter(
+            user=request.user, 
+            course=lesson.course,
+            status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']
+        ).first()
+
+        is_admin = request.user.role in ['SCHOOL_ADMIN', 'SUPERUSER'] or request.user.is_superuser
+        if not enrollment and not is_admin:
+            raise PermissionDenied
+
         LessonCompletion.objects.get_or_create(user=request.user, lesson=lesson)
 
         # Update enrollment progress
@@ -141,10 +155,6 @@ def complete_lesson(request, pk):
         done = LessonCompletion.objects.filter(
             user=request.user, lesson__course=course, lesson__is_required=True
         ).count()
-
-        enrollment = CourseEnrollment.objects.filter(
-            user=request.user, course=course
-        ).first()
 
         if enrollment:
             enrollment.progress_percent = int((done / total * 100)) if total > 0 else 0

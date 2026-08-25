@@ -394,6 +394,7 @@ def course_upsert(request, pk=None):
         duration = request.POST.get('duration')
         description = request.POST.get('description')
         is_active = request.POST.get('is_active') == 'on'
+        show_in_catalog = request.POST.get('show_in_catalog') == 'on'
         
         # Handle thumbnail file upload
         thumbnail = request.FILES.get('thumbnail')
@@ -414,7 +415,8 @@ def course_upsert(request, pk=None):
             course = Course.objects.create(
                 title=title, school=school, level=level, 
                 category=category, duration=duration, 
-                description=description, is_active=is_active
+                description=description, is_active=is_active,
+                show_in_catalog=show_in_catalog
             )
         else:
             course.title = title
@@ -423,6 +425,7 @@ def course_upsert(request, pk=None):
             course.duration = duration
             course.description = description
             course.is_active = is_active
+            course.show_in_catalog = show_in_catalog
             
         if thumbnail:
             try:
@@ -835,9 +838,14 @@ def course_roster(request, pk):
         course=course
     ).select_related('user').order_by('user__username')
 
+    enrolled_count = enrollments.filter(status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']).count()
+    pending_count = enrollments.filter(status='PENDING').count()
+
     return render(request, 'management/course_roster.html', {
         'course': course,
         'enrollments': enrollments,
+        'enrolled_count': enrolled_count,
+        'pending_count': pending_count,
         'page_title': f'Roster: {course.title}',
         'brand_context': 'Management',
     })

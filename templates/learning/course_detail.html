@@ -46,6 +46,16 @@
                 </form>
             </div>
         </div>
+        {% elif enrollment and enrollment.status == 'PENDING' %}
+        <div class="card" style="background:#FFFBEB; border:1px solid #FCD34D; color:#92400E; margin-bottom:1.5rem; padding:1.25rem; border-radius:16px;">
+            <div style="display:flex; align-items:center; gap:0.75rem;">
+                <span style="font-size:1.5rem;">⏳</span>
+                <div>
+                    <h4 style="font-weight:700; color:#92400E; margin-bottom:0.25rem;">Enrollment Request Pending Approval</h4>
+                    <p style="font-size:0.875rem; margin:0;">Your enrollment request is currently under review by your school administrator. Course content and lessons will be unlocked once approved.</p>
+                </div>
+            </div>
+        </div>
         {% elif enrollment %}
         <div class="card" style="margin-bottom:1.5rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
@@ -75,10 +85,10 @@
                     </span>
                     <div>
                         <div class="lesson-title" style="font-weight:600; font-size:0.9375rem;">
-                            {% if enrollment and enrollment.status != 'PENDING' %}
+                            {% if user.role == 'SCHOOL_ADMIN' or user.is_superuser or (enrollment and enrollment.status != 'PENDING') %}
                             <a href="{% url 'lesson_detail' lesson.pk %}" style="color:inherit; text-decoration:none; border-bottom:1px solid transparent;" onmouseover="this.style.borderBottom='1px solid var(--primary)'" onmouseout="this.style.borderBottom='1px solid transparent'">{{ lesson.title }}</a>
                             {% else %}
-                            {{ lesson.title }}
+                            <span style="color:var(--text-muted); opacity:0.8;">{{ lesson.title }} 🔒</span>
                             {% endif %}
                         </div>
                         <div style="font-size:0.75rem; color:var(--text-muted); display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; margin-top:0.1rem;">
@@ -102,7 +112,7 @@
                     </div>
                     {% endif %}
 
-                    {% if enrollment %}
+                    {% if enrollment and enrollment.status != 'PENDING' %}
                         {% if lesson.pk in completed_lesson_ids %}
                             <span class="badge badge-green">Done</span>
                         {% else %}
@@ -111,6 +121,8 @@
                                 <button type="submit" class="btn" style="font-size:0.75rem; padding:0.3rem 0.7rem;">Mark Complete</button>
                             </form>
                         {% endif %}
+                    {% elif enrollment and enrollment.status == 'PENDING' %}
+                        <span class="badge" style="background:#FFFBEB; color:#B45309; border:1px solid #FCD34D;">Pending Approval</span>
                     {% endif %}
                 </div>
             </div>

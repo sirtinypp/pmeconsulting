@@ -8,9 +8,12 @@
 <div class="card">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem;">
         <h3 style="font-size:1.25rem; font-weight:800;">👨‍🎓 Enrolled Students</h3>
-        <div style="display:flex; gap:0.5rem;">
+        <div style="display:flex; gap:0.5rem; align-items:center;">
             <a href="{% url 'bulk_enroll' course.pk %}" class="btn btn-primary" style="font-size:0.8rem;">⚡ Bulk Enroll Students</a>
-            <span class="badge badge-primary">{{ enrollments|length }} Enrolled</span>
+            <span class="badge badge-primary">{{ enrolled_count }} Enrolled</span>
+            {% if pending_count %}
+            <span class="badge" style="background:#FFFBEB; color:#B45309; border:1px solid #FCD34D;">{{ pending_count }} Pending Approval</span>
+            {% endif %}
         </div>
     </div>
 
@@ -36,12 +39,26 @@
                         {{ enrollment.enrolled_at|date:"d M Y" }}
                     </td>
                     <td style="padding:1.25rem 1rem;">
-                        <span class="badge" style="background-color: {% if enrollment.status == 'COMPLETED' %}#DCFCE7{% elif enrollment.status == 'IN_PROGRESS' %}#E0F2FE{% else %}#F1F5F9{% endif %}; color: {% if enrollment.status == 'COMPLETED' %}#166534{% elif enrollment.status == 'IN_PROGRESS' %}#0369A1{% else %}#475569{% endif %};">
+                        <span class="badge" style="background-color: {% if enrollment.status == 'COMPLETED' %}#DCFCE7{% elif enrollment.status == 'IN_PROGRESS' %}#E0F2FE{% elif enrollment.status == 'ENROLLED' %}#DCFCE7{% else %}#FFFBEB{% endif %}; color: {% if enrollment.status == 'COMPLETED' %}#166534{% elif enrollment.status == 'IN_PROGRESS' %}#0369A1{% elif enrollment.status == 'ENROLLED' %}#166534{% else %}#B45309{% endif %};">
                             {{ enrollment.get_status_display }}
                         </span>
                     </td>
                     <td style="padding:1.25rem 1rem;">
+                        {% if enrollment.status == 'PENDING' %}
+                        <div style="display:flex; gap:0.4rem; align-items:center;">
+                            <form method="post" action="{% url 'approve_enrollment' enrollment.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-primary" style="padding:4px 10px; font-size:0.75rem;">Approve</button>
+                            </form>
+                            <form method="post" action="{% url 'reject_enrollment' enrollment.pk %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm" style="padding:4px 10px; font-size:0.75rem; background:#FEE2E2; color:#991B1B;">Reject</button>
+                            </form>
+                            <a href="{% url 'student_edit' enrollment.user.pk %}" class="btn btn-sm" style="background:white; border:1px solid #E2E8F0; padding:4px 8px; font-size:0.75rem;">Profile</a>
+                        </div>
+                        {% else %}
                         <a href="{% url 'student_edit' enrollment.user.pk %}" class="btn btn-sm" style="background:white; border:1px solid #E2E8F0;">View Profile</a>
+                        {% endif %}
                     </td>
                 </tr>
                 {% empty %}

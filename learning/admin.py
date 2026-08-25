@@ -4,8 +4,8 @@ from .models import Course, Lesson, LessonResource, TrainingEvent, CourseEnrollm
 
 @admin.register(Course)
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ['title', 'level', 'school', 'is_active', 'start_date']
-    list_filter = ['level', 'school', 'is_active']
+    list_display = ['title', 'level', 'school', 'is_active', 'show_in_catalog', 'start_date']
+    list_filter = ['level', 'school', 'is_active', 'show_in_catalog']
     search_fields = ['title']
 
 
