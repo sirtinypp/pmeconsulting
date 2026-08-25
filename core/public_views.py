@@ -87,8 +87,17 @@ def book_service_success(request):
 def public_courses(request):
     """Showcase of all offered courses with dynamic DB entries."""
     active_courses = Course.objects.filter(is_active=True).order_by('title')
+    enrolled_course_ids = []
+    if request.user.is_authenticated:
+        from learning.models import CourseEnrollment
+        enrolled_course_ids = list(CourseEnrollment.objects.filter(
+            user=request.user,
+            status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']
+        ).values_list('course_id', flat=True))
+
     return render(request, 'public/courses.html', {
         'courses': active_courses,
+        'enrolled_course_ids': enrolled_course_ids,
         'page_title': 'Language Programs',
         'brand_context': 'Programs',
     })
