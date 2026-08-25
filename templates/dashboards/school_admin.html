@@ -61,6 +61,54 @@
     </button>
 </div>
 
+<!-- Admin Real-Time Search & Filter Control Bar -->
+<div class="card" style="margin-bottom: 1.5rem; background: #F8FAFC; border: 1px solid #E2E8F0; padding: 1.25rem; border-radius: 16px;">
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <!-- Search Input -->
+        <div style="flex: 2; min-width: 260px; position: relative;">
+            <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1rem; opacity: 0.5;">🔍</span>
+            <input type="text" id="adminGlobalSearch" placeholder="Search student name, email, course, status..." 
+                   style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.6rem; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 0.9rem; background: white; transition: all 0.2s;"
+                   onkeyup="applyAdminFilters()" onsearch="applyAdminFilters()">
+        </div>
+
+        <!-- Filter by Status -->
+        <div style="flex: 1; min-width: 160px;">
+            <select id="adminStatusFilter" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 0.85rem; background: white; cursor: pointer; appearance: auto;"
+                    onchange="applyAdminFilters()">
+                <option value="ALL">All Statuses</option>
+                <option value="PENDING">⏳ Pending Action</option>
+                <option value="ACTIVE">✅ Active / Enrolled</option>
+                <option value="PAID">₱ Paid</option>
+                <option value="UNPAID">🔴 Waiting Payment</option>
+            </select>
+        </div>
+
+        <!-- Filter by Level -->
+        <div style="flex: 1; min-width: 150px;">
+            <select id="adminLevelFilter" style="width: 100%; padding: 0.75rem 1rem; border: 2px solid #E2E8F0; border-radius: 12px; font-size: 0.85rem; background: white; cursor: pointer; appearance: auto;"
+                    onchange="applyAdminFilters()">
+                <option value="ALL">All CEFR Levels</option>
+                <option value="A1">A1 Level</option>
+                <option value="A2">A2 Level</option>
+                <option value="B1">B1 Level</option>
+                <option value="B2">B2 Level</option>
+                <option value="C1">C1 Level</option>
+                <option value="C2">C2 Level</option>
+            </select>
+        </div>
+
+        <!-- Reset Button & Counter -->
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <button type="button" onclick="resetAdminFilters()" class="btn btn-sm" style="background: white; border: 1px solid #E2E8F0; color: #64748B; border-radius: 10px; padding: 0.65rem 1rem; font-size: 0.8rem; font-weight: 600;" title="Reset filters">
+                ✕ Reset
+            </button>
+            <span id="adminFilterCounter" style="font-size: 0.8rem; font-weight: 700; color: var(--primary); background: #E0F2FE; padding: 0.4rem 0.75rem; border-radius: 20px; white-space: nowrap; display: none;">
+            </span>
+        </div>
+    </div>
+</div>
+
 <!-- Tab Content Panes -->
 <div id="tab-content">
     
@@ -84,7 +132,7 @@
                 </thead>
                 <tbody>
                     {% for student in students %}
-                    <tr>
+                    <tr data-search-text="{{ student.username|lower }} {{ student.email|lower }}" data-status="ACTIVE">
                         <td>
                             <div style="font-weight:600;">{{ student.username }}</div>
                             <div style="font-size:0.8rem; color:var(--text-muted);">{{ student.email }}</div>
@@ -133,7 +181,7 @@
                 </thead>
                 <tbody>
                     {% for req in pending_enrollments %}
-                    <tr>
+                    <tr data-search-text="{{ req.user.username|lower }} {{ req.user.email|lower }} {{ req.course.title|lower }}" data-status="PENDING" data-level="{{ req.course.level }}">
                         <td>
                             <div style="font-weight:700; color:var(--text);">{{ req.user.username }}</div>
                             <div style="font-size:0.8rem; color:var(--text-muted); display:flex; align-items:center; gap:4px; margin-top:2px;">
@@ -195,7 +243,7 @@
                 <tbody>
                     {% for guest in guests %}
                     {% with latest_inquiry=guest.service_inquiries.all.0 %}
-                    <tr style="border-bottom: 8px solid transparent;">
+                    <tr style="border-bottom: 8px solid transparent;" data-search-text="{{ guest.username|lower }} {{ guest.email|lower }} {{ latest_inquiry.get_service_requested_display|lower }}" data-status="{% if latest_inquiry.is_paid %}PAID{% else %}UNPAID{% endif %}">
                         <td>
                             <div style="font-weight:700; color: #1E293B;">{{ guest.username }}</div>
                             <div style="font-size:0.75rem; color:#64748B; margin-bottom: 0.5rem;">{{ guest.email }}</div>
@@ -281,7 +329,7 @@
                 </thead>
                 <tbody>
                     {% for course in all_courses %}
-                    <tr>
+                    <tr data-search-text="{{ course.title|lower }} {{ course.get_level_display|lower }}" data-status="{% if course.is_active %}ACTIVE{% else %}INACTIVE{% endif %}" data-level="{{ course.level }}">
                         <td>
                             <a href="{% url 'course_detail' course.pk %}" style="font-weight:700; color:var(--primary); text-decoration:none;">
                                 {{ course.title }}
@@ -358,7 +406,7 @@
                     </thead>
                     <tbody>
                         {% for order in payment_orders %}
-                        <tr>
+                        <tr data-search-text="{{ order.user.username|lower }} {{ order.user.email|lower }} {{ order.enrollment.course.title|lower }} {{ order.checkout_session_id|lower }}" data-status="{{ order.status }}" data-level="{{ order.enrollment.course.level }}">
                             <td><strong>#{{ order.id }}</strong></td>
                             <td>
                                 <div><strong>{{ order.user.get_full_name|default:order.user.username }}</strong></div>
@@ -422,7 +470,7 @@
                 </thead>
                 <tbody>
                     {% for event in training_events %}
-                    <tr>
+                    <tr data-search-text="{{ event.title|lower }} {{ event.location|lower }}">
                         <td><strong>{{ event.title }}</strong></td>
                         <td>{{ event.date|date:"d M, H:i" }}</td>
                         <td>{{ event.get_platform_display|default:event.location }}</td>
@@ -462,7 +510,7 @@
                 </thead>
                 <tbody>
                     {% for sub in pending_submissions %}
-                    <tr>
+                    <tr data-search-text="{{ sub.user.username|lower }} {{ sub.user.email|lower }} {{ sub.activity.title|lower }} {{ sub.activity.lesson.course.title|lower }}" data-status="PENDING" data-level="{{ sub.activity.lesson.course.level }}">
                         <td><strong>{{ sub.user.username }}</strong></td>
                         <td>
                             <div style="font-size:0.85rem;">{{ sub.activity.title }}</div>
@@ -519,6 +567,56 @@
 </div>
 
 <script>
+    function applyAdminFilters() {
+        const searchVal = (document.getElementById('adminGlobalSearch').value || '').toLowerCase().trim();
+        const statusVal = document.getElementById('adminStatusFilter').value;
+        const levelVal = document.getElementById('adminLevelFilter').value;
+        const counter = document.getElementById('adminFilterCounter');
+
+        const activePane = document.querySelector('.tab-pane.active');
+        if (!activePane) return;
+
+        const rows = activePane.querySelectorAll('tbody tr');
+        if (rows.length === 0) {
+            counter.style.display = 'none';
+            return;
+        }
+
+        let visibleCount = 0;
+        let totalCount = rows.length;
+
+        rows.forEach(row => {
+            const text = (row.getAttribute('data-search-text') || row.innerText || '').toLowerCase();
+            const status = (row.getAttribute('data-status') || '').toUpperCase();
+            const level = (row.getAttribute('data-level') || '').toUpperCase();
+
+            const matchesSearch = !searchVal || text.includes(searchVal);
+            const matchesStatus = (statusVal === 'ALL') || (status && status.includes(statusVal)) || text.includes(statusVal.toLowerCase());
+            const matchesLevel = (levelVal === 'ALL') || (level && level.includes(levelVal)) || text.includes(levelVal.toLowerCase());
+
+            if (matchesSearch && matchesStatus && matchesLevel) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (searchVal || statusVal !== 'ALL' || levelVal !== 'ALL') {
+            counter.style.display = 'inline-block';
+            counter.textContent = `Showing ${visibleCount} of ${totalCount}`;
+        } else {
+            counter.style.display = 'none';
+        }
+    }
+
+    function resetAdminFilters() {
+        document.getElementById('adminGlobalSearch').value = '';
+        document.getElementById('adminStatusFilter').value = 'ALL';
+        document.getElementById('adminLevelFilter').value = 'ALL';
+        applyAdminFilters();
+    }
+
     function switchTab(tabId) {
         // Remove active from all buttons
         document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -526,11 +624,23 @@
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
         
         // Add active to current
-        event.currentTarget.classList.add('active');
-        document.getElementById(tabId).classList.add('active');
+        if (window.event && window.event.currentTarget) {
+            window.event.currentTarget.classList.add('active');
+        } else {
+            const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+            if (btn) btn.classList.add('active');
+        }
+
+        const targetPane = document.getElementById(tabId);
+        if (targetPane) {
+            targetPane.classList.add('active');
+        }
         
         // Save to local storage for persistence
         localStorage.setItem('admin_last_tab', tabId);
+
+        // Re-apply filters for the newly active tab
+        setTimeout(applyAdminFilters, 50);
     }
 
     // Persistence logic
