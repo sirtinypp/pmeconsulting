@@ -43,8 +43,10 @@
                     <div style="margin-top:1rem; display:flex; gap:1.5rem; flex-wrap:wrap; align-items: flex-start; background:#F8FAFC; padding:1rem; border-radius:12px; border:1px solid #E2E8F0;">
                         {% if q.image %}
                         <div style="flex-shrink:0;">
-                            <span style="display:block; font-size:0.65rem; font-weight:800; color:var(--text-muted); margin-bottom:0.25rem; text-transform:uppercase;">🖼️ Image</span>
-                            <img src="{{ q.image.url }}" alt="Preview" style="max-height:80px; max-width:140px; border-radius:6px; border:1px solid #CBD5E1; object-fit:cover;">
+                            <span style="display:block; font-size:0.65rem; font-weight:800; color:var(--text-muted); margin-bottom:0.25rem; text-transform:uppercase;">🖼️ Image (Click to View)</span>
+                            <a href="{{ q.image.url }}" target="_blank" rel="noopener" title="Open full size image in new tab">
+                                <img src="{{ q.image.url }}" alt="Preview" style="max-height:120px; max-width:200px; border-radius:6px; border:1px solid #CBD5E1; object-fit:contain; background:white; cursor:pointer;">
+                            </a>
                         </div>
                         {% endif %}
                         
