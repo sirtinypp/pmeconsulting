@@ -165,6 +165,11 @@
                         <td>
                             <div style="font-weight:600;">{{ req.course.title }}</div>
                             <span class="badge badge-yellow" style="font-size:0.7rem; margin-top:2px; display:inline-block;">{{ req.course.get_level_display }}</span>
+                            {% if req.admin_note %}
+                            <div style="font-size:0.75rem; color:#B45309; background:#FEF3C7; padding:0.25rem 0.5rem; border-radius:6px; margin-top:4px; font-weight:600;">
+                                {{ req.admin_note }}
+                            </div>
+                            {% endif %}
                         </td>
                         <td style="font-size:0.85rem; color:var(--text-muted); white-space:nowrap;">
                             {{ req.enrolled_at|date:"d M Y, H:i" }}
@@ -177,12 +182,14 @@
                                 <form method="post" action="{% url 'approve_enrollment' req.pk %}" style="display:inline;" onsubmit="this.admin_note.value = document.getElementById('note_{{ req.pk }}').value;">
                                     {% csrf_token %}
                                     <input type="hidden" name="admin_note" value="">
-                                    <button type="submit" class="btn btn-primary btn-sm" style="padding:0.4rem 0.8rem; font-size:0.75rem; border-radius:8px;">Approve</button>
+                                    <button type="submit" class="btn btn-primary btn-sm" style="padding:0.4rem 0.8rem; font-size:0.75rem; border-radius:8px; font-weight:700;">
+                                        {% if "Exemption" in req.admin_note %}⚡ Accept & Bypass{% else %}✅ Approve{% endif %}
+                                    </button>
                                 </form>
                                 <form method="post" action="{% url 'reject_enrollment' req.pk %}" style="display:inline;" onsubmit="this.admin_note.value = document.getElementById('note_{{ req.pk }}').value;">
                                     {% csrf_token %}
                                     <input type="hidden" name="admin_note" value="">
-                                    <button type="submit" class="btn btn-sm" style="padding:0.4rem 0.8rem; font-size:0.75rem; background:#FEE2E2; color:#991B1B; border-radius:8px;">Reject</button>
+                                    <button type="submit" class="btn btn-sm" style="padding:0.4rem 0.8rem; font-size:0.75rem; background:#FEE2E2; color:#991B1B; border-radius:8px; font-weight:700;">Reject</button>
                                 </form>
                             </div>
                         </td>

@@ -58,6 +58,28 @@ class StudentSignUpView(CreateView):
 class UpgradeToStudentView(LoginRequiredMixin, TemplateView):
     template_name = 'registration/upgrade.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from learning.models import Course, CourseEnrollment
+        active_courses = Course.objects.filter(is_active=True)
+        
+        # Map each level to its active course
+        level_courses = {}
+        for level in ['A1', 'A2', 'B1', 'B2', 'C1']:
+            course = active_courses.filter(level=level).first()
+            if course:
+                level_courses[level] = course.id
+
+        # Check user's active enrollments
+        enrolled_ids = list(CourseEnrollment.objects.filter(
+            user=self.request.user,
+            status__in=['ENROLLED', 'IN_PROGRESS', 'COMPLETED']
+        ).values_list('course_id', flat=True))
+
+        context['level_courses_json'] = level_courses
+        context['enrolled_course_ids'] = enrolled_ids
+        return context
+
     def post(self, request, *args, **kwargs):
         # Simulated Payment/Upgrade Success
         user = request.user

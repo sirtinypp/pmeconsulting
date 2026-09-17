@@ -130,37 +130,40 @@
     </div>
 
     <script>
+        const dynamicLevelCourses = {{ level_courses_json|default:"{}"|safe }};
+        const enrolledCourseIds = {{ enrolled_course_ids|default:"[]"|safe }};
+
         const levelData = {
             'A1': {
-                courseId: 15,
+                courseId: dynamicLevelCourses['A1'] || 15,
                 basicPrice: '12,000',
                 standardPrice: '15,000',
                 premiumPrice: '20,000',
                 prereqText: 'Enrolling in <strong>Level A1</strong> gives full access to all A1 German modules, video lessons, exercises, and chapter quizzes.'
             },
             'A2': {
-                courseId: 16,
+                courseId: dynamicLevelCourses['A2'] || 16,
                 basicPrice: '15,000',
                 standardPrice: '18,000',
                 premiumPrice: '22,000',
                 prereqText: 'Enrolling in <strong>Level A2</strong> includes full A2 curriculum access PLUS full review access to preceding Level A1 materials.'
             },
             'B1': {
-                courseId: 12,
+                courseId: dynamicLevelCourses['B1'] || 12,
                 basicPrice: '18,000',
                 standardPrice: '21,000',
                 premiumPrice: '25,000',
                 prereqText: 'Enrolling in <strong>Level B1</strong> includes full B1 medical German access PLUS full review access to preceding A1 & A2 materials.'
             },
             'B2': {
-                courseId: 11,
+                courseId: dynamicLevelCourses['B2'] || 11,
                 basicPrice: '20,000',
                 standardPrice: '24,000',
                 premiumPrice: '28,000',
                 prereqText: 'Enrolling in <strong>Level B2</strong> includes full B2 advanced clinical German access PLUS review access to all preceding levels (A1, A2, B1).'
             },
             'C1': {
-                courseId: 14,
+                courseId: dynamicLevelCourses['C1'] || 14,
                 basicPrice: '25,000',
                 standardPrice: '30,000',
                 premiumPrice: '35,000',
@@ -191,14 +194,26 @@
             document.getElementById('price-standard').textContent = data.standardPrice;
             document.getElementById('price-premium').textContent = data.premiumPrice;
 
-            document.getElementById('btn-basic').href = `/learning/checkout/${data.courseId}/BASIC/`;
-            document.getElementById('btn-basic').textContent = `Pay & Enroll Level ${level} (Basic ₱${data.basicPrice})`;
+            const isEnrolled = enrolledCourseIds.includes(data.courseId);
+            if (isEnrolled) {
+                document.getElementById('btn-basic').href = `/learning/course/${data.courseId}/`;
+                document.getElementById('btn-basic').textContent = `🎓 Open Level ${level} Classroom`;
 
-            document.getElementById('btn-standard').href = `/learning/checkout/${data.courseId}/STANDARD/`;
-            document.getElementById('btn-standard').textContent = `Pay & Enroll Level ${level} (Standard ₱${data.standardPrice})`;
+                document.getElementById('btn-standard').href = `/learning/course/${data.courseId}/`;
+                document.getElementById('btn-standard').textContent = `🎓 Open Level ${level} Classroom`;
 
-            document.getElementById('btn-premium').href = `/learning/checkout/${data.courseId}/PREMIUM/`;
-            document.getElementById('btn-premium').textContent = `Pay & Enroll Level ${level} (Premium ₱${data.premiumPrice})`;
+                document.getElementById('btn-premium').href = `/learning/course/${data.courseId}/`;
+                document.getElementById('btn-premium').textContent = `🎓 Open Level ${level} Classroom`;
+            } else {
+                document.getElementById('btn-basic').href = `/learning/wise-checkout/${data.courseId}/?tier=BASIC`;
+                document.getElementById('btn-basic').textContent = `Pay & Enroll Level ${level} (Basic ₱${data.basicPrice})`;
+
+                document.getElementById('btn-standard').href = `/learning/wise-checkout/${data.courseId}/?tier=STANDARD`;
+                document.getElementById('btn-standard').textContent = `Pay & Enroll Level ${level} (Standard ₱${data.standardPrice})`;
+
+                document.getElementById('btn-premium').href = `/learning/wise-checkout/${data.courseId}/?tier=PREMIUM`;
+                document.getElementById('btn-premium').textContent = `Pay & Enroll Level ${level} (Premium ₱${data.premiumPrice})`;
+            }
         }
     </script>
 </body>

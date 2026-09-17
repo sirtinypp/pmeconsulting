@@ -389,6 +389,43 @@ def initiate_checkout(request, course_id, tier_type='BASIC'):
 
     price_amount = tier.price if tier else default_prices.get(course.level, {}).get(tier_type.upper(), 15000)
 
+    # CEFR Level Ordering
+    level_order = {'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6}
+    target_rank = level_order.get(course.level, 1)
+
+    # If course is above A1, verify whether student completed previous levels (or is admin)
+    if target_rank > 1 and request.user.role == 'STUDENT':
+        # Check if student completed the preceding level(s)
+        completed_levels = CourseEnrollment.objects.filter(
+            user=request.user,
+            status=CourseEnrollment.Status.COMPLETED
+        ).values_list('course__level', flat=True)
+
+        # Has student completed previous level or already enrolled in this level?
+        has_prereq = any(level_order.get(lvl, 0) >= (target_rank - 1) for lvl in completed_levels)
+        is_already_enrolled = CourseEnrollment.objects.filter(
+            user=request.user,
+            course=course,
+            status__in=[CourseEnrollment.Status.ENROLLED, CourseEnrollment.Status.IN_PROGRESS]
+        ).exists()
+
+        if not has_prereq and not is_already_enrolled:
+            # Tag as prerequisite exemption request for admin review
+            enrollment, _ = CourseEnrollment.objects.get_or_create(
+                user=request.user,
+                course=course,
+                defaults={'status': CourseEnrollment.Status.PENDING}
+            )
+            enrollment.status = CourseEnrollment.Status.PENDING
+            enrollment.admin_note = f"⚠️ Prerequisite Exemption Request: Student attempted {course.level} without completing preceding level. Needs Admin review/bypass."
+            enrollment.save()
+
+            messages.warning(
+                request,
+                f"🛑 You must complete your current/previous course before enrolling in {course.title} ({course.get_level_display()}). An enrollment exemption request has been submitted to your School Admin for review."
+            )
+            return redirect('course_detail', pk=course.pk)
+
     # 1. Create or get enrollment in PENDING status
     enrollment, _ = CourseEnrollment.objects.get_or_create(
         user=request.user,
@@ -550,6 +587,40 @@ def wise_checkout(request, course_id):
     
     price_php = tier.price if tier else 0.00
     
+    # CEFR Level Ordering
+    level_order = {'A1': 1, 'A2': 2, 'B1': 3, 'B2': 4, 'C1': 5, 'C2': 6}
+    target_rank = level_order.get(course.level, 1)
+
+    if target_rank > 1 and request.user.role == 'STUDENT':
+        completed_levels = CourseEnrollment.objects.filter(
+            user=request.user,
+            status=CourseEnrollment.Status.COMPLETED
+        ).values_list('course__level', flat=True)
+
+        has_prereq = any(level_order.get(lvl, 0) >= (target_rank - 1) for lvl in completed_levels)
+        is_already_enrolled = CourseEnrollment.objects.filter(
+            user=request.user,
+            course=course,
+            status__in=[CourseEnrollment.Status.ENROLLED, CourseEnrollment.Status.IN_PROGRESS]
+        ).exists()
+
+        if not has_prereq and not is_already_enrolled:
+            enrollment, _ = CourseEnrollment.objects.get_or_create(
+                user=request.user,
+                course=course,
+                defaults={'status': CourseEnrollment.Status.PENDING}
+            )
+            enrollment.status = CourseEnrollment.Status.PENDING
+            enrollment.admin_note = f"⚠️ Prerequisite Exemption Request: Student attempted {course.level} without completing preceding level. Needs Admin review/bypass."
+            enrollment.save()
+
+            from django.contrib import messages
+            messages.warning(
+                request,
+                f"🛑 You must complete your current/previous course before enrolling in {course.title} ({course.get_level_display()}). An enrollment exemption request has been submitted to your School Admin for review."
+            )
+            return redirect('course_detail', pk=course.pk)
+
     enrollment, _ = CourseEnrollment.objects.get_or_create(
         user=request.user,
         course=course,
