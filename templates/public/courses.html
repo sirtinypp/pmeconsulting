@@ -256,7 +256,7 @@
                     <li>Downloadable PDF materials</li>
                     <li>Chapter Quizzes & Tests</li>
                 </ul>
-                <a href="{% url 'upgrade' %}" class="btn btn-secondary" style="width: 100%; border-radius: 12px; padding: 1rem;">Enroll Now</a>
+                <a href="{% url 'initiate_checkout' 15 'BASIC' %}" class="btn btn-secondary" style="width: 100%; border-radius: 12px; padding: 1rem; text-decoration: none; text-align: center; display: block;">Enroll Now</a>
             </div>
 
             <!-- STANDARD Tier -->
@@ -270,7 +270,7 @@
                     <li>Level A1 Mock Exam</li>
                     <li>Direct Instructor Q&A</li>
                 </ul>
-                <a href="{% url 'upgrade' %}" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem;">Enroll Now</a>
+                <a href="{% url 'initiate_checkout' 15 'STANDARD' %}" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem; text-decoration: none; text-align: center; display: block;">Enroll Now</a>
             </div>
 
             <!-- PREMIUM Tier -->
@@ -284,7 +284,7 @@
                     <li>Priority response support</li>
                     <li>Certificate of Completion</li>
                 </ul>
-                <a href="{% url 'upgrade' %}" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem; background: #38BDF8; border: none; color: #0F172A;">Enroll Now</a>
+                <a href="{% url 'initiate_checkout' 15 'PREMIUM' %}" class="btn btn-primary" style="width: 100%; border-radius: 12px; padding: 1rem; background: #38BDF8; border: none; color: #0F172A; text-decoration: none; text-align: center; display: block;">Enroll Now</a>
             </div>
         </div>
 

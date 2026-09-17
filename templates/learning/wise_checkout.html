@@ -22,6 +22,19 @@
         </div>
     </div>
 
+    {% if course.level not in 'A1,CUSTOM' %}
+    <!-- Prerequisite Advisory Notice -->
+    <div style="background: #FFFBEB; border: 2px solid #FCD34D; border-radius: 16px; padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: flex-start; box-shadow: 0 4px 12px rgba(251,191,36,0.12);">
+        <span style="font-size: 1.5rem; line-height: 1;">⚠️</span>
+        <div>
+            <div style="font-weight: 800; color: #92400E; font-size: 0.95rem; margin-bottom: 0.25rem;">CEFR Prerequisite & Progression Advisory</div>
+            <p style="margin: 0; font-size: 0.85rem; color: #78350F; line-height: 1.5;">
+                You are purchasing <strong>{{ course.get_level_display }}</strong>. Please ensure you have completed the prerequisite foundation level (e.g. <strong>Level A1</strong>) or have equivalent clinical German background before beginning these lessons.
+            </p>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- Multi-Tab Selector -->
     <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; background: #E2E8F0; padding: 6px; border-radius: 14px;">
         <button type="button" id="tabBtnGcash" onclick="switchPaymentTab('gcash')" 
