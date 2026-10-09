@@ -5,64 +5,411 @@
 {% block brand_context %}Management{% endblock %}
 
 {% block content %}
-<div class="stats-grid">
-    <div class="card stat-card">
-        <div class="stat-info">
-            <span class="label">Total Students</span>
-            <span class="value">{{ students|length }}</span>
-        </div>
-        <span class="stat-icon-lg">👥</span>
+<style>
+    /* Full-width container override with controlled edge padding */
+    .content-body .container {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 1.75rem !important;
+    }
+
+    /* Admin 2-Column App Layout */
+    .admin-app-layout {
+        display: flex;
+        gap: 1.75rem;
+        align-items: flex-start;
+        position: relative;
+        width: 100%;
+        margin-top: 1rem;
+    }
+
+    /* Collapsible Sidebar */
+    .admin-sidebar {
+        width: 260px;
+        min-width: 260px;
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+        padding: 1.25rem 0.85rem;
+        transition: width 0.28s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.28s cubic-bezier(0.4, 0, 0.2, 1), padding 0.28s ease;
+        position: sticky;
+        top: 85px;
+        z-index: 40;
+        flex-shrink: 0;
+    }
+
+    .admin-sidebar.collapsed {
+        width: 76px;
+        min-width: 76px;
+        padding: 1.25rem 0.5rem;
+    }
+
+    /* Sidebar Header & Toggle */
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 0.5rem 1rem 0.5rem;
+        border-bottom: 1px solid #F1F5F9;
+        margin-bottom: 0.75rem;
+    }
+
+    .admin-sidebar.collapsed .sidebar-header {
+        justify-content: center;
+        padding: 0 0 0.85rem 0;
+    }
+
+    .sidebar-title {
+        font-size: 0.75rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: #94A3B8;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .admin-sidebar.collapsed .sidebar-title {
+        display: none;
+    }
+
+    .sidebar-toggle-btn {
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        color: #475569;
+        border-radius: 10px;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s ease;
+    }
+
+    .sidebar-toggle-btn:hover {
+        background: #EFF6FF;
+        color: #1E4D8C;
+        border-color: #BFDBFE;
+    }
+
+    /* Nav Items */
+    .admin-nav-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .admin-tab-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        width: 100%;
+        padding: 0.8rem 1rem;
+        border-radius: 14px;
+        border: none;
+        background: transparent;
+        color: #475569;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-align: left;
+        white-space: nowrap;
+        position: relative;
+    }
+
+    .admin-tab-btn:hover {
+        background: #F8FAFC;
+        color: #1E4D8C;
+    }
+
+    .admin-tab-btn.active {
+        background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+        color: #1E4D8C;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(30, 77, 140, 0.08);
+    }
+
+    .admin-tab-btn .tab-icon {
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 24px;
+    }
+
+    .admin-tab-btn .tab-label {
+        flex-grow: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: opacity 0.2s ease;
+    }
+
+    .admin-sidebar.collapsed .admin-tab-btn {
+        justify-content: center;
+        padding: 0.8rem 0;
+    }
+
+    .admin-sidebar.collapsed .admin-tab-btn .tab-label {
+        display: none;
+    }
+
+    .admin-sidebar.collapsed .admin-tab-btn .tab-badge-counter {
+        position: absolute;
+        top: 4px;
+        right: 8px;
+        padding: 2px 5px;
+        font-size: 0.65rem;
+    }
+
+    .tab-badge-counter {
+        background: #FEE2E2;
+        color: #991B1B;
+        font-size: 0.72rem;
+        font-weight: 800;
+        padding: 2px 8px;
+        border-radius: 20px;
+        margin-left: auto;
+    }
+
+    /* Main Workspace Canvas */
+    .admin-main-canvas {
+        flex: 1;
+        min-width: 0; /* Prevents overflow blowout in flexbox */
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Mobile Drawer Trigger Header */
+    .mobile-sidebar-toggle-bar {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        background: white;
+        border: 1px solid #E2E8F0;
+        padding: 0.85rem 1.25rem;
+        border-radius: 16px;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+    }
+
+    .mobile-drawer-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 998;
+    }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1024px) {
+        .content-body .container {
+            padding: 0 1rem !important;
+        }
+
+        .admin-sidebar {
+            width: 76px;
+            min-width: 76px;
+            padding: 1.25rem 0.5rem;
+        }
+
+        .admin-sidebar .sidebar-title {
+            display: none;
+        }
+
+        .admin-sidebar .sidebar-header {
+            justify-content: center;
+        }
+
+        .admin-sidebar .admin-tab-btn {
+            justify-content: center;
+            padding: 0.8rem 0;
+        }
+
+        .admin-sidebar .admin-tab-btn .tab-label {
+            display: none;
+        }
+
+        .admin-sidebar.expanded-tablet {
+            width: 260px;
+            min-width: 260px;
+            padding: 1.25rem 0.85rem;
+        }
+
+        .admin-sidebar.expanded-tablet .sidebar-title,
+        .admin-sidebar.expanded-tablet .admin-tab-btn .tab-label {
+            display: block;
+        }
+
+        .admin-sidebar.expanded-tablet .admin-tab-btn {
+            justify-content: flex-start;
+            padding: 0.8rem 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .mobile-sidebar-toggle-bar {
+            display: flex;
+        }
+
+        .admin-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            height: 100vh;
+            width: 280px !important;
+            min-width: 280px !important;
+            border-radius: 0 24px 24px 0;
+            transform: translateX(-100%);
+            z-index: 999;
+            padding: 2rem 1.25rem;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.15);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .admin-sidebar .sidebar-title,
+        .admin-sidebar .admin-tab-btn .tab-label {
+            display: block !important;
+        }
+
+        .admin-sidebar .admin-tab-btn {
+            justify-content: flex-start !important;
+            padding: 0.85rem 1rem !important;
+        }
+
+        .admin-sidebar.mobile-open {
+            transform: translateX(0);
+        }
+
+        .mobile-drawer-backdrop.active {
+            display: block;
+        }
+
+        .admin-app-layout {
+            flex-direction: column;
+            gap: 0;
+        }
+    }
+</style>
+
+<!-- Mobile Drawer Backdrop -->
+<div id="mobileSidebarBackdrop" class="mobile-drawer-backdrop" onclick="toggleMobileSidebar()"></div>
+
+<!-- Mobile Toggle Bar -->
+<div class="mobile-sidebar-toggle-bar">
+    <div style="display: flex; align-items: center; gap: 0.6rem;">
+        <span id="activeTabMobileIcon" style="font-size: 1.25rem;">👥</span>
+        <strong id="activeTabMobileTitle" style="color: #1E4D8C; font-size: 0.95rem;">Student Management</strong>
     </div>
-    <div class="card stat-card">
-        <div class="stat-info">
-            <span class="label">Total Guests</span>
-            <span class="value">{{ guests|length }}</span>
-        </div>
-        <span class="stat-icon-lg">✨</span>
-    </div>
-    <div class="card stat-card">
-        <div class="stat-info">
-            <span class="label">Active Courses</span>
-            <span class="value">{{ active_courses_count }}</span>
-        </div>
-        <span class="stat-icon-lg">📚</span>
-    </div>
-    <div class="card stat-card">
-        <div class="stat-info">
-            <span class="label">Total Enrollments</span>
-            <span class="value">{{ total_enrollments }}</span>
-        </div>
-        <span class="stat-icon-lg">📋</span>
-    </div>
+    <button type="button" class="btn btn-sm" onclick="toggleMobileSidebar()" style="background: #EFF6FF; color: #1E4D8C; border: 1px solid #BFDBFE; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem;">
+        ☰ Sections
+    </button>
 </div>
 
-<!-- Tab Navigation -->
-<div class="dashboard-tabs">
-    <button class="tab-btn active" onclick="switchTab('students')">
-        <span class="tab-icon">👥</span> Student Management
-    </button>
-    <button class="tab-btn" onclick="switchTab('guests')">
-        <span class="tab-icon">✨</span> Guest Management
-    </button>
-    <button class="tab-btn" onclick="switchTab('courses')">
-        <span class="tab-icon">📚</span> Course Management
-    </button>
-    <button class="tab-btn" onclick="switchTab('payments')">
-        <span class="tab-icon">💳</span> Payment Management
-    </button>
-    <button class="tab-btn" onclick="switchTab('trainings')">
-        <span class="tab-icon">📡</span> Trainings Management
-    </button>
-    <button class="tab-btn" onclick="switchTab('tasks')">
-        <span class="tab-icon">📥</span> Task Inbox
-    </button>
-    <button class="tab-btn" onclick="switchTab('website')">
-        <span class="tab-icon">⚙️</span> Website Management
-    </button>
-</div>
+<!-- Admin Application 2-Column Shell -->
+<div class="admin-app-layout">
 
-<!-- Tab Content Panes -->
-<div id="tab-content">
+    <!-- Collapsible Sidebar -->
+    <aside id="adminSidebar" class="admin-sidebar" aria-label="Admin Navigation">
+        <div class="sidebar-header">
+            <span class="sidebar-title">Navigation</span>
+            <button type="button" id="sidebarToggleBtn" class="sidebar-toggle-btn" onclick="toggleDesktopSidebar()" title="Collapse/Expand Navigation">
+                <span id="sidebarToggleIcon">◀</span>
+            </button>
+        </div>
+
+        <nav class="admin-nav-list">
+            <button class="admin-tab-btn active" id="tab-btn-students" onclick="switchTab('students')" title="Student Management">
+                <span class="tab-icon">👥</span>
+                <span class="tab-label">Student Management</span>
+                {% if pending_enrollments %}
+                <span class="tab-badge-counter">{{ pending_enrollments|length }}</span>
+                {% endif %}
+            </button>
+            <button class="admin-tab-btn" id="tab-btn-guests" onclick="switchTab('guests')" title="Guest Management">
+                <span class="tab-icon">✨</span>
+                <span class="tab-label">Guest Management</span>
+            </button>
+            <button class="admin-tab-btn" id="tab-btn-courses" onclick="switchTab('courses')" title="Course Management">
+                <span class="tab-icon">📚</span>
+                <span class="tab-label">Course Management</span>
+            </button>
+            <button class="admin-tab-btn" id="tab-btn-payments" onclick="switchTab('payments')" title="Payment Management">
+                <span class="tab-icon">💳</span>
+                <span class="tab-label">Payment Management</span>
+                {% if payment_orders %}
+                    {% with pending_count=payment_orders|length %}
+                        {% if pending_count > 0 %}
+                        <span class="tab-badge-counter" style="background:#FEF3C7; color:#92400E;">{{ pending_count }}</span>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
+            </button>
+            <button class="admin-tab-btn" id="tab-btn-trainings" onclick="switchTab('trainings')" title="Trainings Management">
+                <span class="tab-icon">📡</span>
+                <span class="tab-label">Trainings Management</span>
+            </button>
+            <button class="admin-tab-btn" id="tab-btn-tasks" onclick="switchTab('tasks')" title="Task Inbox">
+                <span class="tab-icon">📥</span>
+                <span class="tab-label">Task Inbox</span>
+                {% if pending_submissions %}
+                <span class="tab-badge-counter">{{ pending_submissions|length }}</span>
+                {% endif %}
+            </button>
+            <button class="admin-tab-btn" id="tab-btn-website" onclick="switchTab('website')" title="Website Management">
+                <span class="tab-icon">⚙️</span>
+                <span class="tab-label">Website Management</span>
+            </button>
+        </nav>
+    </aside>
+
+    <!-- Main Workspace Canvas -->
+    <main class="admin-main-canvas">
+
+        <!-- Top Overview Stats -->
+        <div class="stats-grid" style="margin-bottom: 0;">
+            <div class="card stat-card">
+                <div class="stat-info">
+                    <span class="label">Total Students</span>
+                    <span class="value">{{ students|length }}</span>
+                </div>
+                <span class="stat-icon-lg">👥</span>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-info">
+                    <span class="label">Total Guests</span>
+                    <span class="value">{{ guests|length }}</span>
+                </div>
+                <span class="stat-icon-lg">✨</span>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-info">
+                    <span class="label">Active Courses</span>
+                    <span class="value">{{ active_courses_count }}</span>
+                </div>
+                <span class="stat-icon-lg">📚</span>
+            </div>
+            <div class="card stat-card">
+                <div class="stat-info">
+                    <span class="label">Total Enrollments</span>
+                    <span class="value">{{ total_enrollments }}</span>
+                </div>
+                <span class="stat-icon-lg">📋</span>
+            </div>
+        </div>
+
+        <!-- Tab Content Panes Container -->
+        <div id="tab-content" style="width: 100%;">
     
     <!-- 1. STUDENT MANAGEMENT -->
     <div id="students" class="tab-pane active">
@@ -697,7 +1044,9 @@
         </div>
     </div>
 
-</div>
+        </div> <!-- /#tab-content -->
+    </main> <!-- /.admin-main-canvas -->
+</div> <!-- /.admin-app-layout -->
 
 <!-- Student Detail Slide-Over Drawer Overlay & Drawer Container -->
 <div id="studentDrawerBackdrop" onclick="closeStudentDrawer()" 
@@ -879,18 +1228,25 @@
         });
     }
 
+    // Sidebar Tab Switching with state tracking
     function switchTab(tabId) {
-        // Remove active from all buttons
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        // Remove active from all sidebar tab buttons
+        document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
         // Remove active from all panes
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
         
-        // Add active to current
-        if (window.event && window.event.currentTarget) {
-            window.event.currentTarget.classList.add('active');
-        } else {
-            const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
-            if (btn) btn.classList.add('active');
+        // Add active to selected button
+        const activeBtn = document.getElementById('tab-btn-' + tabId);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            
+            // Sync mobile header bar
+            const icon = activeBtn.querySelector('.tab-icon')?.innerText || '📋';
+            const label = activeBtn.querySelector('.tab-label')?.innerText || 'Management';
+            const mobileIcon = document.getElementById('activeTabMobileIcon');
+            const mobileTitle = document.getElementById('activeTabMobileTitle');
+            if (mobileIcon) mobileIcon.innerText = icon;
+            if (mobileTitle) mobileTitle.innerText = label;
         }
 
         const targetPane = document.getElementById(tabId);
@@ -900,6 +1256,51 @@
         
         // Save to local storage for persistence
         localStorage.setItem('admin_last_tab', tabId);
+
+        // Auto close mobile drawer after selection on mobile
+        if (window.innerWidth <= 768) {
+            const sidebar = document.getElementById('adminSidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (sidebar) sidebar.classList.remove('mobile-open');
+            if (backdrop) backdrop.classList.remove('active');
+        }
+    }
+
+    // Toggle Desktop Sidebar Collapse / Expand
+    function toggleDesktopSidebar() {
+        const sidebar = document.getElementById('adminSidebar');
+        const icon = document.getElementById('sidebarToggleIcon');
+        if (!sidebar) return;
+
+        if (window.innerWidth <= 1024 && window.innerWidth > 768) {
+            // Tablet specific class toggle
+            sidebar.classList.toggle('expanded-tablet');
+            const isTabletExpanded = sidebar.classList.contains('expanded-tablet');
+            if (icon) icon.innerText = isTabletExpanded ? '◀' : '▶';
+            localStorage.setItem('admin_sidebar_collapsed', isTabletExpanded ? 'false' : 'true');
+        } else {
+            // Desktop collapse toggle
+            sidebar.classList.toggle('collapsed');
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            if (icon) icon.innerText = isCollapsed ? '▶' : '◀';
+            localStorage.setItem('admin_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+        }
+    }
+
+    // Toggle Mobile Drawer
+    function toggleMobileSidebar() {
+        const sidebar = document.getElementById('adminSidebar');
+        const backdrop = document.getElementById('mobileSidebarBackdrop');
+        if (!sidebar || !backdrop) return;
+
+        const isOpen = sidebar.classList.contains('mobile-open');
+        if (isOpen) {
+            sidebar.classList.remove('mobile-open');
+            backdrop.classList.remove('active');
+        } else {
+            sidebar.classList.add('mobile-open');
+            backdrop.classList.add('active');
+        }
     }
 
     // Payment Details Modal
@@ -941,12 +1342,22 @@
         }
     });
 
-    // Persistence logic
+    // Persistence logic for tab & sidebar state on load
     document.addEventListener('DOMContentLoaded', () => {
-        const lastTab = localStorage.getItem('admin_last_tab');
+        // Restore tab
+        const lastTab = localStorage.getItem('admin_last_tab') || 'students';
         if (lastTab && document.getElementById(lastTab)) {
-            const btn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(lastTab));
-            if (btn) btn.click();
+            switchTab(lastTab);
+        }
+
+        // Restore sidebar collapse state (Desktop defaults to expanded)
+        const sidebar = document.getElementById('adminSidebar');
+        const icon = document.getElementById('sidebarToggleIcon');
+        const isCollapsedSaved = localStorage.getItem('admin_sidebar_collapsed');
+
+        if (sidebar && isCollapsedSaved === 'true' && window.innerWidth > 1024) {
+            sidebar.classList.add('collapsed');
+            if (icon) icon.innerText = '▶';
         }
     });
 </script>
