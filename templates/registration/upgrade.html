@@ -60,7 +60,10 @@
                             </li>
                         </ul>
                     </div>
-                    <a id="btn-basic" href="{% url 'initiate_checkout' 15 'BASIC' %}" class="btn btn-secondary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; border: 2px solid #E2E8F0; background: white; text-decoration: none; color: #475569;">Pay & Enroll Level A1 (Basic ₱12,000)</a>
+                    <a id="btn-basic" href="https://m.me/pmeconsulting" target="_blank" rel="noopener" class="btn btn-secondary" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; border: 2px solid #E2E8F0; background: white; text-decoration: none; color: #475569;">
+                        <svg width="18" height="18" fill="#0084FF" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.91 1.455 5.518 3.735 7.21V22l3.39-1.86c.915.254 1.884.39 2.875.39 5.523 0 10-4.145 10-9.272C22 6.145 17.523 2 12 2zm1.066 12.443l-2.6-2.773-5.074 2.773 5.578-5.922 2.664 2.773 5.01-2.773-5.578 5.922z"/></svg>
+                        <span id="btn-basic-text">Message FB to Enroll (Basic ₱12,000)</span>
+                    </a>
                 </div>
 
                 <!-- STANDARD (Recommended) -->
@@ -88,7 +91,10 @@
                             </li>
                         </ul>
                     </div>
-                    <a id="btn-standard" href="{% url 'initiate_checkout' 15 'STANDARD' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #1E4D8C 0%, #0EA5E9 100%); border: none; text-decoration: none; color: white;">Pay & Enroll Level A1 (Standard ₱15,000)</a>
+                    <a id="btn-standard" href="https://m.me/pmeconsulting" target="_blank" rel="noopener" class="btn btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: linear-gradient(135deg, #1E4D8C 0%, #0084FF 100%); border: none; text-decoration: none; color: white; box-shadow: 0 8px 20px rgba(0,132,255,0.35);">
+                        <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.91 1.455 5.518 3.735 7.21V22l3.39-1.86c.915.254 1.884.39 2.875.39 5.523 0 10-4.145 10-9.272C22 6.145 17.523 2 12 2zm1.066 12.443l-2.6-2.773-5.074 2.773 5.578-5.922 2.664 2.773 5.01-2.773-5.578 5.922z"/></svg>
+                        <span id="btn-standard-text">Message FB to Enroll (Standard ₱15,000)</span>
+                    </a>
                 </div>
 
                 <!-- PREMIUM -->
@@ -115,12 +121,15 @@
                             </li>
                         </ul>
                     </div>
-                    <a id="btn-premium" href="{% url 'initiate_checkout' 15 'PREMIUM' %}" class="btn btn-primary" style="display: block; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: white; color: #0F172A; border: none; text-decoration: none;">Pay & Enroll Level A1 (Premium ₱20,000)</a>
+                    <a id="btn-premium" href="https://m.me/pmeconsulting" target="_blank" rel="noopener" class="btn btn-primary" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-align: center; width: 100%; border-radius: 16px; padding: 1.25rem; font-weight: 700; background: white; color: #0F172A; border: none; text-decoration: none;">
+                        <svg width="18" height="18" fill="#0084FF" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.145 2 11.258c0 2.91 1.455 5.518 3.735 7.21V22l3.39-1.86c.915.254 1.884.39 2.875.39 5.523 0 10-4.145 10-9.272C22 6.145 17.523 2 12 2zm1.066 12.443l-2.6-2.773-5.074 2.773 5.578-5.922 2.664 2.773 5.01-2.773-5.578 5.922z"/></svg>
+                        <span id="btn-premium-text">Message FB to Enroll (Premium ₱20,000)</span>
+                    </a>
                 </div>
             </div>
 
             <p style="margin-top: 2rem; color: rgba(255,255,255,0.7); font-size: 0.95rem; text-align: center; max-width: 600px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-                Your enrollment fee is processed securely through encrypted channels. By proceeding, you agree to the PME Consulting EU <a href="{% url 'terms' %}" target="_blank" style="color: white; font-weight: 700; text-decoration: underline;">Terms of Service</a> and Privacy Policy. All enrollment fees are one-time and provide full access to your selected tier features.
+                Enrollments and official student verification are coordinated securely through our official Facebook Messenger channel (<strong>Phmedtecheu</strong>). Our admissions team will assist you with batch onboarding and payment receipting.
             </p>
 
             <div style="margin-top: 3rem;">
@@ -189,7 +198,7 @@
             // Update explanatory text
             document.getElementById('prereq-text').innerHTML = data.prereqText;
 
-            // Update Prices & Checkout Links
+            // Update Prices
             document.getElementById('price-basic').textContent = data.basicPrice;
             document.getElementById('price-standard').textContent = data.standardPrice;
             document.getElementById('price-premium').textContent = data.premiumPrice;
@@ -197,22 +206,28 @@
             const isEnrolled = enrolledCourseIds.includes(data.courseId);
             if (isEnrolled) {
                 document.getElementById('btn-basic').href = `/learning/course/${data.courseId}/`;
-                document.getElementById('btn-basic').textContent = `🎓 Open Level ${level} Classroom`;
+                document.getElementById('btn-basic').target = '_self';
+                document.getElementById('btn-basic-text').textContent = `🎓 Open Level ${level} Classroom`;
 
                 document.getElementById('btn-standard').href = `/learning/course/${data.courseId}/`;
-                document.getElementById('btn-standard').textContent = `🎓 Open Level ${level} Classroom`;
+                document.getElementById('btn-standard').target = '_self';
+                document.getElementById('btn-standard-text').textContent = `🎓 Open Level ${level} Classroom`;
 
                 document.getElementById('btn-premium').href = `/learning/course/${data.courseId}/`;
-                document.getElementById('btn-premium').textContent = `🎓 Open Level ${level} Classroom`;
+                document.getElementById('btn-premium').target = '_self';
+                document.getElementById('btn-premium-text').textContent = `🎓 Open Level ${level} Classroom`;
             } else {
-                document.getElementById('btn-basic').href = `/learning/wise-checkout/${data.courseId}/?tier=BASIC`;
-                document.getElementById('btn-basic').textContent = `Pay & Enroll Level ${level} (Basic ₱${data.basicPrice})`;
+                document.getElementById('btn-basic').href = 'https://m.me/pmeconsulting';
+                document.getElementById('btn-basic').target = '_blank';
+                document.getElementById('btn-basic-text').textContent = `Message FB to Enroll (Basic ₱${data.basicPrice})`;
 
-                document.getElementById('btn-standard').href = `/learning/wise-checkout/${data.courseId}/?tier=STANDARD`;
-                document.getElementById('btn-standard').textContent = `Pay & Enroll Level ${level} (Standard ₱${data.standardPrice})`;
+                document.getElementById('btn-standard').href = 'https://m.me/pmeconsulting';
+                document.getElementById('btn-standard').target = '_blank';
+                document.getElementById('btn-standard-text').textContent = `Message FB to Enroll (Standard ₱${data.standardPrice})`;
 
-                document.getElementById('btn-premium').href = `/learning/wise-checkout/${data.courseId}/?tier=PREMIUM`;
-                document.getElementById('btn-premium').textContent = `Pay & Enroll Level ${level} (Premium ₱${data.premiumPrice})`;
+                document.getElementById('btn-premium').href = 'https://m.me/pmeconsulting';
+                document.getElementById('btn-premium').target = '_blank';
+                document.getElementById('btn-premium-text').textContent = `Message FB to Enroll (Premium ₱${data.premiumPrice})`;
             }
         }
     </script>

@@ -647,12 +647,30 @@ def wise_checkout(request, course_id):
             status=PaymentOrder.PaymentStatus.PENDING
         )
 
-    # Ensure active courses have default tiers if missing
+    # Default pricing schedule per level
+    level_prices = {
+        'A1': {'BASIC': 12000.00, 'STANDARD': 15000.00, 'PREMIUM': 20000.00},
+        'A2': {'BASIC': 15000.00, 'STANDARD': 18000.00, 'PREMIUM': 22000.00},
+        'B1': {'BASIC': 18000.00, 'STANDARD': 21000.00, 'PREMIUM': 25000.00},
+        'B2': {'BASIC': 20000.00, 'STANDARD': 24000.00, 'PREMIUM': 28000.00},
+        'C1': {'BASIC': 25000.00, 'STANDARD': 30000.00, 'PREMIUM': 35000.00},
+    }
+
+    # Ensure active courses have official default tiers if missing
     for c in Course.objects.filter(is_active=True):
         if not c.tiers.exists():
-            CourseTier.objects.create(course=c, tier_type='BASIC', price=5000.00, description='Basic Curriculum Access')
-            CourseTier.objects.create(course=c, tier_type='STANDARD', price=8500.00, description='Standard Access + Labs')
-            CourseTier.objects.create(course=c, tier_type='PREMIUM', price=15000.00, description='Premium Full Access + Tutoring')
+            prices = level_prices.get(c.level, {'BASIC': 12000.00, 'STANDARD': 15000.00, 'PREMIUM': 20000.00})
+            CourseTier.objects.create(course=c, tier_type='BASIC', price=prices['BASIC'], description='Basic Self-Paced Access')
+            CourseTier.objects.create(course=c, tier_type='STANDARD', price=prices['STANDARD'], description='Standard Access + Speaking & Mock Exam')
+            CourseTier.objects.create(course=c, tier_type='PREMIUM', price=prices['PREMIUM'], description='Premium Full Access + Native Tutoring & Cert')
+
+    # Re-fetch tier now that default tiers exist
+    if not tier:
+        tier = CourseTier.objects.filter(course=course, tier_type=tier_type).first() or CourseTier.objects.filter(course=course).first()
+        if tier and order:
+            order.tier = tier
+            order.amount = tier.price
+            order.save()
 
     # Fetch all active course tiers for the program/tier dropdown
     all_tiers = CourseTier.objects.select_related('course').filter(course__is_active=True).order_by('course__title', 'price')
@@ -724,4 +742,29 @@ def confirm_wise_payment(request, order_id):
         messages.success(request, f"Wise payment for student '{enrollment.user.username}' confirmed! Course access unlocked.")
 
     return redirect('dashboard')
+
+
+@login_required
+def reject_wise_payment(request, order_id):
+    """School Admin rejects/declines an unverified or fraudulent payment order."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+    
+    order = get_object_or_404(PaymentOrder, pk=order_id)
+    if request.method == 'POST':
+        reason = request.POST.get('reject_reason', '').strip() or 'Payment not received on bank/Wise/GCash statement'
+        order.status = PaymentOrder.PaymentStatus.FAILED
+        order.proof_note = f"{order.proof_note} [DECLINED: {reason}]"
+        order.save()
+        
+        enrollment = order.enrollment
+        enrollment.status = CourseEnrollment.Status.REJECTED
+        enrollment.admin_note = f"Payment declined: {reason}"
+        enrollment.save()
+
+        from django.contrib import messages
+        messages.warning(request, f"Order #{order.id} for '{enrollment.user.username}' has been declined ({reason}).")
+
+    return redirect('dashboard')
+
 

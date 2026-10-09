@@ -13,6 +13,7 @@ urlpatterns = [
     path('checkout/<int:course_id>/<str:tier_type>/', views.initiate_checkout, name='initiate_checkout'),
     path('wise-checkout/<int:course_id>/', views.wise_checkout, name='wise_checkout'),
     path('confirm-wise-payment/<int:order_id>/', views.confirm_wise_payment, name='confirm_wise_payment'),
+    path('reject-wise-payment/<int:order_id>/', views.reject_wise_payment, name='reject_wise_payment'),
     path('payment/success/', views.payment_success, name='payment_success'),
     path('payment/cancel/', views.payment_cancel, name='payment_cancel'),
     path('payment/webhook/', views.paymongo_webhook, name='paymongo_webhook'),
