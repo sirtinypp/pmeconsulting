@@ -472,26 +472,52 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if order.status == 'PENDING' %}
-                                <div style="display:flex; gap:0.4rem; align-items:center;">
+                                <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+                                    <!-- View Details Button -->
+                                    <button type="button" class="btn btn-sm" 
+                                            onclick="openPaymentModal({
+                                                id: '{{ order.id }}',
+                                                studentName: '{{ order.user.get_full_name|default:order.user.username|escapejs }}',
+                                                studentEmail: '{{ order.user.email|escapejs }}',
+                                                courseTitle: '{{ order.enrollment.course.title|escapejs }} ({{ order.enrollment.course.level|escapejs }})',
+                                                tier: '{{ order.tier.tier_type|default:"Standard"|escapejs }}',
+                                                amount: '₱{{ order.amount|floatformat:2 }}',
+                                                status: '{{ order.status|escapejs }}',
+                                                date: '{{ order.created_at|date:"d M Y, H:i"|escapejs }}',
+                                                sessionId: '{{ order.checkout_session_id|default:"None"|escapejs }}',
+                                                proofNote: '{{ order.proof_note|default:"No reference note provided"|escapejs }}'
+                                            })"
+                                            style="padding: 0.4rem 0.65rem; font-size: 0.75rem; border-radius: 8px; background: #F1F5F9; color: #334155; border: 1px solid #CBD5E1; font-weight: 600;">
+                                        👁️ Details
+                                    </button>
+
+                                    {% if order.status == 'PENDING' %}
                                     <form method="post" action="{% url 'confirm_wise_payment' order.pk %}" style="display:inline;" onsubmit="return confirm('Confirm payment of ₱{{ order.amount|floatformat:2 }} for order #{{ order.id }}? This will unlock student course access.');">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-primary btn-sm" style="padding: 0.4rem 0.75rem; font-size: 0.75rem; border-radius: 8px;">
-                                            Confirm Fee
+                                            Confirm
                                         </button>
                                     </form>
                                     <form method="post" action="{% url 'reject_wise_payment' order.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to DECLINE order #{{ order.id }}? This will mark the order as failed.');">
                                         {% csrf_token %}
-                                        <button type="submit" class="btn btn-sm" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; border-radius: 8px; background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA;">
+                                        <button type="submit" class="btn btn-sm" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; border-radius: 8px; background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;">
                                             Decline
                                         </button>
                                     </form>
+                                    {% elif order.status == 'PAID' %}
+                                    <span style="color:#059669; font-weight:700; font-size:0.8rem; padding: 0.2rem 0.4rem;">✓ Verified</span>
+                                    {% else %}
+                                    <span style="color:#991B1B; font-weight:600; font-size:0.8rem; padding: 0.2rem 0.4rem;">✗ Declined</span>
+                                    {% endif %}
+
+                                    <!-- Delete Button -->
+                                    <form method="post" action="{% url 'delete_payment_order' order.pk %}" style="display:inline;" onsubmit="return confirm('PERMANENTLY DELETE order #{{ order.id }} (₱{{ order.amount|floatformat:2 }})? This action cannot be undone.');">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm" style="padding: 0.4rem 0.65rem; font-size: 0.75rem; border-radius: 8px; background: #FEE2E2; color: #991B1B; border: 1px solid #FECACA; font-weight: 700;" title="Permanently Delete Transaction">
+                                            🗑️ Delete
+                                        </button>
+                                    </form>
                                 </div>
-                                {% elif order.status == 'PAID' %}
-                                <span style="color:#059669; font-weight:700; font-size:0.8rem;">✓ Verified</span>
-                                {% else %}
-                                <span style="color:#991B1B; font-weight:600; font-size:0.8rem;">✗ Declined</span>
-                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
@@ -501,6 +527,59 @@
             {% else %}
             <p style="text-align:center; padding:3rem; color: #64748B;">No payment transactions recorded yet.</p>
             {% endif %}
+        </div>
+    </div>
+
+    <!-- Payment Details Popout Modal -->
+    <div id="paymentDetailsModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;">
+        <div style="background: white; border-radius: 24px; max-width: 540px; width: 100%; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); overflow: hidden; border: 1px solid #E2E8F0; animation: modalFadeIn 0.2s ease-out;">
+            <div style="background: #1E4D8C; color: white; padding: 1.5rem 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.5rem;">💳</span>
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.2rem; font-weight: 800; color: white;">Order Details</h3>
+                        <span id="modalOrderId" style="font-size: 0.8rem; opacity: 0.85; font-family: monospace;"></span>
+                    </div>
+                </div>
+                <button type="button" onclick="closePaymentModal()" style="background: rgba(255,255,255,0.15); border: none; color: white; border-radius: 50%; width: 32px; height: 32px; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;">✕</button>
+            </div>
+            <div style="padding: 2rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: #64748B; font-weight: 700;">Student</div>
+                        <div id="modalStudentName" style="font-weight: 700; color: #0F172A; margin-top: 0.25rem;"></div>
+                        <div id="modalStudentEmail" style="font-size: 0.8rem; color: #64748B;"></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: #64748B; font-weight: 700;">Amount & Tier</div>
+                        <div id="modalAmount" style="font-weight: 800; color: #059669; font-size: 1.25rem; margin-top: 0.25rem;"></div>
+                        <div id="modalTier" style="font-size: 0.8rem; font-weight: 600; color: #1E4D8C; text-transform: uppercase;"></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: #64748B; font-weight: 700;">Course Level</div>
+                        <div id="modalCourseTitle" style="font-weight: 600; color: #334155; margin-top: 0.25rem; font-size: 0.9rem;"></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: #64748B; font-weight: 700;">Order Status</div>
+                        <div id="modalStatus" style="margin-top: 0.25rem;"></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: #64748B; font-weight: 700;">Submission Date</div>
+                        <div id="modalDate" style="color: #334155; font-size: 0.85rem; margin-top: 0.25rem;"></div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; text-transform: uppercase; color: #64748B; font-weight: 700;">Gateway Session ID</div>
+                        <div id="modalSessionId" style="font-family: monospace; font-size: 0.75rem; color: #64748B; margin-top: 0.25rem; word-break: break-all;"></div>
+                    </div>
+                </div>
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.75rem; text-transform: uppercase; color: #64748B; font-weight: 700; margin-bottom: 0.4rem;">Reference & Proof Note</div>
+                    <div id="modalProofNote" style="font-size: 0.9rem; color: #0F172A; white-space: pre-wrap; font-weight: 500;"></div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+                    <button type="button" onclick="closePaymentModal()" class="btn btn-secondary" style="border-radius: 10px; padding: 0.6rem 1.25rem; font-weight: 600;">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -822,6 +901,45 @@
         // Save to local storage for persistence
         localStorage.setItem('admin_last_tab', tabId);
     }
+
+    // Payment Details Modal
+    function openPaymentModal(data) {
+        document.getElementById('modalOrderId').textContent = '#' + data.id;
+        document.getElementById('modalStudentName').textContent = data.studentName;
+        document.getElementById('modalStudentEmail').textContent = data.studentEmail;
+        document.getElementById('modalAmount').textContent = data.amount;
+        document.getElementById('modalTier').textContent = 'Tier: ' + data.tier;
+        document.getElementById('modalCourseTitle').textContent = data.courseTitle;
+        
+        let statusBadge = '';
+        if (data.status === 'PAID') {
+            statusBadge = '<span class="badge" style="background-color: #DCFCE7; color: #166534; border: 1px solid #BBF7D0;">✓ PAID</span>';
+        } else if (data.status === 'PENDING') {
+            statusBadge = '<span class="badge" style="background-color: #FEF3C7; color: #92400E; border: 1px solid #FDE68A;">⏳ PENDING</span>';
+        } else {
+            statusBadge = '<span class="badge" style="background-color: #FEE2E2; color: #991B1B; border: 1px solid #FECACA;">' + data.status + '</span>';
+        }
+        document.getElementById('modalStatus').innerHTML = statusBadge;
+        document.getElementById('modalDate').textContent = data.date;
+        document.getElementById('modalSessionId').textContent = data.sessionId;
+        document.getElementById('modalProofNote').textContent = data.proofNote;
+
+        const modal = document.getElementById('paymentDetailsModal');
+        modal.style.display = 'flex';
+    }
+
+    function closePaymentModal() {
+        const modal = document.getElementById('paymentDetailsModal');
+        modal.style.display = 'none';
+    }
+
+    // Close on outside click
+    window.addEventListener('click', (e) => {
+        const modal = document.getElementById('paymentDetailsModal');
+        if (e.target === modal) {
+            closePaymentModal();
+        }
+    });
 
     // Persistence logic
     document.addEventListener('DOMContentLoaded', () => {

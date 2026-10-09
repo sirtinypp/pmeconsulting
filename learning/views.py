@@ -768,3 +768,20 @@ def reject_wise_payment(request, order_id):
     return redirect('dashboard')
 
 
+@login_required
+def delete_payment_order(request, order_id):
+    """School Admin permanently purges/deletes a bogus or erroneous payment order."""
+    if request.user.role not in ['SCHOOL_ADMIN', 'SUPERUSER']:
+        raise PermissionDenied
+    
+    order = get_object_or_404(PaymentOrder, pk=order_id)
+    if request.method == 'POST':
+        order_info = f"#{order.id} ({order.user.username} - ₱{order.amount:,.2f})"
+        order.delete()
+
+        from django.contrib import messages
+        messages.success(request, f"Payment order {order_info} has been permanently deleted.")
+
+    return redirect('dashboard')
+
+
