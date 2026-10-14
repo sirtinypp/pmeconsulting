@@ -115,11 +115,9 @@
             {% endif %}
 
             <div class="lesson-content-body" style="font-size:1.05rem; line-height:1.7; color:#334155; margin-bottom:2rem;">
-                {% if "<div" in lesson.description or "<table" in lesson.description or "<p" in lesson.description %}
-                    {{ lesson.description|safe }}
-                {% else %}
-                    {{ lesson.description|linebreaks }}
-                {% endif %}
+                {% autoescape off %}
+                    {{ lesson.description }}
+                {% endautoescape %}
             </div>
 
             <script>
