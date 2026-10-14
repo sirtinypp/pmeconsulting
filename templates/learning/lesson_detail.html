@@ -93,6 +93,101 @@
         margin-bottom: 1.5rem;
         font-size: 0.9rem;
     }
+    /* Sticky Topic Anchor Navigation */
+    html {
+        scroll-behavior: smooth;
+    }
+    .topic-nav-sticky {
+        position: sticky;
+        top: 10px;
+        z-index: 99;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 0.6rem 0.85rem;
+        border-radius: 12px;
+        border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+        overflow-x: auto;
+        white-space: nowrap;
+        scrollbar-width: thin;
+    }
+    .topic-nav-sticky::-webkit-scrollbar {
+        height: 4px;
+    }
+    .topic-nav-sticky::-webkit-scrollbar-thumb {
+        background: #CBD5E1;
+        border-radius: 4px;
+    }
+    .topic-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.45rem 0.85rem;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 20px;
+        color: #334155;
+        text-decoration: none;
+        font-size: 0.825rem;
+        font-weight: 600;
+        transition: all 0.15s ease;
+        flex-shrink: 0;
+    }
+    .topic-pill:hover {
+        background: #EFF6FF;
+        border-color: #93C5FD;
+        color: #1D4ED8;
+        transform: translateY(-1px);
+    }
+    .topic-pill.active {
+        background: #1E3A8A;
+        border-color: #1E3A8A;
+        color: #FFFFFF;
+    }
+    .topic-pill-pdf {
+        background: #ECFDF5;
+        border-color: #A7F3D0;
+        color: #065F46;
+        margin-left: auto;
+    }
+    .topic-pill-pdf:hover {
+        background: #D1FAE5;
+        border-color: #6EE7B7;
+        color: #047857;
+    }
+    /* Section scroll offset so header doesn't obscure content */
+    .lesson-section-target {
+        scroll-margin-top: 80px;
+    }
+    /* Floating Scroll To Top Button */
+    #btn-scroll-top {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: #0F172A;
+        color: white;
+        border: none;
+        font-size: 1.25rem;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+        z-index: 999;
+        transition: all 0.2s ease;
+    }
+    #btn-scroll-top:hover {
+        background: #2563EB;
+        transform: translateY(-3px);
+    }
 </style>
 <div class="lesson-layout">
     <!-- Main Content Area -->
@@ -114,11 +209,29 @@
             </div>
             {% endif %}
 
+            {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description %}
+            <!-- Sticky Topic Anchor Navigation Bar (Option 1) -->
+            <div class="topic-nav-sticky" id="topicStickyNav">
+                <span style="font-size:0.75rem; font-weight:800; color:#64748B; text-transform:uppercase; letter-spacing:0.05em; margin-right:0.25rem;">📍 Schnellnavigation:</span>
+                <a href="#sec-aussprache" class="topic-pill">🗣️ Aussprache</a>
+                <a href="#sec-lektion1" class="topic-pill">🩺 Lektion 1: Beim Arzt</a>
+                <a href="#sec-lektion2" class="topic-pill">💊 Lektion 2: Ratschläge</a>
+                <a href="#sec-lektion3" class="topic-pill">🥗 Lektion 3: Gesund leben</a>
+                <a href="#sec-rueckblick" class="topic-pill">📋 Rückblick</a>
+                {% if lesson.resources.first and lesson.resources.first.file %}
+                <a href="{{ lesson.resources.first.file.url }}" target="_blank" class="topic-pill topic-pill-pdf">📥 PDF herunterladen</a>
+                {% endif %}
+            </div>
+            {% endif %}
+
             <div class="lesson-content-body" style="font-size:1.05rem; line-height:1.7; color:#334155; margin-bottom:2rem;">
                 {% autoescape off %}
                     {{ lesson.description }}
                 {% endautoescape %}
             </div>
+
+            <!-- Floating Scroll-to-Top Button -->
+            <button id="btn-scroll-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'});" title="Nach oben scrollen">↑</button>
 
             <script>
             function playGerman(text) {
@@ -514,6 +627,41 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeImageLightbox();
+        }
+    });
+
+    // Handle scroll-to-top button and active anchor pill
+    const btnScrollTop = document.getElementById('btn-scroll-top');
+    const topicNav = document.getElementById('topicStickyNav');
+    const topicPills = document.querySelectorAll('.topic-pill[href^="#"]');
+
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 350) {
+            if (btnScrollTop) btnScrollTop.style.display = 'flex';
+        } else {
+            if (btnScrollTop) btnScrollTop.style.display = 'none';
+        }
+
+        // Highlight active section pill
+        if (topicPills.length > 0) {
+            let currentSec = '';
+            topicPills.forEach(pill => {
+                const targetId = pill.getAttribute('href').substring(1);
+                const el = document.getElementById(targetId);
+                if (el) {
+                    const rect = el.getBoundingClientRect();
+                    if (rect.top <= 140) {
+                        currentSec = targetId;
+                    }
+                }
+            });
+            topicPills.forEach(pill => {
+                if (pill.getAttribute('href') === '#' + currentSec) {
+                    pill.classList.add('active');
+                } else {
+                    pill.classList.remove('active');
+                }
+            });
         }
     });
 </script>
