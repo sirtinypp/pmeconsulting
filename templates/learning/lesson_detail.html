@@ -7,16 +7,26 @@
 
 {% block content %}
 <style>
+    /* Constrain overly wide stretched layout on large screens */
+    .content-body .container {
+        max-width: 1200px !important;
+        margin: 0 auto !important;
+    }
     .lesson-layout {
         display: grid;
-        grid-template-columns: 1fr 320px;
+        grid-template-columns: minmax(0, 1fr) 300px;
         gap: 2rem;
+        align-items: start;
     }
-    @media (max-width: 768px) {
+    @media (max-width: 992px) {
         .lesson-layout {
             grid-template-columns: 1fr;
             gap: 1.5rem;
         }
+    }
+    .lesson-content-body {
+        max-width: 820px;
+        margin: 0 auto;
     }
     .lesson-content-body table {
         width: 100%;
