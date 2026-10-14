@@ -18,6 +18,81 @@
             gap: 1.5rem;
         }
     }
+    .lesson-content-body table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0 1.5rem;
+        font-size: 0.925rem;
+    }
+    .lesson-content-body th, .lesson-content-body td {
+        padding: 0.65rem 0.85rem;
+        border: 1px solid #E2E8F0;
+        text-align: left;
+        vertical-align: middle;
+    }
+    .lesson-content-body th {
+        background: #F8FAFC;
+        font-weight: 700;
+        color: #0F172A;
+    }
+    .lesson-content-body tr:nth-child(even) {
+        background: #FBFDFE;
+    }
+    .audio-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background-color: #F1F5F9;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        cursor: pointer;
+        padding: 4px 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #1E293B;
+        transition: all 0.15s ease;
+        user-select: none;
+    }
+    .audio-btn:hover {
+        background-color: #E2E8F0;
+        border-color: #94A3B8;
+        transform: translateY(-1px);
+    }
+    .audio-btn:active {
+        transform: scale(0.96);
+    }
+    .example-box {
+        background-color: #F8FAFC;
+        border-left: 4px solid #3B82F6;
+        padding: 1rem 1.25rem;
+        margin: 1rem 0;
+        border-radius: 0 8px 8px 0;
+        border-top: 1px solid #E2E8F0;
+        border-right: 1px solid #E2E8F0;
+        border-bottom: 1px solid #E2E8F0;
+    }
+    .wrong { color: #DC2626; font-weight: 600; }
+    .right { color: #16A34A; font-weight: 600; }
+    .pronounce-text { font-weight: 700; color: #0F172A; }
+    .task-card {
+        background-color: #F8FAFC;
+        border: 1px solid #CBD5E1;
+        border-radius: 8px;
+        padding: 1.25rem;
+        margin: 1.25rem 0;
+    }
+    .download-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #EFF6FF;
+        border: 1px solid #BFDBFE;
+        color: #1E40AF;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+    }
 </style>
 <div class="lesson-layout">
     <!-- Main Content Area -->
@@ -39,9 +114,38 @@
             </div>
             {% endif %}
 
-            <div style="font-size:1.1rem; line-height:1.7; color:#334155; margin-bottom:2rem;">
-                {{ lesson.description|linebreaks }}
+            <div class="lesson-content-body" style="font-size:1.05rem; line-height:1.7; color:#334155; margin-bottom:2rem;">
+                {% if "<div" in lesson.description or "<table" in lesson.description or "<p" in lesson.description %}
+                    {{ lesson.description|safe }}
+                {% else %}
+                    {{ lesson.description|linebreaks }}
+                {% endif %}
             </div>
+
+            <script>
+            function playGerman(text) {
+                if (!('speechSynthesis' in window)) {
+                    alert('Ihr Browser unterstützt leider keine Sprachausgabe.');
+                    return;
+                }
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'de-DE';
+                utterance.rate = 0.88;
+                
+                const voices = window.speechSynthesis.getVoices();
+                const germanVoice = voices.find(v => v.lang.startsWith('de'));
+                if (germanVoice) {
+                    utterance.voice = germanVoice;
+                }
+                window.speechSynthesis.speak(utterance);
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => {
+                    window.speechSynthesis.getVoices();
+                };
+            }
+            </script>
 
             {% if lesson.lesson_type == 'QIZ' %}
             <!-- Interactive Quiz Engine v2 -->
