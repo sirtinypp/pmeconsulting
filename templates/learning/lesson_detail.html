@@ -107,72 +107,155 @@
     html {
         scroll-behavior: smooth;
     }
-    .topic-nav-sticky {
+    .topic-toc-card {
+        position: -webkit-sticky;
         position: sticky;
-        top: 10px;
-        z-index: 99;
-        background: rgba(255, 255, 255, 0.94);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        padding: 0.6rem 0.85rem;
-        border-radius: 12px;
+        top: 20px;
+        z-index: 40;
+        background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+        border-radius: 14px;
+        box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06);
+        padding: 1.15rem;
+        margin-bottom: 1.5rem;
+    }
+    .topic-toc-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #F1F5F9;
+    }
+    .topic-toc-title {
+        font-size: 0.75rem;
+        font-weight: 800;
+        color: #64748B;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+    }
+    .reading-progress-track {
+        height: 4px;
+        background: #F1F5F9;
+        border-radius: 4px;
+        overflow: hidden;
+        margin-bottom: 0.85rem;
+    }
+    .reading-progress-bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, #3B82F6, #1E3A8A);
+        transition: width 0.1s ease;
+    }
+    .topic-toc-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+    }
+    .topic-toc-item a {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        margin-bottom: 1.5rem;
-        overflow-x: auto;
-        white-space: nowrap;
-        scrollbar-width: thin;
-    }
-    .topic-nav-sticky::-webkit-scrollbar {
-        height: 4px;
-    }
-    .topic-nav-sticky::-webkit-scrollbar-thumb {
-        background: #CBD5E1;
-        border-radius: 4px;
-    }
-    .topic-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.45rem 0.85rem;
-        background: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-radius: 20px;
-        color: #334155;
+        padding: 0.55rem 0.75rem;
+        border-radius: 8px;
+        color: #475569;
         text-decoration: none;
-        font-size: 0.825rem;
-        font-weight: 600;
+        font-size: 0.84rem;
+        font-weight: 500;
+        border-left: 3px solid transparent;
         transition: all 0.15s ease;
-        flex-shrink: 0;
     }
-    .topic-pill:hover {
+    .topic-toc-item a:hover {
+        background: #F8FAFC;
+        color: #1E3A8A;
+        border-left-color: #93C5FD;
+    }
+    .topic-toc-item a.active {
         background: #EFF6FF;
-        border-color: #93C5FD;
-        color: #1D4ED8;
-        transform: translateY(-1px);
+        color: #1E3A8A;
+        font-weight: 700;
+        border-left-color: #1E3A8A;
     }
-    .topic-pill.active {
-        background: #1E3A8A;
-        border-color: #1E3A8A;
-        color: #FFFFFF;
+    .topic-toc-pdf {
+        margin-top: 0.85rem;
+        padding-top: 0.75rem;
+        border-top: 1px dashed #E2E8F0;
     }
-    .topic-pill-pdf {
+    .topic-toc-pdf a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
         background: #ECFDF5;
-        border-color: #A7F3D0;
+        border: 1px solid #A7F3D0;
         color: #065F46;
-        margin-left: auto;
+        padding: 0.5rem 0.75rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.15s ease;
     }
-    .topic-pill-pdf:hover {
+    .topic-toc-pdf a:hover {
         background: #D1FAE5;
         border-color: #6EE7B7;
-        color: #047857;
     }
-    /* Section scroll offset so header doesn't obscure content */
+
+    /* Mobile Quick-Jump Floating Bottom Bar */
+    .mobile-toc-dock {
+        display: none;
+    }
+    @media (max-width: 992px) {
+        .topic-toc-card {
+            display: none; /* Hide in regular layout on small devices */
+        }
+        .mobile-toc-dock {
+            display: flex;
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 990;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 0.4rem 0.6rem;
+            border-radius: 30px;
+            box-shadow: 0 10px 25px -3px rgba(0, 0, 0, 0.3);
+            gap: 0.35rem;
+            max-width: 90vw;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .mobile-toc-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.35rem 0.7rem;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            color: #F8FAFC;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.15s ease;
+            flex-shrink: 0;
+        }
+        .mobile-toc-pill.active {
+            background: #3B82F6;
+            color: #FFFFFF;
+        }
+    }
+
+    /* Section scroll offset so sticky elements don't obscure headings */
     .lesson-section-target {
-        scroll-margin-top: 80px;
+        scroll-margin-top: 30px;
     }
     /* Floating Scroll To Top Button */
     #btn-scroll-top {
@@ -220,17 +303,13 @@
             {% endif %}
 
             {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description %}
-            <!-- Sticky Topic Anchor Navigation Bar (Option 1) -->
-            <div class="topic-nav-sticky" id="topicStickyNav">
-                <span style="font-size:0.75rem; font-weight:800; color:#64748B; text-transform:uppercase; letter-spacing:0.05em; margin-right:0.25rem;">📍 Schnellnavigation:</span>
-                <a href="#sec-aussprache" class="topic-pill">🗣️ Aussprache</a>
-                <a href="#sec-lektion1" class="topic-pill">🩺 Lektion 1: Beim Arzt</a>
-                <a href="#sec-lektion2" class="topic-pill">💊 Lektion 2: Ratschläge</a>
-                <a href="#sec-lektion3" class="topic-pill">🥗 Lektion 3: Gesund leben</a>
-                <a href="#sec-rueckblick" class="topic-pill">📋 Rückblick</a>
-                {% if lesson.resources.first and lesson.resources.first.file %}
-                <a href="{{ lesson.resources.first.file.url }}" target="_blank" class="topic-pill topic-pill-pdf">📥 PDF herunterladen</a>
-                {% endif %}
+            <!-- Mobile Quick-Jump Floating Bottom Bar -->
+            <div class="mobile-toc-dock" id="mobileTocDock">
+                <a href="#sec-aussprache" class="mobile-toc-pill">🗣️ Aussprache</a>
+                <a href="#sec-lektion1" class="mobile-toc-pill">🩺 L1: Beim Arzt</a>
+                <a href="#sec-lektion2" class="mobile-toc-pill">💊 L2: Ratschläge</a>
+                <a href="#sec-lektion3" class="mobile-toc-pill">🥗 L3: Gesund leben</a>
+                <a href="#sec-rueckblick" class="mobile-toc-pill">📋 Rückblick</a>
             </div>
             {% endif %}
 
@@ -565,6 +644,62 @@
 
     <!-- Sidebar / Resources -->
     <div>
+        {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description %}
+        <!-- Sticky Floating Side Nav (Table of Contents) -->
+        <div class="topic-toc-card" id="sidebarToc">
+            <div class="topic-toc-header">
+                <span class="topic-toc-title">📍 Schnellnavigation</span>
+                <span id="reading-progress-percent" style="font-size:0.75rem; font-weight:700; color:#3B82F6;">0%</span>
+            </div>
+            
+            <div class="reading-progress-track">
+                <div class="reading-progress-bar" id="readingProgressBar"></div>
+            </div>
+
+            <ul class="topic-toc-list">
+                <li class="topic-toc-item">
+                    <a href="#sec-aussprache" class="toc-link">
+                        <span>🗣️</span>
+                        <span>Aussprachehilfe</span>
+                    </a>
+                </li>
+                <li class="topic-toc-item">
+                    <a href="#sec-lektion1" class="toc-link">
+                        <span>🩺</span>
+                        <span>Lektion 1: Beim Arzt</span>
+                    </a>
+                </li>
+                <li class="topic-toc-item">
+                    <a href="#sec-lektion2" class="toc-link">
+                        <span>💊</span>
+                        <span>Lektion 2: Ratschläge</span>
+                    </a>
+                </li>
+                <li class="topic-toc-item">
+                    <a href="#sec-lektion3" class="toc-link">
+                        <span>🥗</span>
+                        <span>Lektion 3: Gesund leben</span>
+                    </a>
+                </li>
+                <li class="topic-toc-item">
+                    <a href="#sec-rueckblick" class="toc-link">
+                        <span>📋</span>
+                        <span>Modul-Rückblick</span>
+                    </a>
+                </li>
+            </ul>
+
+            {% if lesson.resources.first and lesson.resources.first.file %}
+            <div class="topic-toc-pdf">
+                <a href="{{ lesson.resources.first.file.url }}" target="_blank">
+                    <span>📥</span>
+                    <span>PDF Dokument öffnen</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
         <div class="card" style="margin-bottom:1.5rem;">
             <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">📚 Lesson Resources</h3>
             <ul style="list-style:none; padding:0;">
@@ -640,36 +775,48 @@
         }
     });
 
-    // Handle scroll-to-top button and active anchor pill
+    // Handle scroll-to-top button, reading progress, and active TOC highlighting
     const btnScrollTop = document.getElementById('btn-scroll-top');
-    const topicNav = document.getElementById('topicStickyNav');
-    const topicPills = document.querySelectorAll('.topic-pill[href^="#"]');
+    const tocLinks = document.querySelectorAll('.toc-link, .mobile-toc-pill');
+    const readingProgressBar = document.getElementById('readingProgressBar');
+    const readingProgressPercent = document.getElementById('readingProgressPercent');
 
     window.addEventListener('scroll', function() {
-        if (window.scrollY > 350) {
+        const scrollY = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        
+        // Scroll to top visibility
+        if (scrollY > 350) {
             if (btnScrollTop) btnScrollTop.style.display = 'flex';
         } else {
             if (btnScrollTop) btnScrollTop.style.display = 'none';
         }
 
-        // Highlight active section pill
-        if (topicPills.length > 0) {
+        // Reading progress percentage
+        if (docHeight > 0) {
+            const progress = Math.min(100, Math.max(0, Math.round((scrollY / docHeight) * 100)));
+            if (readingProgressBar) readingProgressBar.style.width = progress + '%';
+            if (readingProgressPercent) readingProgressPercent.innerText = progress + '%';
+        }
+
+        // Highlight active section in sticky TOC & mobile dock
+        if (tocLinks.length > 0) {
             let currentSec = '';
-            topicPills.forEach(pill => {
-                const targetId = pill.getAttribute('href').substring(1);
+            tocLinks.forEach(link => {
+                const targetId = link.getAttribute('href').substring(1);
                 const el = document.getElementById(targetId);
                 if (el) {
                     const rect = el.getBoundingClientRect();
-                    if (rect.top <= 140) {
+                    if (rect.top <= 120) {
                         currentSec = targetId;
                     }
                 }
             });
-            topicPills.forEach(pill => {
-                if (pill.getAttribute('href') === '#' + currentSec) {
-                    pill.classList.add('active');
+            tocLinks.forEach(link => {
+                if (link.getAttribute('href') === '#' + currentSec) {
+                    link.classList.add('active');
                 } else {
-                    pill.classList.remove('active');
+                    link.classList.remove('active');
                 }
             });
         }
