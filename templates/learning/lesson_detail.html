@@ -16,12 +16,25 @@
         display: grid;
         grid-template-columns: minmax(0, 1fr) 300px;
         gap: 2rem;
-        align-items: start;
+        align-items: stretch;
+    }
+    .lesson-sidebar-column {
+        position: relative;
+        height: 100%;
+    }
+    .lesson-sticky-wrapper {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 90px;
+        z-index: 40;
     }
     @media (max-width: 992px) {
         .lesson-layout {
             grid-template-columns: 1fr;
             gap: 1.5rem;
+        }
+        .lesson-sticky-wrapper {
+            position: static;
         }
     }
     .lesson-content-body {
@@ -108,10 +121,6 @@
         scroll-behavior: smooth;
     }
     .topic-toc-card {
-        position: -webkit-sticky;
-        position: sticky;
-        top: 20px;
-        z-index: 40;
         background: #FFFFFF;
         border: 1px solid #E2E8F0;
         border-radius: 14px;
@@ -643,90 +652,92 @@
     </div>
 
     <!-- Sidebar / Resources -->
-    <div>
-        {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description %}
-        <!-- Sticky Floating Side Nav (Table of Contents) -->
-        <div class="topic-toc-card" id="sidebarToc">
-            <div class="topic-toc-header">
-                <span class="topic-toc-title">📍 Schnellnavigation</span>
-                <span id="reading-progress-percent" style="font-size:0.75rem; font-weight:700; color:#3B82F6;">0%</span>
-            </div>
-            
-            <div class="reading-progress-track">
-                <div class="reading-progress-bar" id="readingProgressBar"></div>
-            </div>
+    <div class="lesson-sidebar-column">
+        <div class="lesson-sticky-wrapper">
+            {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description %}
+            <!-- Sticky Floating Side Nav (Table of Contents) -->
+            <div class="topic-toc-card" id="sidebarToc">
+                <div class="topic-toc-header">
+                    <span class="topic-toc-title">📍 Schnellnavigation</span>
+                    <span id="reading-progress-percent" style="font-size:0.75rem; font-weight:700; color:#3B82F6;">0%</span>
+                </div>
+                
+                <div class="reading-progress-track">
+                    <div class="reading-progress-bar" id="readingProgressBar"></div>
+                </div>
 
-            <ul class="topic-toc-list">
-                <li class="topic-toc-item">
-                    <a href="#sec-aussprache" class="toc-link">
-                        <span>🗣️</span>
-                        <span>Aussprachehilfe</span>
-                    </a>
-                </li>
-                <li class="topic-toc-item">
-                    <a href="#sec-lektion1" class="toc-link">
-                        <span>🩺</span>
-                        <span>Lektion 1: Beim Arzt</span>
-                    </a>
-                </li>
-                <li class="topic-toc-item">
-                    <a href="#sec-lektion2" class="toc-link">
-                        <span>💊</span>
-                        <span>Lektion 2: Ratschläge</span>
-                    </a>
-                </li>
-                <li class="topic-toc-item">
-                    <a href="#sec-lektion3" class="toc-link">
-                        <span>🥗</span>
-                        <span>Lektion 3: Gesund leben</span>
-                    </a>
-                </li>
-                <li class="topic-toc-item">
-                    <a href="#sec-rueckblick" class="toc-link">
-                        <span>📋</span>
-                        <span>Modul-Rückblick</span>
-                    </a>
-                </li>
-            </ul>
+                <ul class="topic-toc-list">
+                    <li class="topic-toc-item">
+                        <a href="#sec-aussprache" class="toc-link">
+                            <span>🗣️</span>
+                            <span>Aussprachehilfe</span>
+                        </a>
+                    </li>
+                    <li class="topic-toc-item">
+                        <a href="#sec-lektion1" class="toc-link">
+                            <span>🩺</span>
+                            <span>Lektion 1: Beim Arzt</span>
+                        </a>
+                    </li>
+                    <li class="topic-toc-item">
+                        <a href="#sec-lektion2" class="toc-link">
+                            <span>💊</span>
+                            <span>Lektion 2: Ratschläge</span>
+                        </a>
+                    </li>
+                    <li class="topic-toc-item">
+                        <a href="#sec-lektion3" class="toc-link">
+                            <span>🥗</span>
+                            <span>Lektion 3: Gesund leben</span>
+                        </a>
+                    </li>
+                    <li class="topic-toc-item">
+                        <a href="#sec-rueckblick" class="toc-link">
+                            <span>📋</span>
+                            <span>Modul-Rückblick</span>
+                        </a>
+                    </li>
+                </ul>
 
-            {% if lesson.resources.first and lesson.resources.first.file %}
-            <div class="topic-toc-pdf">
-                <a href="{{ lesson.resources.first.file.url }}" target="_blank">
-                    <span>📥</span>
-                    <span>PDF Dokument öffnen</span>
-                </a>
+                {% if lesson.resources.first and lesson.resources.first.file %}
+                <div class="topic-toc-pdf">
+                    <a href="{{ lesson.resources.first.file.url }}" target="_blank">
+                        <span>📥</span>
+                        <span>PDF Dokument öffnen</span>
+                    </a>
+                </div>
+                {% endif %}
             </div>
             {% endif %}
-        </div>
-        {% endif %}
 
-        <div class="card" style="margin-bottom:1.5rem;">
-            <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">📚 Lesson Resources</h3>
-            <ul style="list-style:none; padding:0;">
-                {% for resource in lesson.resources.all %}
-                <li style="padding:0.75rem 0; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:0.75rem;">
-                    <span style="font-size:1.25rem;">
-                        {% if resource.resource_type == 'DOC' %}📄{% elif resource.resource_type == 'VID' %}🎬{% else %}🔗{% endif %}
-                    </span>
-                    <div style="flex:1;">
-                        {% if resource.file %}
-                            <a href="{{ resource.file.url }}" target="_blank" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
-                        {% else %}
-                            <a href="{{ resource.url|default:'#' }}" target="_blank" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
-                        {% endif %}
-                        <div style="font-size:0.75rem; color:var(--text-muted);">{{ resource.get_resource_type_display }}</div>
-                    </div>
-                </li>
-                {% empty %}
-                <p style="font-size:0.875rem; color:var(--text-muted);">No extra materials for this lesson.</p>
-                {% endfor %}
-            </ul>
-        </div>
-        
-        <div class="card" style="background:var(--primary); color:white; border:none;">
-            <h4 style="color:white; font-size:0.9rem; margin-bottom:0.5rem;">Need Help?</h4>
-            <p style="font-size:0.8rem; color:#DBEAFE; margin-bottom:1rem;">If you have questions about the clinical terminology in this lesson, join the live Q&A session on the Events calendar.</p>
-            <a href="{% url 'events_list' %}" class="btn" style="background:white; color:var(--primary); font-size:0.75rem; width:100%; justify-content:center;">View Events Calendar</a>
+            <div class="card" style="margin-bottom:1.5rem;">
+                <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem;">📚 Lesson Resources</h3>
+                <ul style="list-style:none; padding:0;">
+                    {% for resource in lesson.resources.all %}
+                    <li style="padding:0.75rem 0; border-bottom: 1px solid var(--border); display:flex; align-items:center; gap:0.75rem;">
+                        <span style="font-size:1.25rem;">
+                            {% if resource.resource_type == 'DOC' %}📄{% elif resource.resource_type == 'VID' %}🎬{% else %}🔗{% endif %}
+                        </span>
+                        <div style="flex:1;">
+                            {% if resource.file %}
+                                <a href="{{ resource.file.url }}" target="_blank" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
+                            {% else %}
+                                <a href="{{ resource.url|default:'#' }}" target="_blank" style="color:var(--primary); text-decoration:none; font-size:0.875rem; font-weight:600;">{{ resource.title }}</a>
+                            {% endif %}
+                            <div style="font-size:0.75rem; color:var(--text-muted);">{{ resource.get_resource_type_display }}</div>
+                        </div>
+                    </li>
+                    {% empty %}
+                    <p style="font-size:0.875rem; color:var(--text-muted);">No extra materials for this lesson.</p>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="card" style="background:var(--primary); color:white; border:none;">
+                <h4 style="color:white; font-size:0.9rem; margin-bottom:0.5rem;">Need Help?</h4>
+                <p style="font-size:0.8rem; color:#DBEAFE; margin-bottom:1rem;">If you have questions about the clinical terminology in this lesson, join the live Q&A session on the Events calendar.</p>
+                <a href="{% url 'events_list' %}" class="btn" style="background:white; color:var(--primary); font-size:0.75rem; width:100%; justify-content:center;">View Events Calendar</a>
+            </div>
         </div>
     </div>
 </div>
