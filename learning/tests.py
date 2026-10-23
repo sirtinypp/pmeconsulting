@@ -6,7 +6,7 @@ from core.models import School
 User = get_user_model()
 
 
-class PayMongoIntegrationTestCase(TestCase):
+class PaymentIntegrationTestCase(TestCase):
     def setUp(self):
         self.school = School.objects.create(name="Test Academy", code="TAC")
         self.user = User.objects.create_user(
@@ -42,12 +42,12 @@ class PayMongoIntegrationTestCase(TestCase):
             enrollment=enrollment,
             tier=self.tier,
             amount=self.tier.price,
-            checkout_session_id="cs_test_1234567890",
+            checkout_session_id="order_test_1234567890",
             status=PaymentOrder.PaymentStatus.PENDING
         )
         self.assertEqual(order.status, PaymentOrder.PaymentStatus.PENDING)
 
-        # 3. Simulate Webhook Fulfillment
+        # 3. Simulate Fulfillment
         order.status = PaymentOrder.PaymentStatus.PAID
         order.save()
         

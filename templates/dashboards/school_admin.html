@@ -344,7 +344,8 @@
                 <span class="tab-icon">📚</span>
                 <span class="tab-label">Course Management</span>
             </button>
-            <button class="admin-tab-btn" id="tab-btn-payments" onclick="switchTab('payments')" title="Payment Management">
+            {% comment %} Temporarily hidden payment tab
+<button class="admin-tab-btn" id="tab-btn-payments" onclick="switchTab('payments')" title="Payment Management">
                 <span class="tab-icon">💳</span>
                 <span class="tab-label">Payment Management</span>
                 {% if payment_orders %}
@@ -355,6 +356,7 @@
                     {% endwith %}
                 {% endif %}
             </button>
+{% endcomment %}
             <button class="admin-tab-btn" id="tab-btn-trainings" onclick="switchTab('trainings')" title="Trainings Management">
                 <span class="tab-icon">📡</span>
                 <span class="tab-label">Trainings Management</span>
@@ -720,7 +722,8 @@
         </div>
     </div>
 
-    <!-- 4. PAYMENT MANAGEMENT -->
+    {% comment %} Temporarily hidden payment pane
+<!-- 4. PAYMENT MANAGEMENT -->
     <div id="payments" class="tab-pane">
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
             <div class="card" style="padding: 1.5rem; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border-radius: 16px;">
@@ -876,6 +879,9 @@
             {% endif %}
         </div>
     </div>
+
+    
+{% endcomment %}
 
     <!-- Payment Details Popout Modal -->
     <div id="paymentDetailsModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;">
