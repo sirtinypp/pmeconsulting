@@ -316,9 +316,9 @@
             <!-- Mobile Quick-Jump Floating Bottom Bar -->
             <div class="mobile-toc-dock" id="mobileTocDock">
                 <a href="#sec-aussprache" class="mobile-toc-pill">🗣️ Aussprache</a>
-                <a href="#sec-lektion1" class="mobile-toc-pill">🩺 {% if "Modul 6" in lesson.title %}L1: Dienstpläne{% else %}L1: Beim Arzt{% endif %}</a>
-                <a href="#sec-lektion2" class="mobile-toc-pill">💊 {% if "Modul 6" in lesson.title %}L2: Krankmeldung{% else %}L2: Ratschläge{% endif %}</a>
-                <a href="#sec-lektion3" class="mobile-toc-pill">{% if "Modul 6" in lesson.title %}🤝 L3: Schichttausch{% else %}🥗 L3: Gesund leben{% endif %}</a>
+                <a href="#sec-lektion1" class="mobile-toc-pill">{% if "Modul 7" in lesson.title %}🏠 L1: Wohnung{% elif "Modul 6" in lesson.title %}🩺 L1: Dienstpläne{% else %}🩺 L1: Beim Arzt{% endif %}</a>
+                <a href="#sec-lektion2" class="mobile-toc-pill">{% if "Modul 7" in lesson.title %}🏛️ L2: Bürgeramt{% elif "Modul 6" in lesson.title %}💊 L2: Krankmeldung{% else %}💊 L2: Ratschläge{% endif %}</a>
+                <a href="#sec-lektion3" class="mobile-toc-pill">{% if "Modul 7" in lesson.title %}📄 L3: Verträge{% elif "Modul 6" in lesson.title %}🤝 L3: Schichttausch{% else %}🥗 L3: Gesund leben{% endif %}</a>
                 <a href="#sec-rueckblick" class="mobile-toc-pill">📋 Rückblick</a>
             </div>
             {% endif %}
@@ -676,20 +676,20 @@
                     </li>
                     <li class="topic-toc-item">
                         <a href="#sec-lektion1" class="toc-link">
-                            <span>🩺</span>
-                            <span>{% if "Modul 6" in lesson.title %}L1: Dienstpläne{% else %}Lektion 1: Beim Arzt{% endif %}</span>
+                            <span>{% if "Modul 7" in lesson.title %}🏠{% else %}🩺{% endif %}</span>
+                            <span>{% if "Modul 7" in lesson.title %}L1: Wohnung & Miete{% elif "Modul 6" in lesson.title %}L1: Dienstpläne{% else %}Lektion 1: Beim Arzt{% endif %}</span>
                         </a>
                     </li>
                     <li class="topic-toc-item">
                         <a href="#sec-lektion2" class="toc-link">
-                            <span>💊</span>
-                            <span>{% if "Modul 6" in lesson.title %}L2: Krankmeldung (eAU){% else %}Lektion 2: Ratschläge{% endif %}</span>
+                            <span>{% if "Modul 7" in lesson.title %}🏛️{% else %}💊{% endif %}</span>
+                            <span>{% if "Modul 7" in lesson.title %}L2: Bürgeramt (Anmeldung){% elif "Modul 6" in lesson.title %}L2: Krankmeldung (eAU){% else %}Lektion 2: Ratschläge{% endif %}</span>
                         </a>
                     </li>
                     <li class="topic-toc-item">
                         <a href="#sec-lektion3" class="toc-link">
-                            <span>{% if "Modul 6" in lesson.title %}🤝{% else %}🥗{% endif %}</span>
-                            <span>{% if "Modul 6" in lesson.title %}L3: Schichttausch (K2){% else %}Lektion 3: Gesund leben{% endif %}</span>
+                            <span>{% if "Modul 7" in lesson.title %}📄{% elif "Modul 6" in lesson.title %}🤝{% else %}🥗{% endif %}</span>
+                            <span>{% if "Modul 7" in lesson.title %}L3: Verträge & Kündigung{% elif "Modul 6" in lesson.title %}L3: Schichttausch (K2){% else %}Lektion 3: Gesund leben{% endif %}</span>
                         </a>
                     </li>
                     <li class="topic-toc-item">
@@ -700,7 +700,14 @@
                     </li>
                 </ul>
 
-                {% if "Modul 6" in lesson.title %}
+                {% if "Modul 7" in lesson.title %}
+                <div class="topic-toc-pdf">
+                    <a href="{% static 'docs/B1_Modul_7_Reading_Material.pdf' %}" target="_blank">
+                        <span>📥</span>
+                        <span>PDF Dokument öffnen</span>
+                    </a>
+                </div>
+                {% elif "Modul 6" in lesson.title %}
                 <div class="topic-toc-pdf">
                     <a href="{% static 'docs/B1_Modul_6_Reading_Material.pdf' %}" target="_blank">
                         <span>📥</span>
