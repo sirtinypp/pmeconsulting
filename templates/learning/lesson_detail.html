@@ -312,13 +312,13 @@
             </div>
             {% endif %}
 
-            {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description %}
+            {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description or "B2" in lesson.course.title %}
             <!-- Mobile Quick-Jump Floating Bottom Bar -->
             <div class="mobile-toc-dock" id="mobileTocDock">
                 <a href="#sec-aussprache" class="mobile-toc-pill">🗣️ Aussprache</a>
-                <a href="#sec-lektion1" class="mobile-toc-pill">{% if "Modul 7" in lesson.title %}🏠 L1: Wohnung{% elif "Modul 6" in lesson.title %}🩺 L1: Dienstpläne{% else %}🩺 L1: Beim Arzt{% endif %}</a>
-                <a href="#sec-lektion2" class="mobile-toc-pill">{% if "Modul 7" in lesson.title %}🏛️ L2: Bürgeramt{% elif "Modul 6" in lesson.title %}💊 L2: Krankmeldung{% else %}💊 L2: Ratschläge{% endif %}</a>
-                <a href="#sec-lektion3" class="mobile-toc-pill">{% if "Modul 7" in lesson.title %}📄 L3: Verträge{% elif "Modul 6" in lesson.title %}🤝 L3: Schichttausch{% else %}🥗 L3: Gesund leben{% endif %}</a>
+                <a href="#sec-lektion1" class="mobile-toc-pill">{% if "B2" in lesson.course.title %}🩺 L1{% elif "Modul 7" in lesson.title %}🏠 L1: Wohnung{% elif "Modul 6" in lesson.title %}🩺 L1: Dienstpläne{% else %}🩺 L1: Beim Arzt{% endif %}</a>
+                <a href="#sec-lektion2" class="mobile-toc-pill">{% if "B2" in lesson.course.title %}💊 L2{% elif "Modul 7" in lesson.title %}🏛️ L2: Bürgeramt{% elif "Modul 6" in lesson.title %}💊 L2: Krankmeldung{% else %}💊 L2: Ratschläge{% endif %}</a>
+                <a href="#sec-lektion3" class="mobile-toc-pill">{% if "B2" in lesson.course.title %}📋 L3{% elif "Modul 7" in lesson.title %}📄 L3: Verträge{% elif "Modul 6" in lesson.title %}🤝 L3: Schichttausch{% else %}🥗 L3: Gesund leben{% endif %}</a>
                 <a href="#sec-rueckblick" class="mobile-toc-pill">📋 Rückblick</a>
             </div>
             {% endif %}
@@ -655,7 +655,7 @@
     <!-- Sidebar / Resources -->
     <div class="lesson-sidebar-column">
         <div class="lesson-sticky-wrapper">
-            {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description %}
+            {% if "Aussprachehilfe" in lesson.description or "Lektion 1" in lesson.description or "Lesson 1" in lesson.description or "B2" in lesson.course.title %}
             <!-- Sticky Floating Side Nav (Table of Contents) -->
             <div class="topic-toc-card" id="sidebarToc">
                 <div class="topic-toc-header">
