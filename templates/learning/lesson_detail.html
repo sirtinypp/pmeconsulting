@@ -677,19 +677,19 @@
                     <li class="topic-toc-item">
                         <a href="#sec-lektion1" class="toc-link">
                             <span>{% if "Modul 7" in lesson.title %}🏠{% else %}🩺{% endif %}</span>
-                            <span>{% if "B2" in lesson.course.title or "B2" in lesson.title %}{% if "Modul 2" in lesson.title %}L1: Präanalytik & Probenfehler{% elif "Modul 1" in lesson.title %}L1: Klinikstrukturen{% else %}Lektion 1{% endif %}{% elif "Modul 8" in lesson.title %}L1: B1-Grammatik-Matrix{% elif "Modul 7" in lesson.title %}L1: Wohnung & Miete{% elif "Modul 6" in lesson.title %}L1: Dienstpläne{% else %}Lektion 1: Beim Arzt{% endif %}</span>
+                            <span>{% if "B2" in lesson.course.title or "B2" in lesson.title %}{% if "Modul 3" in lesson.title %}L1: Anamnese & Leitfragen{% elif "Modul 2" in lesson.title %}L1: Präanalytik & Probenfehler{% elif "Modul 1" in lesson.title %}L1: Klinikstrukturen{% else %}Lektion 1{% endif %}{% elif "Modul 8" in lesson.title %}L1: B1-Grammatik-Matrix{% elif "Modul 7" in lesson.title %}L1: Wohnung & Miete{% elif "Modul 6" in lesson.title %}L1: Dienstpläne{% else %}Lektion 1: Beim Arzt{% endif %}</span>
                         </a>
                     </li>
                     <li class="topic-toc-item">
                         <a href="#sec-lektion2" class="toc-link">
                             <span>{% if "Modul 7" in lesson.title %}🏛️{% else %}💊{% endif %}</span>
-                            <span>{% if "B2" in lesson.course.title or "B2" in lesson.title %}{% if "Modul 2" in lesson.title %}L2: Alarmwertmeldung{% elif "Modul 1" in lesson.title %}L2: Teamvorstellung{% else %}Lektion 2{% endif %}{% elif "Modul 8" in lesson.title %}L2: Schriftlicher Ausdruck{% elif "Modul 7" in lesson.title %}L2: Bürgeramt (Anmeldung){% elif "Modul 6" in lesson.title %}L2: Krankmeldung (eAU){% else %}Lektion 2: Ratschläge{% endif %}</span>
+                            <span>{% if "B2" in lesson.course.title or "B2" in lesson.title %}{% if "Modul 3" in lesson.title %}L2: Notaufnahme-Dialog{% elif "Modul 2" in lesson.title %}L2: Alarmwertmeldung{% elif "Modul 1" in lesson.title %}L2: Teamvorstellung{% else %}Lektion 2{% endif %}{% elif "Modul 8" in lesson.title %}L2: Schriftlicher Ausdruck{% elif "Modul 7" in lesson.title %}L2: Bürgeramt (Anmeldung){% elif "Modul 6" in lesson.title %}L2: Krankmeldung (eAU){% else %}Lektion 2: Ratschläge{% endif %}</span>
                         </a>
                     </li>
                     <li class="topic-toc-item">
                         <a href="#sec-lektion3" class="toc-link">
                             <span>{% if "Modul 7" in lesson.title %}📄{% elif "Modul 6" in lesson.title %}🤝{% else %}🥗{% endif %}</span>
-                            <span>{% if "B2" in lesson.course.title or "B2" in lesson.title %}{% if "Modul 2" in lesson.title %}L3: Passiversatzformen{% elif "Modul 1" in lesson.title %}L3: FVG (Grammatik){% else %}Lektion 3{% endif %}{% elif "Modul 8" in lesson.title %}L3: Brücke zu B2{% elif "Modul 7" in lesson.title %}L3: Verträge & Kündigung{% elif "Modul 6" in lesson.title %}L3: Schichttausch (K2){% else %}Lektion 3: Gesund leben{% endif %}</span>
+                            <span>{% if "B2" in lesson.course.title or "B2" in lesson.title %}{% if "Modul 3" in lesson.title %}L3: Indirekte Rede (Konj. I){% elif "Modul 2" in lesson.title %}L3: Passiversatzformen{% elif "Modul 1" in lesson.title %}L3: FVG (Grammatik){% else %}Lektion 3{% endif %}{% elif "Modul 8" in lesson.title %}L3: Brücke zu B2{% elif "Modul 7" in lesson.title %}L3: Verträge & Kündigung{% elif "Modul 6" in lesson.title %}L3: Schichttausch (K2){% else %}Lektion 3: Gesund leben{% endif %}</span>
                         </a>
                     </li>
                     <li class="topic-toc-item">
@@ -700,7 +700,14 @@
                     </li>
                 </ul>
 
-                {% if "B2" in lesson.course.title and "Modul 2" in lesson.title or "B2 Modul 2" in lesson.title %}
+                {% if "B2" in lesson.course.title and "Modul 3" in lesson.title or "B2 Modul 3" in lesson.title %}
+                <div class="topic-toc-pdf">
+                    <a href="{% static 'docs/B2_Modul_3_Reading_Material.pdf' %}" target="_blank">
+                        <span>📥</span>
+                        <span>PDF Dokument öffnen</span>
+                    </a>
+                </div>
+                {% elif "B2" in lesson.course.title and "Modul 2" in lesson.title or "B2 Modul 2" in lesson.title %}
                 <div class="topic-toc-pdf">
                     <a href="{% static 'docs/B2_Modul_2_Reading_Material.pdf' %}" target="_blank">
                         <span>📥</span>
