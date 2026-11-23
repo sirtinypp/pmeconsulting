@@ -188,17 +188,64 @@
         gap: 1.5rem;
     }
 
-    /* Mobile Drawer Trigger Header */
+    /* Mobile Drawer Trigger Header & Quick Tabs */
     .mobile-sidebar-toggle-bar {
         display: none;
         align-items: center;
         justify-content: space-between;
         background: white;
         border: 1px solid #E2E8F0;
-        padding: 0.85rem 1.25rem;
+        padding: 0.75rem 1rem;
         border-radius: 16px;
-        margin-bottom: 1rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        margin-bottom: 0.75rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+        position: sticky;
+        top: 76px;
+        z-index: 35;
+    }
+
+    .mobile-quick-nav-pills {
+        display: none;
+        gap: 0.5rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 0.25rem 0 0.75rem 0;
+        margin-bottom: 0.75rem;
+    }
+
+    .mobile-quick-nav-pills::-webkit-scrollbar {
+        display: none;
+    }
+
+    .mobile-pill-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 0.95rem;
+        background: white;
+        border: 1px solid #E2E8F0;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #475569;
+        white-space: nowrap;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+    }
+
+    .mobile-pill-btn:hover {
+        background: #F8FAFC;
+        border-color: #CBD5E1;
+        color: #1E4D8C;
+    }
+
+    .mobile-pill-btn.active {
+        background: #1E4D8C;
+        color: white;
+        border-color: #1E4D8C;
+        box-shadow: 0 2px 8px rgba(30, 77, 140, 0.25);
     }
 
     .mobile-drawer-backdrop {
@@ -216,48 +263,11 @@
             padding: 0 1rem !important;
         }
 
-        .admin-sidebar {
-            width: 76px;
-            min-width: 76px;
-            padding: 1.25rem 0.5rem;
-        }
-
-        .admin-sidebar .sidebar-title {
-            display: none;
-        }
-
-        .admin-sidebar .sidebar-header {
-            justify-content: center;
-        }
-
-        .admin-sidebar .admin-tab-btn {
-            justify-content: center;
-            padding: 0.8rem 0;
-        }
-
-        .admin-sidebar .admin-tab-btn .tab-label {
-            display: none;
-        }
-
-        .admin-sidebar.expanded-tablet {
-            width: 260px;
-            min-width: 260px;
-            padding: 1.25rem 0.85rem;
-        }
-
-        .admin-sidebar.expanded-tablet .sidebar-title,
-        .admin-sidebar.expanded-tablet .admin-tab-btn .tab-label {
-            display: block;
-        }
-
-        .admin-sidebar.expanded-tablet .admin-tab-btn {
-            justify-content: flex-start;
-            padding: 0.8rem 1rem;
-        }
-    }
-
-    @media (max-width: 768px) {
         .mobile-sidebar-toggle-bar {
+            display: flex;
+        }
+
+        .mobile-quick-nav-pills {
             display: flex;
         }
 
@@ -267,14 +277,19 @@
             left: 0;
             bottom: 0;
             height: 100vh;
-            width: 280px !important;
-            min-width: 280px !important;
+            width: 290px !important;
+            min-width: 290px !important;
             border-radius: 0 24px 24px 0;
             transform: translateX(-100%);
             z-index: 999;
-            padding: 2rem 1.25rem;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.15);
+            padding: 1.5rem 1.25rem;
+            box-shadow: 12px 0 35px rgba(0,0,0,0.18);
             transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+        }
+
+        .admin-sidebar.mobile-open {
+            transform: translateX(0);
         }
 
         .admin-sidebar .sidebar-title,
@@ -285,10 +300,6 @@
         .admin-sidebar .admin-tab-btn {
             justify-content: flex-start !important;
             padding: 0.85rem 1rem !important;
-        }
-
-        .admin-sidebar.mobile-open {
-            transform: translateX(0);
         }
 
         .mobile-drawer-backdrop.active {
@@ -311,8 +322,32 @@
         <span id="activeTabMobileIcon" style="font-size: 1.25rem;">👥</span>
         <strong id="activeTabMobileTitle" style="color: #1E4D8C; font-size: 0.95rem;">Student Management</strong>
     </div>
-    <button type="button" class="btn btn-sm" onclick="toggleMobileSidebar()" style="background: #EFF6FF; color: #1E4D8C; border: 1px solid #BFDBFE; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem;">
-        ☰ Sections
+    <button type="button" class="btn btn-sm" onclick="toggleMobileSidebar()" style="background: #EFF6FF; color: #1E4D8C; border: 1px solid #BFDBFE; font-weight: 700; border-radius: 10px; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.85rem; cursor: pointer;">
+        ☰ All Sections
+    </button>
+</div>
+
+<!-- Mobile Quick Horizontal Pills Navigation -->
+<div class="mobile-quick-nav-pills" id="mobileQuickNavPills">
+    <button type="button" class="mobile-pill-btn active" id="mob-pill-students" onclick="switchTab('students')">
+        <span>👥</span> Students
+        {% if pending_enrollments %}<span style="background: #EF4444; color: white; border-radius: 10px; font-size: 0.7rem; padding: 1px 6px;">{{ pending_enrollments|length }}</span>{% endif %}
+    </button>
+    <button type="button" class="mobile-pill-btn" id="mob-pill-guests" onclick="switchTab('guests')">
+        <span>✨</span> Guests
+    </button>
+    <button type="button" class="mobile-pill-btn" id="mob-pill-courses" onclick="switchTab('courses')">
+        <span>📚</span> Courses
+    </button>
+    <button type="button" class="mobile-pill-btn" id="mob-pill-trainings" onclick="switchTab('trainings')">
+        <span>📡</span> Trainings
+    </button>
+    <button type="button" class="mobile-pill-btn" id="mob-pill-tasks" onclick="switchTab('tasks')">
+        <span>📥</span> Tasks
+        {% if pending_submissions %}<span style="background: #EF4444; color: white; border-radius: 10px; font-size: 0.7rem; padding: 1px 6px;">{{ pending_submissions|length }}</span>{% endif %}
+    </button>
+    <button type="button" class="mobile-pill-btn" id="mob-pill-website" onclick="switchTab('website')">
+        <span>⚙️</span> Website
     </button>
 </div>
 
@@ -1240,6 +1275,8 @@
     function switchTab(tabId) {
         // Remove active from all sidebar tab buttons
         document.querySelectorAll('.admin-tab-btn').forEach(btn => btn.classList.remove('active'));
+        // Remove active from all mobile pills
+        document.querySelectorAll('.mobile-pill-btn').forEach(pill => pill.classList.remove('active'));
         // Remove active from all panes
         document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
         
@@ -1257,6 +1294,14 @@
             if (mobileTitle) mobileTitle.innerText = label;
         }
 
+        // Add active to corresponding mobile pill
+        const activePill = document.getElementById('mob-pill-' + tabId);
+        if (activePill) {
+            activePill.classList.add('active');
+            // Ensure pill is scrolled into view smoothly
+            activePill.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+
         const targetPane = document.getElementById(tabId);
         if (targetPane) {
             targetPane.classList.add('active');
@@ -1266,7 +1311,7 @@
         localStorage.setItem('admin_last_tab', tabId);
 
         // Auto close mobile drawer after selection on mobile
-        if (window.innerWidth <= 768) {
+        if (window.innerWidth <= 1024) {
             const sidebar = document.getElementById('adminSidebar');
             const backdrop = document.getElementById('mobileSidebarBackdrop');
             if (sidebar) sidebar.classList.remove('mobile-open');
