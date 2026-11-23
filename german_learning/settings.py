@@ -31,14 +31,27 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-gl3rn-learning-platfo
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*').split(',')
+ALLOWED_HOSTS = [h.strip() for h in config('ALLOWED_HOSTS', default='*').split(',') if h.strip()]
 
+# Build CSRF trusted origins dynamically and ensure custom domains are included
+_configured_csrf = [o.strip() for o in config('CSRF_TRUSTED_ORIGINS', default='').split(',') if o.strip()]
 CSRF_TRUSTED_ORIGINS = [
-    'https://' + host for host in ALLOWED_HOSTS if host != '*'
+    'https://' + host for host in ALLOWED_HOSTS if host != '*' and not host.startswith('http')
+] + _configured_csrf
+
+# Always include known production domains and Railway wildcards
+_default_trusted = [
+    'https://phmedtecheu.com',
+    'https://www.phmedtecheu.com',
+    'https://*.up.railway.app',
+    'http://localhost',
+    'http://127.0.0.1',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
 ]
-if '*' in ALLOWED_HOSTS:
-    # If ALLOWED_HOSTS is '*', we add common Railway patterns as a fallback
-    CSRF_TRUSTED_ORIGINS += ['https://*.up.railway.app']
+for origin in _default_trusted:
+    if origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
 
 # Security settings for cloud deployment
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
