@@ -23,6 +23,10 @@ class AdminLoginView(LoginView):
     template_name = 'registration/admin_login.html'
     redirect_authenticated_user = True
 
+    def get_success_url(self):
+        # Always redirect school admins and staff to the custom management dashboard
+        return reverse('dashboard')
+
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['login_type'] = 'admin'
